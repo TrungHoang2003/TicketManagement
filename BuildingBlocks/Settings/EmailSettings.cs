@@ -1,15 +1,16 @@
-﻿namespace BuildingBlocks.EmailHelper;
+namespace BuildingBlocks.Settings;
 
 public class EmailSettings
 {
-    public string Host { get; set; }
-    public int Port { get; set; }
-    public string Password { get; set; }
-    public string Username{ get; set; }
+    public string Host { get; set; } = string.Empty;
+    public int Port { get; set; } = 587;
+    public string Password { get; set; } = string.Empty;
+    public string Username { get; set; } = string.Empty;
+    public string FromName { get; set; } = "Ticket Management System";
     public bool UseProxy { get; set; } = false;
     public bool UseSystemProxy { get; set; } = false;
-    public string ProxyHost { get; set; }
-    public int ProxyPort { get; set; }
-    public string ProxyUsername { get; set; }
-    public string ProxyPassword { get; set; }
+    public string ProxyHost { get; set; } = string.Empty;
+    public int ProxyPort { get; set; } = 8080;
+    public string ProxyUsername { get; set; } = string.Empty;
+    public string ProxyPassword { get; set; } = string.Empty;
 }

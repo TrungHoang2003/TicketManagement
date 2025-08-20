@@ -1,21 +1,11 @@
 ﻿namespace BuildingBlocks.Commons;
 
-public class ValidationException : Exception
+public class ValidationException(Dictionary<string, string[]> errors) : Exception("Validation failed")
 {
-    public Dictionary<string, string[]> Errors { get; }
-    
-    public ValidationException(Dictionary<string, string[]> errors) : base("Validation failed")
-    {
-        Errors = errors;
-    }
+    public Dictionary<string, string[]> Errors { get; } = errors;
 }
 
-public class BusinessException : Exception
+public class BusinessException(string errorCode, string message) : Exception(message)
 {
-    public string ErrorCode { get; }
-    
-    public BusinessException(string errorCode, string message) : base(message)
-    {
-        ErrorCode = errorCode;
-    }
+    public string ErrorCode { get; } = errorCode;
 }

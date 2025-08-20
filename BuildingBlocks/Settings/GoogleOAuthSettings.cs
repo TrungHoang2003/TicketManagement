@@ -2,10 +2,10 @@ namespace BuildingBlocks.Settings;
 
 public class GoogleOAuthSettings
 {
-    public string ClientId { get; set; }
-    public string ClientSecret { get; set; }
-    public string AuthUri { get; set; }
-    public string TokenUri { get; set; }
-    public string AuthProviderX509CertUrl { get; set; }
-    public string RedirectUri { get; set; }
+    public string ClientId { get; set; } = string.Empty;
+    public string ClientSecret { get; set; } = string.Empty;
+    public string RedirectUri { get; set; } = string.Empty;
+    public string ServiceAccountKeyPath { get; set; } = string.Empty;
+    public string AdminEmail { get; set; } = string.Empty; // Email dùng để gửi thay mặt
+    public string DisplayName { get; set; } = "🎫 Ticket Management System"; // Tên hiển thị
 }
