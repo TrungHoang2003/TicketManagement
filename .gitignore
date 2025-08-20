@@ -1,0 +1,27 @@
+bin/
+obj/
+/packages/
+riderModule.iml
+/_ReSharper.Caches/
+
+# Environment variables
+.env
+.env.local
+.env.development
+.env.production
+.env.docker
+
+# IDE files
+.vs/
+.vscode/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Logs
+logs
+*.log
+
+# idea
+*.idea

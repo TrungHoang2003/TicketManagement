@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
+      <ProjectReference Include="..\BuildingBlocks\BuildingBlocks.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Google.Apis.Auth" Version="1.70.0" />
+      <PackageReference Include="StackExchange.Redis" Version="2.8.58" />
+      <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.13.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Mappings\" />
+      <Folder Include="Shared\" />
+    </ItemGroup>
+
+</Project>
