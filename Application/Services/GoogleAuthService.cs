@@ -51,34 +51,28 @@ public class GoogleAuthService(IOptions<GoogleOAuthSettings> googleOAuthOptions,
         
         var user = await userRepository.FindByEmailAsync(payload.Email);
         
-        if (user == null)
-        {
-            user = new User
-            {
-                UserName = payload.Email,
-                FullName = payload.Name,
-                Email = payload.Email,
-                AvatarUrl = payload.Picture,
-                EmailConfirmed = true // Google users have verified emails
-            };
-
-            var result = await userRepository.CreateAsync(user); // No password
-            if (!result.Succeeded)
-            {
-                var errors = result.Errors.Select(e => e.Description).ToList();
-                return new Error("Register.Failed", string.Join(",", errors));
-            }
-            
-            await userRepository.AddToRoleAsync(user, "Employee");
-        }
+        if (user == null) throw new UnauthorizedAccessException("Tài khoản chưa được cấp, vui lòng liên hệ admin");
         
+        user.AvatarUrl = payload.Picture;
+        user.EmailConfirmed = true;
+
+        var result = await userRepository.UpdateAsync(user); // No password
+        if (!result.Succeeded)
+        {
+            var errors = result.Errors.Select(e => e.Description).ToList();
+            return new Error("Login Failed", string.Join(",", errors));
+        }
+            
         var roles = await userRepository.GetRolesAsync(user);
         var jwtToken = jwtService.GenerateJwtToken(user, roles);
 
         var refreshKey = $"refreshToken:{user.Id}";
         var accessKey = $"accessToken:{user.Id}";
 
-        await redis.SetValue(refreshKey, refreshToken);
+        var existingRefreshToken = await redis.GetValue(refreshKey);
+        if (string.IsNullOrEmpty(existingRefreshToken)) 
+            await redis.SetValue(refreshKey, refreshToken);
+
         await redis.SetValue(accessKey, jwtToken, TimeSpan.FromMinutes(jwtService.GetAccessTokenValidity()));
         
         return Result<string>.IsSuccess($"http://localhost:3000/google-auth-success?token={jwtToken}"); 

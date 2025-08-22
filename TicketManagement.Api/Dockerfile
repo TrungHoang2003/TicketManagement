@@ -11,6 +11,7 @@ COPY ["TicketManagement.Api/TicketManagement.Api.csproj", "TicketManagement.Api/
 COPY ["Application/Application.csproj", "Application/"]
 COPY ["Infrastructure/Infrastructure.csproj", "Infrastructure/"]
 COPY ["Domain/Domain.csproj", "Domain/"]
+COPY ["BuildingBlocks/BuildingBlocks.csproj", "BuildingBlocks/"]
 RUN dotnet restore "TicketManagement.Api/TicketManagement.Api.csproj"
 COPY . .
 WORKDIR "/src/TicketManagement.Api"

@@ -9,7 +9,7 @@
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - ./Infrastructure/Database/init.sql:/docker-entrypoint-initdb.d/init.sql
   
   redis:
     image: redis:latest
@@ -25,7 +25,22 @@
     volumes:
       - ./redis-data:/data
     command: redis-server --appendonly yes
-
+  api:
+    ports:
+      - "5105:8080"
+    build:
+      context: . 
+      dockerfile: TicketManagement.Api/Dockerfile
+    container_name: ticket-api
+    depends_on:
+      - redis
+      - postgres
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+    env_file:
+      - TicketManagement.Api/.env.docker
+      
 volumes:
   postgres_data:
 

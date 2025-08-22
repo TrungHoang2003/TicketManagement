@@ -5,8 +5,9 @@ using Microsoft.Extensions.Logging;
 
 namespace Infrastructure.Repositories;
 
-public interface IUserRepository 
+public interface IUserRepository
 {
+    Task<IdentityResult> UpdateAsync(User user);
     Task<User> FindByIdAsync(int id);
     Task<User> FindByNameAsync(string userName);
     Task<IList<string>> GetRolesAsync(User user);
@@ -44,6 +45,11 @@ public class UserRepository(UserManager<User> userManager, ILogger<UserRepositor
         return password == null
             ? await userManager.CreateAsync(user)
             : await userManager.CreateAsync(user, password);
+    }
+
+    public async Task<IdentityResult> UpdateAsync(User user)
+    {
+        return await userManager.UpdateAsync(user);
     }
 
     public async Task<bool> CheckPasswordAsync(User user, string password)

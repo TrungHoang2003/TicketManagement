@@ -12,12 +12,31 @@ public interface IUserService
 {
    Task<Result<UserLoginResponse>> Login(UserLoginDto userLoginDto);
    Task<Result> Create(CreateUserDto createUserDto);
+   Task<Result> Update(UpdateUserDto updateUserDto);
    Task<Result<int>> GetUserId();
 }
 
 public class UserService(IHttpContextAccessor httpContextAccessor, IUserRepository userRepo, IJwtService jwtService,
    IRedisService redisService, IDepartmentRepository departmentRepo) : IUserService
 {
+   public async Task<Result> Update(UpdateUserDto updateUserDto)
+   {
+      var existingUser = await userRepo.FindByIdAsync(updateUserDto.Id);
+
+      existingUser.DepartmentId = updateUserDto.DepartmentId;
+      if (updateUserDto.FullName != null) existingUser.FullName = updateUserDto.FullName;
+      if (updateUserDto.Username != null) existingUser.UserName = updateUserDto.Username;
+      if (updateUserDto.Role != null)
+         await userRepo.AddToRoleAsync(existingUser, updateUserDto.Role);
+
+      var result = await userRepo.UpdateAsync(existingUser);
+      if (result.Succeeded) return Result.IsSuccess();
+      
+      var errors = result.Errors.Select(e => e.Description).ToList();
+      return Result.Failure(new Error("Update User Failed: ", string.Join(",", errors)));
+   }
+   
+
    public Task<Result<int>> GetUserId()
    {
       var userIdClaim = httpContextAccessor.
@@ -66,7 +85,7 @@ public class UserService(IHttpContextAccessor httpContextAccessor, IUserReposito
          Department = department
       };
 
-      var result = await userRepo.CreateAsync(user, dto.Password);
+      var result = await userRepo.CreateAsync(user);
       if (!result.Succeeded)
       {
          var errors = result.Errors.Select(e => e.Description).ToList();

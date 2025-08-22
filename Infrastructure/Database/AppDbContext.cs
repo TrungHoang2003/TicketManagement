@@ -32,7 +32,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
             new IdentityRole<int> { Id = 1, Name = "Employee", NormalizedName = "EMPLOYEE" },
             new IdentityRole<int> { Id = 3, Name = "Admin", NormalizedName = "ADMIN" },
             new IdentityRole<int> { Id = 4, Name = "Head Of IT", NormalizedName = "HEAD OF IT" },
-            new IdentityRole<int> { Id = 2, Name = "Head Of AD", NormalizedName = "HEAD OF AD" }
+            new IdentityRole<int> { Id = 2, Name = "Head Of AD", NormalizedName = "HEAD OF AD" },
+        new IdentityRole<int> { Id = 5, Name = "Head Of QA", NormalizedName = "HEAD OF QA" }
         );
 
         builder.Entity<Department>().HasData(
