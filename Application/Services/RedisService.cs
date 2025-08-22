@@ -1,7 +1,7 @@
 ﻿
 using StackExchange.Redis;
 
-namespace Shared.Services;
+namespace Application.Services;
 
 public interface IRedisService
 {

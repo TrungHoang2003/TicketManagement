@@ -22,14 +22,14 @@ public class UserRepository(UserManager<User> userManager, ILogger<UserRepositor
     public async Task<User> FindByIdAsync(int id)
     {
         var result =  await userManager.FindByIdAsync(id.ToString());
-        if (result == null) throw new BusinessException("User Error", $"User Not found with Id = {id}");
+        if (result == null) throw new BusinessException($"User Not found with Id = {id}");
         return result;
     }
 
     public async Task<User> FindByNameAsync(string userName)
     {
         var result = await userManager.FindByNameAsync(userName);
-        if (result == null) throw new BusinessException("User Error", $"User {userName} not found");
+        if (result == null) throw new BusinessException($"User {userName} not found");
         return result;
     }
 
@@ -80,6 +80,6 @@ public class UserRepository(UserManager<User> userManager, ILogger<UserRepositor
         };
         
         var users = await userManager.GetUsersInRoleAsync(role);
-        return users.FirstOrDefault() ?? throw new BusinessException("Business Error", $"No head found for department: {departmentName}");
+        return users.FirstOrDefault() ?? throw new BusinessException($"No head found for department: {departmentName}");
     }
 }

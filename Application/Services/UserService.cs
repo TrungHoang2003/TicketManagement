@@ -1,12 +1,10 @@
 ﻿using System.Security.Claims;
 using Application.DTOs;
 using Application.Erros;
-using Application.Shared;
 using BuildingBlocks.Commons;
 using Infrastructure.Repositories;
 using Domain.Entities;
 using Microsoft.AspNetCore.Http;
-using Shared.Services;
 
 namespace Application.Services;
 

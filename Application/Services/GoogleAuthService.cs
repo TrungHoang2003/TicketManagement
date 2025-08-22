@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
+using Application.DTOs;
 using Application.Erros;
-using Application.Shared;
 using BuildingBlocks.Commons;
 using BuildingBlocks.Settings;
 using Domain.Entities;
@@ -17,21 +17,23 @@ public interface IGoogleAuthService
     Task<Result<string>> GoogleCallBack(string code);
 }
 
-public class GoogleAuthService(IOptions<GoogleOAuthSettings> googleSettings, HttpClient httpClient,
-    IUserRepository userRepository, IJwtService jwtService): IGoogleAuthService
+
+public class GoogleAuthService(IOptions<GoogleOAuthSettings> googleOAuthOptions, HttpClient httpClient, 
+    IUserRepository userRepository, IJwtService jwtService, IRedisService redis): IGoogleAuthService
 {
-    private readonly GoogleOAuthSettings _googleSettings = googleSettings.Value;
+    private readonly GoogleOAuthSettings _googleOAuthSettings = googleOAuthOptions.Value;
+
     public string GetGoogleAuthUrl()
     {
-        if (string.IsNullOrEmpty(_googleSettings.ClientId))
-            throw new BusinessException("Google Error","Google Client ID not found");
+        if (string.IsNullOrEmpty(_googleOAuthSettings.ClientId))
+            throw new BusinessException("Google Client ID not found");
 
-        const string scope = "openid profile email";
+        const string scope = "openid profile email https://www.googleapis.com/auth/gmail.send";
         var state = Guid.NewGuid().ToString();
 
-        return $"{_googleSettings.AuthUri}?" +
-               $"client_id={_googleSettings.ClientId}&" +
-               $"redirect_uri={_googleSettings.RedirectUri}&" +
+        return $"https://accounts.google.com/o/oauth2/v2/auth?" +
+               $"client_id={_googleOAuthSettings.ClientId}&" +
+               $"redirect_uri={_googleOAuthSettings.RedirectUri}&" +
                $"response_type=code&" +
                $"scope={scope}&" +
                $"access_type=offline&" +
@@ -40,22 +42,12 @@ public class GoogleAuthService(IOptions<GoogleOAuthSettings> googleSettings, Htt
 
     public async Task<Result<string>> GoogleCallBack(string code)
     {
-        var payloadResult = await ValidateGoogleCodeAsync(code);
-        if (!payloadResult.Success)
-            return payloadResult.Error!;
+        var validateResult = await ValidateGoogleCodeAsync(code);
+        if (!validateResult.Success)
+            return validateResult.Error!;
 
-        var payload = payloadResult.Data;
-        
-        // Debug logging và null check
-        Console.WriteLine($"[DEBUG] Payload Email: {payload.Email}");
-        Console.WriteLine($"[DEBUG] Payload Name: {payload.Name}");
-        Console.WriteLine($"[DEBUG] Payload Subject: {payload.Subject}");
-        Console.WriteLine($"[DEBUG] Payload Audience: {payload.Audience}");
-        
-        if (string.IsNullOrEmpty(payload.Email))
-        {
-            return new Error("Google.Auth.NoEmail", "Email not provided by Google. Please ensure email scope is granted.");
-        }
+        var payload = validateResult.Data;
+        var refreshToken = validateResult.SecondData;
         
         var user = await userRepository.FindByEmailAsync(payload.Email);
         
@@ -83,57 +75,55 @@ public class GoogleAuthService(IOptions<GoogleOAuthSettings> googleSettings, Htt
         var roles = await userRepository.GetRolesAsync(user);
         var jwtToken = jwtService.GenerateJwtToken(user, roles);
 
+        var refreshKey = $"refreshToken:{user.Id}";
+        var accessKey = $"accessToken:{user.Id}";
+
+        await redis.SetValue(refreshKey, refreshToken);
+        await redis.SetValue(accessKey, jwtToken, TimeSpan.FromMinutes(jwtService.GetAccessTokenValidity()));
+        
         return Result<string>.IsSuccess($"http://localhost:3000/google-auth-success?token={jwtToken}"); 
     }
 
-    private async Task<Result<GoogleJsonWebSignature.Payload>> ValidateGoogleCodeAsync(string code)
+    private async Task<Result<GoogleJsonWebSignature.Payload, string>> ValidateGoogleCodeAsync(string code)
     {
-        if (string.IsNullOrEmpty(_googleSettings.ClientId))
+        const string tokenUrl = "https://oauth2.googleapis.com/token";
+
+        if (string.IsNullOrEmpty(_googleOAuthSettings.ClientId))
             return ConfigurationErrors.ClientIdNotFound;
-        if (string.IsNullOrEmpty(_googleSettings.ClientSecret))
+        if (string.IsNullOrEmpty(_googleOAuthSettings.ClientSecret))
             return ConfigurationErrors.ClientSecretNotFound;
+        if (string.IsNullOrEmpty(_googleOAuthSettings.RedirectUri))
+            return ConfigurationErrors.RedirectUriNotFound;
 
         var values = new Dictionary<string, string>
         {
             { "code", code },
-            { "client_id", _googleSettings.ClientId },
-            { "client_secret", _googleSettings.ClientSecret },
-            { "redirect_uri", _googleSettings.RedirectUri },
+            { "client_id", _googleOAuthSettings.ClientId },
+            { "client_secret", _googleOAuthSettings.ClientSecret },
+            { "redirect_uri", _googleOAuthSettings.RedirectUri },
+            { "access_type", "offline" },
+            { "prompt", "consent" },
             { "grant_type", "authorization_code" }
         };
 
         try
         {
             var content = new FormUrlEncodedContent(values);
-            var response = await httpClient.PostAsync(_googleSettings.TokenUri, content);
+            var response = await httpClient.PostAsync(tokenUrl, content);
             if (!response.IsSuccessStatusCode)
                 return GoogleErrors.AuthFailed;
 
             var responseString = await response.Content.ReadAsStringAsync();
             var tokenData = JsonSerializer.Deserialize<GoogleTokenResponse>(responseString);
-            
-            // Debug logging
-            Console.WriteLine($"[DEBUG] Token response: {responseString}");
-            Console.WriteLine($"[DEBUG] Scope received: {tokenData?.scope}");
-            
             if (tokenData?.id_token == null)
                 return GoogleErrors.InvalidToken;
 
             var payload = await GoogleJsonWebSignature.ValidateAsync(tokenData.id_token);
-            return Result<GoogleJsonWebSignature.Payload>.IsSuccess(payload);
+            return Result<GoogleJsonWebSignature.Payload, string>.IsSuccess(payload, tokenData.refresh_token);
         }
         catch (Exception ex)
         {
-            throw new BusinessException("Google Auth Exception", $"Error validating google code: {ex}");
+            throw new BusinessException($"Error validating google code: {ex}");
         }
     }
-}
-
-public class GoogleTokenResponse
-{
-    public string access_token { get; set; } = string.Empty;
-    public string id_token { get; set; } = string.Empty;
-    public string refresh_token { get; set; } = string.Empty;
-    public int expires_in { get; set; }
-    public string scope { get; set; } = string.Empty;
 }

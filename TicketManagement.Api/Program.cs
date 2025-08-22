@@ -64,8 +64,7 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(
             Encoding.UTF8.GetBytes(builder.Configuration["JWT:Secret"]
-                                   ?? throw new BusinessException(
-                                       "Missing Configuration Error", "JWT secret is not configured"))),
+                                   ?? throw new BusinessException("JWT secret is not configured"))),
         ValidateIssuer = false, // Set to true in production
         ValidateAudience = false, // Set to true in production
         ValidateLifetime = true,

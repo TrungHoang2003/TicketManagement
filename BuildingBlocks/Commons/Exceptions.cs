@@ -5,7 +5,7 @@ public class ValidationException(Dictionary<string, string[]> errors) : Exceptio
     public Dictionary<string, string[]> Errors { get; } = errors;
 }
 
-public class BusinessException(string errorCode, string message) : Exception(message)
+public class BusinessException(string message) : Exception(message)
 {
-    public string ErrorCode { get; } = errorCode;
+    public string ErrorCode => "Business Error";
 }

@@ -10,7 +10,7 @@ public interface ITicketService
     Task<Result> Create(CreateTicketDto createTicketDto);
 };
 
-public class TicketService(IUnitOfWork unitOfWork, IEmailService emailService): ITicketService
+public class TicketService(IUnitOfWork unitOfWork, IEmailService emailService) : ITicketService
 {
     public async Task<Result> Create(CreateTicketDto createTicketDto)
     {
@@ -26,9 +26,9 @@ public class TicketService(IUnitOfWork unitOfWork, IEmailService emailService): 
         };
 
         var headOfDepartment = await unitOfWork.User.GetHeadOfDepartment(departmentName);
-        
+
         var stringPriority = createTicketDto.Priority.ToLowerInvariant();
-        
+
         var priority = stringPriority switch
         {
             "high" => Priority.High,
@@ -47,10 +47,11 @@ public class TicketService(IUnitOfWork unitOfWork, IEmailService emailService): 
         };
 
         await emailService.SendTicketNotificationAsync(
+            creator.Id,
             headOfDepartment.Email!,
             headOfDepartment.FullName, ticket.Title,
-            ticket.Id,
-            creator.FullName, stringPriority);
+            ticket.Id, creator.FullName,
+            creator.Email!, stringPriority);
 
         await unitOfWork.Ticket.AddAsync(ticket);
         await unitOfWork.SaveChangesAsync();

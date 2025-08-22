@@ -1,6 +1,5 @@
-﻿using Application.Shared;
+﻿using Application.Services;
 using Serilog;
-using Shared.Services;
 
 namespace TicketManagement.Api.Middlewares;
 

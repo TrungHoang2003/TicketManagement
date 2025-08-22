@@ -3,10 +3,11 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using Domain.Entities;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using BuildingBlocks.Settings;
 
-namespace Application.Shared;
+namespace Application.Services;
 
 public interface IJwtService
 {
@@ -17,8 +18,15 @@ public interface IJwtService
     int GetRefreshTokenValidity();
 }
 
-public class JwtService(IConfiguration configuration):IJwtService
+public class JwtService : IJwtService
 {
+    private readonly JwtSettings _jwtSettings;
+
+    public JwtService(IOptions<JwtSettings> jwtOptions)
+    {
+        _jwtSettings = jwtOptions.Value;
+    }
+
     public int GetUserIdFromToken(string? token)
     {
         try
@@ -33,13 +41,11 @@ public class JwtService(IConfiguration configuration):IJwtService
             var userIdStr = jwtToken.Claims.First(c => c.Type == JwtRegisteredClaimNames.Sub)?.Value;
 
             if (string.IsNullOrEmpty(userIdStr))
-            {
                 throw new ArgumentException("Cant find userId");
-            }
 
-            var userId = int.TryParse(userIdStr, out var id) ? id : throw new ArgumentException("UserId is not a number");
-
-            return userId;
+            return int.TryParse(userIdStr, out var id)
+                ? id
+                : throw new ArgumentException("UserId is not a number");
         }
         catch (Exception ex)
         {
@@ -50,34 +56,25 @@ public class JwtService(IConfiguration configuration):IJwtService
 
     public string GenerateJwtToken(User user, IList<string> roles)
     {
-        var accesstokenValidity = GetAccessTokenValidity();
-
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Secret"] ?? throw new ArgumentException("Jwt secret not found or not configured in development mode")));
-
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var claims = new List<Claim>
         {
             new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-            new(JwtRegisteredClaimNames.Email, user.Email??"Email:null"),
-            new(JwtRegisteredClaimNames.Name, user.UserName??"Username:null"),
+            new(JwtRegisteredClaimNames.Email, user.Email ?? "Email:null"),
+            new(JwtRegisteredClaimNames.Name, user.UserName ?? "Username:null"),
             new(ClaimTypes.NameIdentifier, user.Id.ToString()),
         };
 
-        // Thêm role claims từ IList
         if (roles.Any())
         {
-            foreach (var role in roles)
-            {
-                if (!string.IsNullOrWhiteSpace(role))
-                {
-                    claims.Add(new Claim(ClaimTypes.Role, role.Trim()));
-                }
-            }
+            foreach (var role in roles.Where(r => !string.IsNullOrWhiteSpace(r)))
+                claims.Add(new Claim(ClaimTypes.Role, role.Trim()));
         }
 
         var accessToken = new JwtSecurityToken(
-            expires: DateTime.Now.AddMinutes(accesstokenValidity),
+            expires: DateTime.UtcNow.AddMinutes(_jwtSettings.AccessTokenValidityInMinutes),
             claims: claims,
             signingCredentials: creds);
 
@@ -89,22 +86,10 @@ public class JwtService(IConfiguration configuration):IJwtService
         var randomNumber = new byte[32];
         using var rng = RandomNumberGenerator.Create();
         rng.GetBytes(randomNumber);
-        var base64String = Convert.ToBase64String(randomNumber);
-        return base64String.TrimEnd('=');
+        return Convert.ToBase64String(randomNumber).TrimEnd('=');
     }
 
-    public int GetAccessTokenValidity()
-    {
-        _ = int.TryParse(configuration["JWT:AccessTokenValidityInMinutes"], out var accessTokenValidity);
+    public int GetAccessTokenValidity() => _jwtSettings.AccessTokenValidityInMinutes;
 
-        return accessTokenValidity;
-    }
-
-    public int GetRefreshTokenValidity()
-    {
-        _ = int.TryParse(configuration["JWT:RefreshTokenValidityInDays"], out var refreshTokenValidity);
-
-        return refreshTokenValidity;
-    }
-
+    public int GetRefreshTokenValidity() => _jwtSettings.RefreshTokenValidityInDays;
 }

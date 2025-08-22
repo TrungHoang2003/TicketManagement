@@ -1,9 +1,7 @@
 ﻿using Application.Services;
-using Application.Shared;
 using BuildingBlocks.Settings;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Shared.Services;
 
 namespace Application;
 
@@ -11,10 +9,11 @@ public static class ApplicationDi
 {
     public static IServiceCollection AddApplication(this IServiceCollection services, IConfiguration configuration)
     {
-        // Configure GoogleOAuth settings
-        services.Configure<GoogleOAuthSettings>(configuration.GetSection("GoogleOAuth"));
+        services.Configure<GoogleOAuthSettings>(configuration.GetSection("Authentication:Google"));
+        services.Configure<JwtSettings>(configuration.GetSection("JWT"));
         
         services.AddSingleton<IJwtService, JwtService>();
+        services.AddSingleton<IGoogleTokenService, GoogleTokenService>();
         services.AddSingleton<IRedisService, RedisService>();
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<ITicketService, TicketService>();
