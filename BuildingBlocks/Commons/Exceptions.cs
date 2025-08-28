@@ -1,6 +1,6 @@
 ﻿namespace BuildingBlocks.Commons;
 
-public class ValidationException(Dictionary<string, string[]> errors) : Exception("Validation failed")
+public abstract class ValidationException(Dictionary<string, string[]> errors) : Exception("Validation failed")
 {
     public Dictionary<string, string[]> Errors { get; } = errors;
 }

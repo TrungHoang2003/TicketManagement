@@ -9,4 +9,5 @@ public class CreateTicketDto
     public int CreatorId { get; set; }
     public string Content { get; set; }
     public string Priority { get; set; }
+    public List<string>? Base64Files { get; set; }
 }

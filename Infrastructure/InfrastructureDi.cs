@@ -1,5 +1,6 @@
 ﻿using BuildingBlocks.Commons;
 using Domain.Entities;
+using Infrastructure.Background;
 using Infrastructure.Database;
 using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Identity;
@@ -56,6 +57,12 @@ public static class IdentityInfrastructureDi
         services.AddScoped<IDepartmentRepository, DepartmentRepository>();
         services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<ITicketRepository, TicketRepository>();
+        services.AddScoped<IProgressRepository, ProgressRepository>();
+        services.AddScoped<IAttachmentRepository, AttachmentRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+        services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
+        services.AddHostedService<QueuedHostService>();
+        
     }
 }

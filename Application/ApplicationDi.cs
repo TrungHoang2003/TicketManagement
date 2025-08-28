@@ -18,8 +18,15 @@ public static class ApplicationDi
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<ITicketService, TicketService>();
         services.AddScoped<IEmailService, EmailService>();
+        services.AddScoped<IProgressService, ProgressService>();
         services.AddScoped<IGoogleAuthService, GoogleAuthService>();
         services.AddHttpClient<IGoogleAuthService, GoogleAuthService>();
+        services.AddSingleton<ICloudinaryService,CloudinaryService>();
+        
+        // Add EmailBackgroundService cho việc gửi email không đồng bộ
+        services.AddSingleton<IEmailBackgroundService, EmailBackgroundService>();
+        services.AddHostedService<EmailBackgroundService>(provider => 
+            (EmailBackgroundService)provider.GetRequiredService<IEmailBackgroundService>());
         
         return services;
     }

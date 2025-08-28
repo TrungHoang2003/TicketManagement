@@ -4,7 +4,9 @@ using Application.Erros;
 using BuildingBlocks.Commons;
 using Infrastructure.Repositories;
 using Domain.Entities;
+using Infrastructure.Database;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 
 namespace Application.Services;
 
@@ -13,17 +15,18 @@ public interface IUserService
    Task<Result<UserLoginResponse>> Login(UserLoginDto userLoginDto);
    Task<Result> Create(CreateUserDto createUserDto);
    Task<Result> Update(UpdateUserDto updateUserDto);
-   Task<Result<int>> GetUserId();
+   Task<Result<List<UsersByDepartmentDto>>> GetByDepartment(int departmentId);
+   Task<Result<int>> GetLoginUserId();
 }
 
 public class UserService(IHttpContextAccessor httpContextAccessor, IUserRepository userRepo, IJwtService jwtService,
-   IRedisService redisService, IDepartmentRepository departmentRepo) : IUserService
+   IRedisService redisService, IDepartmentRepository departmentRepo, AppDbContext dbContext) : IUserService
 {
    public async Task<Result> Update(UpdateUserDto updateUserDto)
    {
       var existingUser = await userRepo.FindByIdAsync(updateUserDto.Id);
 
-      existingUser.DepartmentId = updateUserDto.DepartmentId;
+      if(updateUserDto.DepartmentId.HasValue) existingUser.DepartmentId = updateUserDto.DepartmentId.Value;
       if (updateUserDto.FullName != null) existingUser.FullName = updateUserDto.FullName;
       if (updateUserDto.Username != null) existingUser.UserName = updateUserDto.Username;
       if (updateUserDto.Role != null)
@@ -35,9 +38,18 @@ public class UserService(IHttpContextAccessor httpContextAccessor, IUserReposito
       var errors = result.Errors.Select(e => e.Description).ToList();
       return Result.Failure(new Error("Update User Failed: ", string.Join(",", errors)));
    }
-   
 
-   public Task<Result<int>> GetUserId()
+   public async Task<Result<List<UsersByDepartmentDto>>> GetByDepartment(int departmentId)
+   {
+      var users = await dbContext.Users.Where(u=>u.DepartmentId == departmentId)
+         .Select(u => new UsersByDepartmentDto { Id = u.Id, FullName = u.FullName})
+         .ToListAsync();
+
+      return users;
+   }
+
+
+   public Task<Result<int>> GetLoginUserId()
    {
       var userIdClaim = httpContextAccessor.
          HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;

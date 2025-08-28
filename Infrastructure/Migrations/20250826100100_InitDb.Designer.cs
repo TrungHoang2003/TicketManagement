@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250820041012_InitDb")]
+    [Migration("20250826100100_InitDb")]
     partial class InitDb
     {
         /// <inheritdoc />
@@ -47,9 +47,6 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int?>("TicketId")
-                        .HasColumnType("integer");
-
                     b.Property<string>("Url")
                         .IsRequired()
                         .HasColumnType("text");
@@ -57,8 +54,6 @@ namespace Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CommentId");
-
-                    b.HasIndex("TicketId");
 
                     b.ToTable("Attachments", (string)null);
                 });
@@ -221,6 +216,42 @@ namespace Infrastructure.Migrations
                     b.ToTable("Histories", (string)null);
                 });
 
+            modelBuilder.Entity("Domain.Entities.Progress", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("EmployeeName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Note")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Step")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TicketId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("TicketStatus")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TicketId");
+
+                    b.ToTable("Progress");
+                });
+
             modelBuilder.Entity("Domain.Entities.Ticket", b =>
                 {
                     b.Property<int>("Id")
@@ -285,14 +316,13 @@ namespace Infrastructure.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("AvatarUrl")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("text");
 
-                    b.Property<int?>("DepartmentId")
+                    b.Property<int>("DepartmentId")
                         .HasColumnType("integer");
 
                     b.Property<string>("Email")
@@ -405,6 +435,12 @@ namespace Infrastructure.Migrations
                             Id = 2,
                             Name = "Head Of AD",
                             NormalizedName = "HEAD OF AD"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Name = "Head Of QA",
+                            NormalizedName = "HEAD OF QA"
                         });
                 });
 
@@ -516,10 +552,6 @@ namespace Infrastructure.Migrations
                     b.HasOne("Domain.Entities.Comment", null)
                         .WithMany("Attachments")
                         .HasForeignKey("CommentId");
-
-                    b.HasOne("Domain.Entities.Ticket", null)
-                        .WithMany("Attachments")
-                        .HasForeignKey("TicketId");
                 });
 
             modelBuilder.Entity("Domain.Entities.Comment", b =>
@@ -537,6 +569,17 @@ namespace Infrastructure.Migrations
                 {
                     b.HasOne("Domain.Entities.Ticket", "Ticket")
                         .WithMany()
+                        .HasForeignKey("TicketId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Ticket");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Progress", b =>
+                {
+                    b.HasOne("Domain.Entities.Ticket", "Ticket")
+                        .WithMany("Progresses")
                         .HasForeignKey("TicketId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -582,7 +625,9 @@ namespace Infrastructure.Migrations
                 {
                     b.HasOne("Domain.Entities.Department", "Department")
                         .WithMany("Employees")
-                        .HasForeignKey("DepartmentId");
+                        .HasForeignKey("DepartmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Department");
                 });
@@ -650,9 +695,9 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.Ticket", b =>
                 {
-                    b.Navigation("Attachments");
-
                     b.Navigation("Comments");
+
+                    b.Navigation("Progresses");
                 });
 
             modelBuilder.Entity("Domain.Entities.User", b =>

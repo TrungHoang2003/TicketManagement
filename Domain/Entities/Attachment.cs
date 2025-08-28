@@ -1,8 +1,9 @@
-﻿namespace Domain.Entities;
+﻿using Domain.Interfaces;
 
-public class Attachment
-{
-   public int Id { get; set; } 
+namespace Domain.Entities;
+
+public class Attachment: Entity
+{ 
    public int EntityId { get; set; }
    public EntityType EntityType { get; set; }
    public string Url { get; set; }

@@ -4,12 +4,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Infrastructure.Configurations;
-
 public class TicketConfiguration:IEntityTypeConfiguration<Ticket>
+
 {
     public void Configure(EntityTypeBuilder<Ticket> builder)
     {
         builder.ToTable("Tickets");
+
+        builder.Property(t => t.Id).ValueGeneratedOnAdd();
         
         builder.HasOne(t => t.Category)
             .WithMany()
@@ -36,6 +38,10 @@ public class TicketConfiguration:IEntityTypeConfiguration<Ticket>
         builder.HasMany(t => t.Comments)
             .WithOne(c=>c.Ticket)
             .HasForeignKey(h=>h.TicketId);
+
+        builder.HasMany(t => t.Progresses)
+            .WithOne(p => p.Ticket)
+            .HasForeignKey(p => p.TicketId);
         
         builder.Property(t => t.Status).HasConversion<string>();
         builder.Property(t => t.Priority).HasConversion<string>();

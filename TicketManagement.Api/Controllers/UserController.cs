@@ -26,4 +26,11 @@ public class UserController(IUserService userService): Controller
         if (!result.Success) return BadRequest(result.Error);
         return Ok(result);
     }
+
+    [HttpGet("get_by_department")]
+    public async Task<IActionResult> GetByDepartment([FromQuery] int departmentId)
+    {
+        var result = await userService.GetByDepartment(departmentId);
+        return Ok(result);
+    }
 }

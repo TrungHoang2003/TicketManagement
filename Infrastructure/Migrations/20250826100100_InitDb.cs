@@ -63,8 +63,8 @@ namespace Infrastructure.Migrations
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     FullName = table.Column<string>(type: "text", nullable: false),
-                    DepartmentId = table.Column<int>(type: "integer", nullable: true),
-                    AvatarUrl = table.Column<string>(type: "text", nullable: false),
+                    DepartmentId = table.Column<int>(type: "integer", nullable: false),
+                    AvatarUrl = table.Column<string>(type: "text", nullable: true),
                     UserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
@@ -87,7 +87,8 @@ namespace Infrastructure.Migrations
                         name: "FK_Users_Departments_DepartmentId",
                         column: x => x.DepartmentId,
                         principalTable: "Departments",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -280,6 +281,30 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Progress",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    TicketId = table.Column<int>(type: "integer", nullable: false),
+                    TicketStatus = table.Column<string>(type: "text", nullable: false),
+                    Note = table.Column<string>(type: "text", nullable: false),
+                    EmployeeName = table.Column<string>(type: "text", nullable: false),
+                    Date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Step = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Progress", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Progress_Tickets_TicketId",
+                        column: x => x.TicketId,
+                        principalTable: "Tickets",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Attachments",
                 columns: table => new
                 {
@@ -289,8 +314,7 @@ namespace Infrastructure.Migrations
                     EntityType = table.Column<string>(type: "text", nullable: false),
                     Url = table.Column<string>(type: "text", nullable: false),
                     ContentType = table.Column<string>(type: "text", nullable: false),
-                    CommentId = table.Column<int>(type: "integer", nullable: true),
-                    TicketId = table.Column<int>(type: "integer", nullable: true)
+                    CommentId = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -299,11 +323,6 @@ namespace Infrastructure.Migrations
                         name: "FK_Attachments_Comments_CommentId",
                         column: x => x.CommentId,
                         principalTable: "Comments",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Attachments_Tickets_TicketId",
-                        column: x => x.TicketId,
-                        principalTable: "Tickets",
                         principalColumn: "Id");
                 });
 
@@ -343,18 +362,14 @@ namespace Infrastructure.Migrations
                     { 1, null, "Employee", "EMPLOYEE" },
                     { 2, null, "Head Of AD", "HEAD OF AD" },
                     { 3, null, "Admin", "ADMIN" },
-                    { 4, null, "Head Of IT", "HEAD OF IT" }
+                    { 4, null, "Head Of IT", "HEAD OF IT" },
+                    { 5, null, "Head Of QA", "HEAD OF QA" }
                 });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Attachments_CommentId",
                 table: "Attachments",
                 column: "CommentId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Attachments_TicketId",
-                table: "Attachments",
-                column: "TicketId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Comments_TicketId",
@@ -364,6 +379,11 @@ namespace Infrastructure.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Histories_TicketId",
                 table: "Histories",
+                column: "TicketId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Progress_TicketId",
+                table: "Progress",
                 column: "TicketId");
 
             migrationBuilder.CreateIndex(
@@ -437,6 +457,9 @@ namespace Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "Histories");
+
+            migrationBuilder.DropTable(
+                name: "Progress");
 
             migrationBuilder.DropTable(
                 name: "RoleClaims");

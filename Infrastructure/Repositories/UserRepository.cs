@@ -1,6 +1,9 @@
-﻿using BuildingBlocks.Commons;
+﻿using System.Collections.Immutable;
+using BuildingBlocks.Commons;
 using Domain.Entities;
+using Infrastructure.Database;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace Infrastructure.Repositories;
@@ -13,12 +16,13 @@ public interface IUserRepository
     Task<IList<string>> GetRolesAsync(User user);
     Task<bool> CheckPasswordAsync(User user, string password);
     Task<IdentityResult> CreateAsync(User user, string? password = null);
-    Task<User?> FindByEmailAsync(string email);
+    Task<User> FindByEmailAsync(string email);
     Task<IdentityResult> AddToRoleAsync(User user, string role);
     Task<User> GetHeadOfDepartment(string departmentName);
+    Task<User> GetAdmin();
 }
 
-public class UserRepository(UserManager<User> userManager, ILogger<UserRepository> logger) :  IUserRepository
+public class UserRepository(UserManager<User> userManager, ILogger<UserRepository> logger, AppDbContext dbContext) :  IUserRepository
 {
     public async Task<User> FindByIdAsync(int id)
     {
@@ -34,9 +38,10 @@ public class UserRepository(UserManager<User> userManager, ILogger<UserRepositor
         return result;
     }
 
-    public async Task<User?> FindByEmailAsync(string email)
+    public async Task<User> FindByEmailAsync(string email)
     {
         var result = await userManager.FindByEmailAsync(email);
+        if (result == null) throw new BusinessException($"User {email} not found");
         return result;
     }
 
@@ -87,5 +92,11 @@ public class UserRepository(UserManager<User> userManager, ILogger<UserRepositor
         
         var users = await userManager.GetUsersInRoleAsync(role);
         return users.FirstOrDefault() ?? throw new BusinessException($"No head found for department: {departmentName}");
+    }
+
+    public async Task<User> GetAdmin()
+    {
+        var result = await userManager.GetUsersInRoleAsync("admin");
+        return result.First();
     }
 }

@@ -1,62 +1,60 @@
 ﻿using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using Application.DTOs;
 using BuildingBlocks.Commons;
 using BuildingBlocks.EmailHelper;
 using Google.Apis.Gmail.v1.Data;
+using Infrastructure.Repositories;
 using Microsoft.Extensions.Logging;
 
 namespace Application.Services;
 
 public interface IEmailService
 {
-    Task SendTicketNotificationAsync(
-        int creatorId,
-        string receiverEmail, 
-        string receiverName, 
-        string ticketTitle, 
-        int ticketId, 
-        string creatorName, 
-        string creatorEmail,
-        string priority);
+    Task SenTicketEmail(SendTicketEmailDto dto);
 }
 
-public class EmailService(IRedisService redis, IGoogleTokenService googleTokenService, ILogger<EmailService> logger) : IEmailService
+public class EmailService(IRedisService redis, IGoogleTokenService googleTokenService, ILogger<EmailService> logger, IUserRepository userRepo) : IEmailService
 {
     private readonly HttpClient _httpClient = new();
-
-    public async Task SendTicketNotificationAsync(
-        int creatorId,
-        string receiverEmail, 
-        string receiverName, 
-        string ticketTitle, 
-        int ticketId, 
-        string creatorName, 
-        string creatorEmail,
-        string priority)
+    
+    public async Task SenTicketEmail(SendTicketEmailDto dto)
     {
-        var subject = $"🎫 New Ticket Created: {ticketTitle}";
-        var body = EmailTemplates.GetTicketNotificationTemplate(
-            receiverName, 
-            ticketTitle, 
-            ticketId, 
-            creatorName,
-            priority);
-
-        await SendEmailAsync(creatorId, creatorEmail, receiverEmail, subject, body);
+        string subject;
+        string body;
+        switch (dto.Header)
+        {
+           case EmailHeader.Created:
+               subject = $"🎫 New Ticket Created: {dto.TicketTitle}"; 
+               body = EmailTemplates.GetTicketCreatedTemplate(dto.ReceiverName, dto.TicketTitle,dto.TicketId, dto.CreatorName, dto.Priority);
+               break;
+           case EmailHeader.Assigned:
+               subject = $"🎫 New Ticket Assigned to you: {dto.TicketTitle}";
+               body = EmailTemplates.GetTicketAssignedTemplate(dto.ReceiverName, dto.TicketTitle,dto.TicketId, dto.CreatorName, dto.Priority);
+               break;
+           case EmailHeader.Rejected:
+               subject = $"🎫 Your Ticket has been rejected: {dto.TicketTitle}";
+               body = EmailTemplates.GetTicketRejectedTemplate(dto.TicketTitle,dto.TicketId, dto.CreatorName, dto.Priority, dto.Reason);
+               break;
+           default:
+               throw new ArgumentOutOfRangeException();
+        }
+        await SendEmailAsync(dto.ReceiverEmail, subject, body);
     }
 
-    private async Task SendEmailAsync(int userId, string fromEmail, string toEmail, string subject,
+    private async Task SendEmailAsync(string toEmail, string subject,
         string htmlBody)
     {
-
-        // Lấy refresh token
-        var refreshKey = $"refreshToken:{userId}";
+        // Lấy refresh token của admin
+        var admin = await userRepo.GetAdmin();
+        
+        var refreshKey = $"refreshToken:{admin.Id}";
         var refreshToken = await redis.GetValue(refreshKey);
 
         if (string.IsNullOrEmpty(refreshToken))
         {
-            throw new BusinessException($"Refresh token not found for user {userId}");
+            throw new BusinessException($"Refresh token not found for user {admin.Id}");
         }
 
         // Lấy access token
@@ -64,11 +62,11 @@ public class EmailService(IRedisService redis, IGoogleTokenService googleTokenSe
 
         if (string.IsNullOrEmpty(accessToken))
         {
-            throw new BusinessException($"Failed to refresh access token for user {userId}");
+            throw new BusinessException($"Failed to refresh access token for user {admin.Id}");
         }
 
         // Tạo và gửi email
-        var rawMessage = CreateRawMessage(fromEmail, toEmail, subject, htmlBody);
+        var rawMessage = CreateRawMessage(admin.Email!, toEmail, subject, htmlBody);
         await SendEmailViaGmailApi(accessToken, rawMessage);
     }
 
@@ -121,5 +119,4 @@ public class EmailService(IRedisService redis, IGoogleTokenService googleTokenSe
         var bytes = Encoding.UTF8.GetBytes(subject);
         return "=?utf-8?B?" + Convert.ToBase64String(bytes) + "?=";
     }
-
 }

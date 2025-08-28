@@ -16,12 +16,12 @@ public class Ticket: Entity
     
     
     // Navigation properties
-    public List<Attachment> Attachments { get; set; } = [];
     public List<Comment> Comments { get; set; } = [];
     public Category Category{ get; set; }
     public User Creator { get; set; }
     public User? Assignee { get; set; }
     public User HeadOfDepartment { get; set; }
+    public List<Progress> Progresses { get; set; } = [];
 }
 
 public enum Priority

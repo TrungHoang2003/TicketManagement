@@ -25,6 +25,7 @@
     volumes:
       - ./redis-data:/data
     command: redis-server --appendonly yes
+  
   api:
     ports:
       - "5105:8080"
