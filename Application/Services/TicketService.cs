@@ -22,8 +22,6 @@ public interface ITicketService
 public class TicketService(ICloudinaryService cloudinary, IUnitOfWork unitOfWork,
     IEmailBackgroundService emailBackgroundService, IUserService userService) : ITicketService
 {
-    private bool _b;
-
     public async Task<Result> Create(CreateTicketDto createTicketDto)
     {
         var creator = await unitOfWork.User.FindByIdAsync(userService.GetLoginUserId());
@@ -58,7 +56,6 @@ public class TicketService(ICloudinaryService cloudinary, IUnitOfWork unitOfWork
         
         var progress = new Progress
         {
-            Step = 1,
             TicketStatus = ticket.Status.ToString(),
             EmployeeName = creator.FullName,
             Note = $"{creator.FullName} đã tạo yêu cầu"
@@ -124,7 +121,6 @@ public class TicketService(ICloudinaryService cloudinary, IUnitOfWork unitOfWork
 
         var progress = new Progress
         {
-            Step = 2,
             EmployeeName = headOfDepartment.UserName!,
             TicketStatus = ticket.Status.ToString(),
             Note = $"{ticket.HeadOfDepartment.UserName} Received request"
@@ -160,7 +156,6 @@ public class TicketService(ICloudinaryService cloudinary, IUnitOfWork unitOfWork
         
         var progress = new Progress
         {
-            Step = 2,
             EmployeeName = headOfDepartment.UserName!,
             TicketStatus = ticket.Status.ToString(),
             Note = $"{ticket.HeadOfDepartment.UserName} Received request"
@@ -189,8 +184,27 @@ public class TicketService(ICloudinaryService cloudinary, IUnitOfWork unitOfWork
     public async Task<Result> HandleTicket(int ticketId)
     {
         var ticket = await unitOfWork.Ticket.GetByIdAsync(ticketId);
-        ticket.Status = Status.InProgress;
+
+        if (ticket.AssigneeId == null) return new Error("Business Error", "This ticket hasn't been assigned yet");
         
+        var currentLoginUserId = userService.GetLoginUserId();
+        var assignee = await unitOfWork.User.FindByIdAsync(ticket.AssigneeId.Value);
+
+        if (currentLoginUserId != assignee.Id)
+            return AuthenErrors.NotAuthorized;
+        
+        ticket.Status = Status.InProgress;
+
+        var progress = new Progress
+        {
+            EmployeeName = assignee.UserName!,
+            TicketStatus = ticket.Status.ToString(),
+            Note = $"{ticket.Assignee!.UserName} is handling request"
+        };
+        ticket.Progresses.Add(progress);
+        await unitOfWork.SaveChangesAsync();
+
+        return Result.IsSuccess();
     }
 
     public async Task<Result> FollowTicket(int ticketId)

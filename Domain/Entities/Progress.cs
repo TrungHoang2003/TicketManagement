@@ -9,7 +9,5 @@ public class Progress: Entity
     public string Note { get; set;}
     public string EmployeeName { get; set; }
     public DateTime Date { get; set; } = DateTime.UtcNow;
-    public int Step { get; set; }
-    
     public Ticket Ticket { get; set; }
 }
