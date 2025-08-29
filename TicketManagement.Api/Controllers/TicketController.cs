@@ -8,16 +8,11 @@ namespace TicketManagement.Api.Controllers;
 [ApiController]
 [Route("[controller]")]
 [Authorize]
-public class TicketController(IUserService userService, ITicketService ticketService): Controller
+public class TicketController(ITicketService ticketService): Controller
 {
     [HttpPost("create")]
     public async Task<IActionResult> CreateTicket(CreateTicketDto dto)
     {
-        var userResult = await userService.GetLoginUserId();
-        if (!userResult.Success) return BadRequest(userResult.Error);
-
-        dto.CreatorId = userResult.Data;
-        
         var result = await ticketService.Create(dto);
         if (result.Success)
             return Ok(result);
@@ -27,10 +22,7 @@ public class TicketController(IUserService userService, ITicketService ticketSer
     [HttpPost("assign")]
     public async Task<IActionResult> Assign(AssignDto dto)
     {
-        var userResult = await userService.GetLoginUserId();
-        if (!userResult.Success) return BadRequest(userResult.Error);
-        
-        var result = await ticketService.Assign(dto, userResult.Data);
+        var result = await ticketService.Assign(dto);
         if(!result.Success) return BadRequest(result.Error);
         return Ok(result);
     }

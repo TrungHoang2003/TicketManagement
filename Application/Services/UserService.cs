@@ -16,7 +16,7 @@ public interface IUserService
    Task<Result> Create(CreateUserDto createUserDto);
    Task<Result> Update(UpdateUserDto updateUserDto);
    Task<Result<List<UsersByDepartmentDto>>> GetByDepartment(int departmentId);
-   Task<Result<int>> GetLoginUserId();
+   int GetLoginUserId();
 }
 
 public class UserService(IHttpContextAccessor httpContextAccessor, IUserRepository userRepo, IJwtService jwtService,
@@ -49,13 +49,12 @@ public class UserService(IHttpContextAccessor httpContextAccessor, IUserReposito
    }
 
 
-   public Task<Result<int>> GetLoginUserId()
+   public int GetLoginUserId()
    {
-      var userIdClaim = httpContextAccessor.
-         HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+      var userIdClaim = httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-      return Task.FromResult(!int.TryParse(userIdClaim, out var userId) ?
-         ParseError.UserIdParseError : Result<int>.IsSuccess(userId));
+      _ = int.TryParse(userIdClaim, out var userId);
+      return userId;
    }
 
    public async Task<Result<UserLoginResponse>> Login(UserLoginDto userLoginDto)

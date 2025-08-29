@@ -1,7 +1,9 @@
 ﻿using Application.DTOs;
 using Application.Erros;
+using Application.Mappings;
 using BuildingBlocks.Commons;
 using BuildingBlocks.EmailHelper;
+using CloudinaryDotNet.Core;
 using Domain.Entities;
 using Infrastructure.Background;
 using Infrastructure.Repositories;
@@ -11,16 +13,20 @@ namespace Application.Services;
 public interface ITicketService
 {
     Task<Result> Create(CreateTicketDto createTicketDto);
-    Task<Result> Assign(AssignDto assignDto, int currentLoginUserId);
+    Task<Result> Assign(AssignDto assignDto );
     Task<Result> RejectTicket(RejectTicketDto rejectTicketDto);
+    Task<Result> HandleTicket(int ticketId);
+    Task<Result> FollowTicket(int ticketId);
 };
 
 public class TicketService(ICloudinaryService cloudinary, IUnitOfWork unitOfWork,
-    IEmailBackgroundService emailBackgroundService) : ITicketService
+    IEmailBackgroundService emailBackgroundService, IUserService userService) : ITicketService
 {
+    private bool _b;
+
     public async Task<Result> Create(CreateTicketDto createTicketDto)
     {
-        var creator = await unitOfWork.User.FindByIdAsync(createTicketDto.CreatorId);
+        var creator = await unitOfWork.User.FindByIdAsync(userService.GetLoginUserId());
         var category = await unitOfWork.Category.GetByIdAsync(createTicketDto.CategoryId);
 
         var departmentName = category.Department switch
@@ -98,10 +104,11 @@ public class TicketService(ICloudinaryService cloudinary, IUnitOfWork unitOfWork
         return Result.IsSuccess();
     }
 
-    public async Task<Result> Assign(AssignDto assignDto, int currentLoginUserId)
+    public async Task<Result> Assign(AssignDto assignDto)
     {
+        var currentLoginUserId = userService.GetLoginUserId();
+        
         var ticket = await unitOfWork.Ticket.GetByIdAsync(assignDto.TicketId);
-        if (ticket.AssigneeId != null) return new Error("Business Error", "This ticket is already assigned");
         
         var headOfDepartment = await unitOfWork.User.FindByIdAsync(ticket.HeadDepartmentId);
 
@@ -178,4 +185,24 @@ public class TicketService(ICloudinaryService cloudinary, IUnitOfWork unitOfWork
         
         return Result.IsSuccess();
     }
+
+    public async Task<Result> HandleTicket(int ticketId)
+    {
+        var ticket = await unitOfWork.Ticket.GetByIdAsync(ticketId);
+        ticket.Status = Status.InProgress;
+        
+    }
+
+    public async Task<Result> FollowTicket(int ticketId)
+    {
+        var ticket = await unitOfWork.Ticket.GetByIdAsync(ticketId);
+        var userId = userService.GetLoginUserId();
+        var user = await unitOfWork.User.FindByIdAsync(userId);
+        
+        user.FollowingTickets.Add(ticket);
+        await unitOfWork.SaveChangesAsync();
+        
+        return Result.IsSuccess();
+    }
 }
+
