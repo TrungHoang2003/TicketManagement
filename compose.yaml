@@ -27,20 +27,20 @@
     command: redis-server --appendonly yes
   
   api:
-    ports:
-      - "5105:8080"
-    build:
-      context: . 
-      dockerfile: TicketManagement.Api/Dockerfile
-    container_name: ticket-api
-    depends_on:
-      - redis
-      - postgres
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:8080
-    env_file:
-      - TicketManagement.Api/.env.docker
+   ports:
+     - "5105:8080"
+   build:
+     context: . 
+     dockerfile: TicketManagement.Api/Dockerfile
+   container_name: ticket-api
+   depends_on:
+     - redis
+     - postgres
+   environment:
+     - ASPNETCORE_ENVIRONMENT=Development
+     - ASPNETCORE_URLS=http://+:8080
+   env_file:
+     - TicketManagement.Api/.env.docker
       
 volumes:
   postgres_data:
