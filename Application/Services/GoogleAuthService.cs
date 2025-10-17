@@ -75,7 +75,8 @@ public class GoogleAuthService(IOptions<GoogleOAuthSettings> googleOAuthOptions,
 
         await redis.SetValue(accessKey, jwtToken, TimeSpan.FromMinutes(jwtService.GetAccessTokenValidity()));
         
-        return Result<string>.IsSuccess($"http://localhost:3000/google-auth-success?token={jwtToken}"); 
+        // Note: Change to port 5173 if using Vite default, or 3000 if configured
+        return Result<string>.IsSuccess($"http://localhost:5173/google-auth-success?token={jwtToken}"); 
     }
 
     private async Task<Result<GoogleJsonWebSignature.Payload, string>> ValidateGoogleCodeAsync(string code)

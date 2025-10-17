@@ -44,6 +44,18 @@ builder.Services.AddControllers();
 // Add HttpContextAccessor for accessing current user
 builder.Services.AddHttpContextAccessor();
 
+// Add CORS policy for frontend
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins("http://localhost:3000", "http://localhost:5173") // React dev servers
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
+});
+
 // Serilog
 builder.Host.UseSerilog((context, services, configuration) => configuration
     .ReadFrom.Configuration(context.Configuration) // Đọc cấu hình từ appsettings.json
@@ -89,6 +101,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseRouting();
+app.UseCors("AllowFrontend"); // Enable CORS
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseHttpsRedirection();
