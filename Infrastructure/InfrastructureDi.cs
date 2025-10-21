@@ -59,6 +59,11 @@ public static class IdentityInfrastructureDi
         services.AddScoped<ITicketRepository, TicketRepository>();
         services.AddScoped<IProgressRepository, ProgressRepository>();
         services.AddScoped<IAttachmentRepository, AttachmentRepository>();
+        services.AddScoped<IProjectRepository, ProjectRepository>();
+        services.AddScoped<ICauseTypeRepository, CauseTypeRepository>();
+        services.AddScoped<IImplementationPlanRepository, ImplementationPlanRepository>();
+        services.AddScoped<ICommentRepository, CommentRepository>();
+        services.AddScoped<IHistoryRepository, HistoryRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();

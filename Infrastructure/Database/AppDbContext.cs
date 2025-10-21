@@ -19,6 +19,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
         builder.Entity<Department>().ToTable("Departments");
         builder.Entity<History>().ToTable("Histories");
         builder.Entity<Attachment>().ToTable("Attachments");
+        builder.Entity<Project>().ToTable("Projects");
+        builder.Entity<CauseType>().ToTable("CauseTypes");
+        builder.Entity<ImplementationPlan>().ToTable("ImplementationPlans");
 
         builder.Entity<User>().ToTable("Users");
         builder.Entity<IdentityRole<int>>().ToTable("Roles");
