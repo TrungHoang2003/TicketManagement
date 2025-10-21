@@ -9,6 +9,9 @@ public class Ticket: Entity
     public int CreatorId { get; set; }
     public int? AssigneeId{ get; set; }
     public int HeadDepartmentId { get; set; }
+    public int? ProjectId { get; set; }
+    public int? CauseTypeId { get; set; }
+    public int? ImplementationPlanId { get; set; }
     public string Content { get; set; }
     public Priority Priority { get; set; }
     public Status Status { get; set; } = Status.Pending;
@@ -21,7 +24,12 @@ public class Ticket: Entity
     public User Creator { get; set; }
     public User? Assignee { get; set; }
     public User HeadOfDepartment { get; set; }
+    public Project? Project { get; set; }
+    public CauseType? CauseType { get; set; }
+    public ImplementationPlan? ImplementationPlan { get; set; }
     public List<Progress> Progresses { get; set; } = [];
+    public List<History> Histories { get; set; } = [];
+
 }
 
 public enum Priority
