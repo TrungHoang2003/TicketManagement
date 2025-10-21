@@ -32,10 +32,6 @@ public class CategoryService(IUnitOfWork unitOfWork) : ICategoryService
     public async Task<Result> Update(UpdateCategoryDto updateCategoryDto)
     {
         var category = await unitOfWork.Category.GetByIdAsync(updateCategoryDto.Id);
-        if (category == null)
-        {
-            return new Error("Not Found", "Category not found");
-        }
 
         category.Name = updateCategoryDto.Name;
         await unitOfWork.Category.Update(category);
@@ -46,10 +42,6 @@ public class CategoryService(IUnitOfWork unitOfWork) : ICategoryService
     public async Task<Result> Delete(int categoryId)
     {
         var category = await unitOfWork.Category.GetByIdAsync(categoryId);
-        if (category == null)
-        {
-            return new Error("Not Found", "Category not found");
-        }
 
         await unitOfWork.Category.Delete(category);
         await unitOfWork.SaveChangesAsync();
@@ -71,10 +63,6 @@ public class CategoryService(IUnitOfWork unitOfWork) : ICategoryService
     public async Task<Result<CategoryDto>> GetById(int categoryId)
     {
         var category = await unitOfWork.Category.GetByIdAsync(categoryId);
-        if (category == null)
-        {
-            return new Error("Not Found", "Category not found");
-        }
 
         var categoryDto = new CategoryDto
         {

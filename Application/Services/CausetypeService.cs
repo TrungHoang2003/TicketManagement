@@ -33,10 +33,6 @@ public class CauseTypeService(IUnitOfWork unitOfWork) : ICauseTypeService
     public async Task<Result> Update(UpdateCauseTypeDto updateCauseTypeDto)
     {
         var causeType = await unitOfWork.CauseType.GetByIdAsync(updateCauseTypeDto.Id);
-        if (causeType == null)
-        {
-            return new Error("Not Found", "CauseType not found");
-        }
 
         causeType.Name = updateCauseTypeDto.Name;
         causeType.Description = updateCauseTypeDto.Description;
@@ -48,10 +44,6 @@ public class CauseTypeService(IUnitOfWork unitOfWork) : ICauseTypeService
     public async Task<Result> Delete(int causeTypeId)
     {
         var causeType = await unitOfWork.CauseType.GetByIdAsync(causeTypeId);
-        if (causeType == null)
-        {
-            return new Error("Not Found", "CauseType not found");
-        }
 
         await unitOfWork.CauseType.Delete(causeType);
         await unitOfWork.SaveChangesAsync();
@@ -74,10 +66,6 @@ public class CauseTypeService(IUnitOfWork unitOfWork) : ICauseTypeService
     public async Task<Result<CauseTypeDto>> GetById(int causeTypeId)
     {
         var causeType = await unitOfWork.CauseType.GetByIdAsync(causeTypeId);
-        if (causeType == null)
-        {
-            return new Error("Not Found", "CauseType not found");
-        }
 
         var causeTypeDto = new CauseTypeDto
         {

@@ -33,10 +33,6 @@ public class ProjectService(IUnitOfWork unitOfWork) : IProjectService
     public async Task<Result> Update(UpdateProjectDto updateProjectDto)
     {
         var project = await unitOfWork.Project.GetByIdAsync(updateProjectDto.Id);
-        if (project == null)
-        {
-            return new Error("Not Found", "Project not found");
-        }
 
         project.Name = updateProjectDto.Name;
         project.Description = updateProjectDto.Description;
@@ -48,11 +44,6 @@ public class ProjectService(IUnitOfWork unitOfWork) : IProjectService
     public async Task<Result> Delete(int projectId)
     {
         var project = await unitOfWork.Project.GetByIdAsync(projectId);
-        if (project == null)
-        {
-            return new Error("Not Found", "Project not found");
-        }
-
         await unitOfWork.Project.Delete(project);
         await unitOfWork.SaveChangesAsync();
         return Result.IsSuccess();
@@ -74,11 +65,6 @@ public class ProjectService(IUnitOfWork unitOfWork) : IProjectService
     public async Task<Result<ProjectDto>> GetById(int projectId)
     {
         var project = await unitOfWork.Project.GetByIdAsync(projectId);
-        if (project == null)
-        {
-            return new Error("Not Found", "Project not found");
-        }
-
         var projectDto = new ProjectDto
         {
             Id = project.Id,
