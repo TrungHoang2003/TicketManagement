@@ -21,7 +21,8 @@ public class CategoryService(IUnitOfWork unitOfWork) : ICategoryService
     {
         var category = new Category
         {
-            Name = createCategoryDto.Name
+            Name = createCategoryDto.Name,
+            DepartmentId = createCategoryDto.DepartmentId
         };
 
         await unitOfWork.Category.AddAsync(category);
@@ -34,6 +35,7 @@ public class CategoryService(IUnitOfWork unitOfWork) : ICategoryService
         var category = await unitOfWork.Category.GetByIdAsync(updateCategoryDto.Id);
 
         category.Name = updateCategoryDto.Name;
+        category.DepartmentId = updateCategoryDto.DepartmentId;
         await unitOfWork.Category.Update(category);
         await unitOfWork.SaveChangesAsync();
         return Result.IsSuccess();
@@ -55,6 +57,7 @@ public class CategoryService(IUnitOfWork unitOfWork) : ICategoryService
         {
             Id = c.Id,
             Name = c.Name,
+            DepartmentId = c.DepartmentId
         }).ToList();
 
         return Result<List<CategoryDto>>.IsSuccess(categoryDtos);
@@ -68,6 +71,7 @@ public class CategoryService(IUnitOfWork unitOfWork) : ICategoryService
         {
             Id = category.Id,
             Name = category.Name,
+            DepartmentId =  category.DepartmentId
         };
 
         return Result<CategoryDto>.IsSuccess(categoryDto);
