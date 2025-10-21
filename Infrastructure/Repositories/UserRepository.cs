@@ -18,7 +18,7 @@ public interface IUserRepository
     Task<IdentityResult> CreateAsync(User user, string? password = null);
     Task<User> FindByEmailAsync(string email);
     Task<IdentityResult> AddToRoleAsync(User user, string role);
-    Task<User> GetHeadOfDepartment(string departmentName);
+    Task<User> GetHeadOfDepartment(int departmentId);
     Task<User> GetAdmin();
 }
 
@@ -80,18 +80,11 @@ public class UserRepository(UserManager<User> userManager, ILogger<UserRepositor
         return await userManager.AddToRoleAsync(user, role);
     }
 
-    public async Task<User> GetHeadOfDepartment(string departmentName)
+    public async Task<User> GetHeadOfDepartment(int departmentId)
     {
-        var role = departmentName switch
-        {
-            "AD" => "Head Of AD",
-            "QA" => "Head Of QA",
-            "IT" => "Head Of IT",
-            _ => throw new ArgumentOutOfRangeException()
-        };
-        
-        var users = await userManager.GetUsersInRoleAsync(role);
-        return users.FirstOrDefault() ?? throw new BusinessException($"No head found for department: {departmentName}");
+        var users = await userManager.GetUsersInRoleAsync("Head");
+        var head = users.FirstOrDefault(u => u.DepartmentId == departmentId);
+        return head ?? throw new BusinessException($"No head found for department: {departmentId}");
     }
 
     public async Task<User> GetAdmin()
