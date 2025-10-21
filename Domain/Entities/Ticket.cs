@@ -12,6 +12,10 @@ public class Ticket: Entity
     public int? ProjectId { get; set; }
     public int? CauseTypeId { get; set; }
     public int? ImplementationPlanId { get; set; }
+    public string? Cause { get; set; }
+    public DateTime DesiredCompleteDate{ get; set; }
+    public DateTime? ExpectedStartDate { get; set; }
+    public DateTime? ExpectedCompleteDate{ get; set; }
     public string Content { get; set; }
     public Priority Priority { get; set; }
     public Status Status { get; set; } = Status.Pending;

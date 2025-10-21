@@ -27,15 +27,7 @@ public class TicketService(ICloudinaryService cloudinary, IUnitOfWork unitOfWork
         var creator = await unitOfWork.User.FindByIdAsync(userService.GetLoginUserId());
         var category = await unitOfWork.Category.GetByIdAsync(createTicketDto.CategoryId);
 
-        var departmentName = category.Department switch
-        {
-            DepartmentEnum.Ad => "AD",
-            DepartmentEnum.It => "IT",
-            DepartmentEnum.Qa => "QA",
-            _ => throw new ArgumentOutOfRangeException()
-        };
-
-        var headOfDepartment = await unitOfWork.User.GetHeadOfDepartment(departmentName);
+        var headOfDepartment = await unitOfWork.User.GetHeadOfDepartment(category.DepartmentId);
         var stringPriority = createTicketDto.Priority.ToLowerInvariant();
         var priority = stringPriority switch
         {
@@ -51,7 +43,9 @@ public class TicketService(ICloudinaryService cloudinary, IUnitOfWork unitOfWork
             Category = category,
             Priority = priority,
             Content = createTicketDto.Content,
-            HeadOfDepartment = headOfDepartment
+            HeadOfDepartment = headOfDepartment,
+            DesiredCompleteDate = createTicketDto.DesiredCompleteDate,
+            ProjectId = createTicketDto.ProjectId
         };
         
         var progress = new Progress
@@ -218,5 +212,6 @@ public class TicketService(ICloudinaryService cloudinary, IUnitOfWork unitOfWork
         
         return Result.IsSuccess();
     }
+    
 }
 
