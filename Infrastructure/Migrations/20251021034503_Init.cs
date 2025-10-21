@@ -9,7 +9,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitDb : Migration
+    public partial class Init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -21,11 +21,25 @@ namespace Infrastructure.Migrations
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Name = table.Column<string>(type: "text", nullable: false),
-                    Department = table.Column<int>(type: "integer", nullable: false)
+                    DepartmentId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Categories", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CauseTypes",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Description = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CauseTypes", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -39,6 +53,34 @@ namespace Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Departments", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ImplementationPlans",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Description = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ImplementationPlans", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Projects",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Description = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Projects", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -123,6 +165,13 @@ namespace Infrastructure.Migrations
                     CreatorId = table.Column<int>(type: "integer", nullable: false),
                     AssigneeId = table.Column<int>(type: "integer", nullable: true),
                     HeadDepartmentId = table.Column<int>(type: "integer", nullable: false),
+                    ProjectId = table.Column<int>(type: "integer", nullable: true),
+                    CauseTypeId = table.Column<int>(type: "integer", nullable: true),
+                    ImplementationPlanId = table.Column<int>(type: "integer", nullable: true),
+                    Cause = table.Column<string>(type: "text", nullable: true),
+                    DesiredCompleteDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ExpectedStartDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    ExpectedCompleteDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     Content = table.Column<string>(type: "text", nullable: false),
                     Priority = table.Column<string>(type: "text", nullable: false),
                     Status = table.Column<string>(type: "text", nullable: false),
@@ -137,6 +186,21 @@ namespace Infrastructure.Migrations
                         principalTable: "Categories",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Tickets_CauseTypes_CauseTypeId",
+                        column: x => x.CauseTypeId,
+                        principalTable: "CauseTypes",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Tickets_ImplementationPlans_ImplementationPlanId",
+                        column: x => x.ImplementationPlanId,
+                        principalTable: "ImplementationPlans",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Tickets_Projects_ProjectId",
+                        column: x => x.ProjectId,
+                        principalTable: "Projects",
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Tickets_Users_AssigneeId",
                         column: x => x.AssigneeId,
@@ -248,7 +312,9 @@ namespace Infrastructure.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    TicketId = table.Column<int>(type: "integer", nullable: false)
+                    TicketId = table.Column<int>(type: "integer", nullable: false),
+                    Content = table.Column<string>(type: "text", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -267,6 +333,8 @@ namespace Infrastructure.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Content = table.Column<string>(type: "text", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     TicketId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
@@ -290,8 +358,7 @@ namespace Infrastructure.Migrations
                     TicketStatus = table.Column<string>(type: "text", nullable: false),
                     Note = table.Column<string>(type: "text", nullable: false),
                     EmployeeName = table.Column<string>(type: "text", nullable: false),
-                    Date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    Step = table.Column<int>(type: "integer", nullable: false)
+                    Date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -328,7 +395,7 @@ namespace Infrastructure.Migrations
 
             migrationBuilder.InsertData(
                 table: "Categories",
-                columns: new[] { "Id", "Department", "Name" },
+                columns: new[] { "Id", "DepartmentId", "Name" },
                 values: new object[,]
                 {
                     { 1, 1, "Sửa chữa thiết bị văn phòng" },
@@ -363,7 +430,36 @@ namespace Infrastructure.Migrations
                     { 2, null, "Head Of AD", "HEAD OF AD" },
                     { 3, null, "Admin", "ADMIN" },
                     { 4, null, "Head Of IT", "HEAD OF IT" },
-                    { 5, null, "Head Of QA", "HEAD OF QA" }
+                    { 5, null, "Head Of QA", "HEAD OF QA" },
+                    { 6, null, "Head", "HEAD" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Users",
+                columns: new[] { "Id", "AccessFailedCount", "AvatarUrl", "ConcurrencyStamp", "DepartmentId", "Email", "EmailConfirmed", "FullName", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
+                values: new object[,]
+                {
+                    { 2, 0, null, "16650cc2-b509-4650-aeac-a33ac919ea98", 3, "quangha27103@gmail.com", true, "Nguyễn Quang Hà", false, null, "QUANGHA27103@GMAIL.COM", "NGUYEN QUANG HA", null, null, false, null, false, null },
+                    { 3, 0, null, "d9445020-6962-4a47-9a55-dcce366657eb", 3, "21a10010397@students.hou.edu.vn", true, "admin", false, null, "21A10010397@STUDENTS.HOU.EDU.VN", "ADMIN", null, null, false, null, false, null },
+                    { 4, 0, null, "b31d78a7-fd35-47bf-aad8-c10dcda10c02", 1, "levanthien332003@gmail.com", true, "Lê Văn Thiện", false, null, "LEVANTHIEN332003@GMAIL.COM", "LE VAN THIEN", null, null, false, null, false, null },
+                    { 5, 0, null, "65a58964-36a6-4197-9a8d-e57a8784149b", 2, "trunghoang220703@gmail.com", true, "Hoàng Việt Trung", false, null, "TRUNGHOANG220703@GMAIL.COM", "HOANG VIET TRUNG", null, null, false, null, false, null },
+                    { 6, 0, null, "07d9290b-ca7b-4c05-bd0c-e13d0a6ed803", 2, "minhson6a1@gmail.com", true, "Nguyễn Minh Sơn", false, null, "MINHSON6A1@GMAIL.COM", "NGUYEN MINH SON", null, null, false, null, false, null }
+                });
+
+            migrationBuilder.InsertData(
+                table: "UserRoles",
+                columns: new[] { "RoleId", "UserId" },
+                values: new object[,]
+                {
+                    { 5, 2 },
+                    { 6, 2 },
+                    { 3, 3 },
+                    { 6, 3 },
+                    { 2, 4 },
+                    { 6, 4 },
+                    { 4, 5 },
+                    { 6, 5 },
+                    { 1, 6 }
                 });
 
             migrationBuilder.CreateIndex(
@@ -408,6 +504,11 @@ namespace Infrastructure.Migrations
                 column: "CategoryId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Tickets_CauseTypeId",
+                table: "Tickets",
+                column: "CauseTypeId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Tickets_CreatorId",
                 table: "Tickets",
                 column: "CreatorId");
@@ -416,6 +517,16 @@ namespace Infrastructure.Migrations
                 name: "IX_Tickets_HeadDepartmentId",
                 table: "Tickets",
                 column: "HeadDepartmentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Tickets_ImplementationPlanId",
+                table: "Tickets",
+                column: "ImplementationPlanId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Tickets_ProjectId",
+                table: "Tickets",
+                column: "ProjectId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserClaims_UserId",
@@ -487,6 +598,15 @@ namespace Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "Categories");
+
+            migrationBuilder.DropTable(
+                name: "CauseTypes");
+
+            migrationBuilder.DropTable(
+                name: "ImplementationPlans");
+
+            migrationBuilder.DropTable(
+                name: "Projects");
 
             migrationBuilder.DropTable(
                 name: "Users");
