@@ -33,10 +33,6 @@ public class DepartmentService(IUnitOfWork unitOfWork) : IDepartmentService
     public async Task<Result> Update(UpdateDepartmentDto updateDepartmentDto)
     {
         var department = await unitOfWork.Department.GetByIdAsync(updateDepartmentDto.Id);
-        if (department == null)
-        {
-            return new Error("Not Found", "Department not found");
-        }
 
         department.Name = updateDepartmentDto.Name;
         await unitOfWork.Department.Update(department);
@@ -47,10 +43,6 @@ public class DepartmentService(IUnitOfWork unitOfWork) : IDepartmentService
     public async Task<Result> Delete(int departmentId)
     {
         var department = await unitOfWork.Department.GetByIdAsync(departmentId);
-        if (department == null)
-        {
-            return new Error("Not Found", "Department not found");
-        }
 
         await unitOfWork.Department.Delete(department);
         await unitOfWork.SaveChangesAsync();
@@ -72,11 +64,6 @@ public class DepartmentService(IUnitOfWork unitOfWork) : IDepartmentService
     public async Task<Result<DepartmentDto>> GetById(int departmentId)
     {
         var department = await unitOfWork.Department.GetByIdAsync(departmentId);
-        if (department == null)
-        {
-            return new Error("Not Found", "Department not found");
-        }
-
         var departmentDto = new DepartmentDto
         {
             Id = department.Id,
