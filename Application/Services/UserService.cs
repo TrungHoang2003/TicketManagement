@@ -29,8 +29,8 @@ public class UserService(IHttpContextAccessor httpContextAccessor, IUserReposito
       if(updateUserRequest.DepartmentId.HasValue) existingUser.DepartmentId = updateUserRequest.DepartmentId.Value;
       if (updateUserRequest.FullName != null) existingUser.FullName = updateUserRequest.FullName;
       if (updateUserRequest.Username != null) existingUser.UserName = updateUserRequest.Username;
-      if (updateUserRequest.Role != null)
-         await userRepo.AddToRoleAsync(existingUser, updateUserRequest.Role);
+      if (updateUserRequest.Roles != null)
+         await userRepo.AddToRolesAsync(existingUser, updateUserRequest.Roles);
 
       var result = await userRepo.UpdateAsync(existingUser);
       if (result.Succeeded) return Result.IsSuccess();
