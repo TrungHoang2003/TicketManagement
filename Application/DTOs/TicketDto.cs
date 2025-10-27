@@ -1,4 +1,5 @@
 ﻿using Application.Mappings;
+using Application.Services;
 using Domain.Entities;
 
 namespace Application.DTOs;
@@ -14,7 +15,15 @@ public class TicketDto: IMapFrom<Ticket>
    public string AssigneeNames { get; set; }
    public string CreateDate { get; set; }
    public string Status { get; set; }
+   
+   public void Mapping(MappingProfile profile)
+   {
+       profile.CreateMap<Ticket, TicketDto>()
+           .ForMember(dest => dest.AssigneeNames, opt =>
+               opt.MapFrom(src => TicketService.GetNames(src.Assignees)));
+   }
 }
+
 
 public class CreateTicketRequest
 {
@@ -33,9 +42,9 @@ public class RejectTicketDto
     public string Reason { get; set; }
 }
 
-public class AssignTicketDto
+public class AssignTicketRequest
 {
-    public int AssigneeId { get; set; }
+    public List<int> AssigneeIds { get; set; }
     public int TicketId { get; set; }
     public string Note { get; set; }
 }

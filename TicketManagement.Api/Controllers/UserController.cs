@@ -9,7 +9,7 @@ namespace TicketManagement.Api.Controllers;
 [Route("user")]
 public class UserController(IUserService userService): Controller
 {
-    [Authorize(Policy = "AdminOnly")]
+    //[Authorize(Policy = "AdminOnly")]
     [HttpPost("create")]
     public async Task<IActionResult> Create([FromBody] CreateUserRequest createUserDto)
     {

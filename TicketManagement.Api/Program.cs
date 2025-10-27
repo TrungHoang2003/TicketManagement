@@ -1,7 +1,6 @@
 using System.Text;
 using Application;
 using BuildingBlocks.Commons;
-using BuildingBlocks.EmailHelper;
 using DotNetEnv;
 using Infrastructure;
 using Scalar.AspNetCore;

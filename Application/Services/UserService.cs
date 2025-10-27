@@ -93,7 +93,8 @@ public class UserService(IHttpContextAccessor httpContextAccessor, IUserReposito
          FullName = dto.FullName,
          UserName = dto.Email,
          Email = dto.Email,
-         Department = department
+         Department = department,
+         DepartmentId = department.Id
       };
 
       var result = await userRepo.CreateAsync(user);
@@ -103,7 +104,8 @@ public class UserService(IHttpContextAccessor httpContextAccessor, IUserReposito
          return Result.Failure(new Error("Register.Failed", string.Join(",", errors)));
       }
 
-      await userRepo.AddToRoleAsync(user, dto.Role);
+      await userRepo.AddToRolesAsync(user, dto.Roles);
+         
       return Result.IsSuccess();
    }
 }

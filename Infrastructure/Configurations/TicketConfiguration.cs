@@ -17,11 +17,6 @@ public class TicketConfiguration:IEntityTypeConfiguration<Ticket>
             .WithMany()
             .HasForeignKey(t => t.CategoryId);
         
-        // Cấu hình relationship với Assignee
-        builder.HasOne(t => t.Assignee)
-            .WithMany(u => u.AssignedTickets)
-            .HasForeignKey(t => t.AssigneeId)
-            .OnDelete(DeleteBehavior.Restrict);
         
         // Cấu hình relationship với Creator
         builder.HasOne(t => t.Creator)
