@@ -20,9 +20,9 @@ public class TicketController(ITicketService ticketService): Controller
     }
 
     [HttpPost("assign")]
-    public async Task<IActionResult> Assign(AssignTicketDto ticketDto)
+    public async Task<IActionResult> Assign(AssignTicketRequest ticketRequest)
     {
-        var result = await ticketService.Assign(ticketDto);
+        var result = await ticketService.Assign(ticketRequest);
         if(!result.Success) return BadRequest(result.Error);
         return Ok(result);
     }

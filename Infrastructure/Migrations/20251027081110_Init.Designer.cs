@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251027023055_Init")]
+    [Migration("20251027081110_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -334,9 +334,6 @@ namespace Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("AssigneeId")
-                        .HasColumnType("integer");
-
                     b.Property<int>("CategoryId")
                         .HasColumnType("integer");
 
@@ -388,8 +385,6 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AssigneeId");
-
                     b.HasIndex("CategoryId");
 
                     b.HasIndex("CauseTypeId");
@@ -403,6 +398,31 @@ namespace Infrastructure.Migrations
                     b.HasIndex("ProjectId");
 
                     b.ToTable("Tickets", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Entities.TicketAssignee", b =>
+                {
+                    b.Property<int>("TicketId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("AssigneeId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("AssigneeId1")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TicketId1")
+                        .HasColumnType("integer");
+
+                    b.HasKey("TicketId", "AssigneeId");
+
+                    b.HasIndex("AssigneeId");
+
+                    b.HasIndex("AssigneeId1");
+
+                    b.HasIndex("TicketId1");
+
+                    b.ToTable("TicketAssignees", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.User", b =>
@@ -482,93 +502,6 @@ namespace Infrastructure.Migrations
                         .HasDatabaseName("UserNameIndex");
 
                     b.ToTable("Users", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 2,
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "d3e9a1c7-4b2f-4e0a-97c9-79a58a7dbe12",
-                            DepartmentId = 3,
-                            Email = "quangha27103@gmail.com",
-                            EmailConfirmed = true,
-                            FullName = "Nguyễn Quang Hà",
-                            LockoutEnabled = false,
-                            NormalizedEmail = "QUANGHA27103@GMAIL.COM",
-                            NormalizedUserName = "HA123",
-                            PhoneNumberConfirmed = false,
-                            SecurityStamp = "5b1d9f4e-3a2c-4d7f-9f0a-1a2b3c4d5e6f",
-                            TwoFactorEnabled = false,
-                            UserName = "ha123"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "b6e5d2a3-8f2b-43a1-9053-1a9f6e4c1a21",
-                            DepartmentId = 3,
-                            Email = "21a10010397@students.hou.edu.vn",
-                            EmailConfirmed = true,
-                            FullName = "Admin",
-                            LockoutEnabled = false,
-                            NormalizedEmail = "21A10010397@STUDENTS.HOU.EDU.VN",
-                            NormalizedUserName = "ADMIN",
-                            PhoneNumberConfirmed = false,
-                            SecurityStamp = "d2f8a7c1-6b3e-4f8a-9c2d-7e8f9a0b1c2d",
-                            TwoFactorEnabled = false,
-                            UserName = "admin"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "f2a1b7c5-8c9d-4a1b-9e3f-7c8b6a4d2e1f",
-                            DepartmentId = 1,
-                            Email = "levanthien332003@gmail.com",
-                            EmailConfirmed = true,
-                            FullName = "Lê Văn Thiện",
-                            LockoutEnabled = false,
-                            NormalizedEmail = "LEVANTHIEN332003@GMAIL.COM",
-                            NormalizedUserName = "THIEN123",
-                            PhoneNumberConfirmed = false,
-                            SecurityStamp = "a7c9e2f4-1b3d-4a6f-8c9d-0e1f2a3b4c5d",
-                            TwoFactorEnabled = false,
-                            UserName = "thien123"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "a9c8b7d6-1e2f-4a3b-9d0e-5f6a7c8b9e0f",
-                            DepartmentId = 2,
-                            Email = "trunghoang220703@gmail.com",
-                            EmailConfirmed = true,
-                            FullName = "Hoàng Việt Trung",
-                            LockoutEnabled = false,
-                            NormalizedEmail = "TRUNGHOANG220703@GMAIL.COM",
-                            NormalizedUserName = "TRUNG123",
-                            PhoneNumberConfirmed = false,
-                            SecurityStamp = "c3e4b5a6-7d8f-4a1b-9c0d-2e3f4a5b6c7d",
-                            TwoFactorEnabled = false,
-                            UserName = "trung123"
-                        },
-                        new
-                        {
-                            Id = 6,
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "d8f5a2b1-3c9e-47a2-86f0-1b2d3e4f5a6b",
-                            DepartmentId = 2,
-                            Email = "minhson6a1@gmail.com",
-                            EmailConfirmed = true,
-                            FullName = "Nguyễn Minh Sơn",
-                            LockoutEnabled = false,
-                            NormalizedEmail = "MINHSON6A1@GMAIL.COM",
-                            NormalizedUserName = "SON123",
-                            PhoneNumberConfirmed = false,
-                            SecurityStamp = "9f8e7d6c-5b4a-3c2d-1e0f-9a8b7c6d5e4f",
-                            TwoFactorEnabled = false,
-                            UserName = "son123"
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<int>", b =>
@@ -720,53 +653,6 @@ namespace Infrastructure.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("UserRoles", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            UserId = 2,
-                            RoleId = 5
-                        },
-                        new
-                        {
-                            UserId = 3,
-                            RoleId = 3
-                        },
-                        new
-                        {
-                            UserId = 4,
-                            RoleId = 2
-                        },
-                        new
-                        {
-                            UserId = 5,
-                            RoleId = 4
-                        },
-                        new
-                        {
-                            UserId = 2,
-                            RoleId = 6
-                        },
-                        new
-                        {
-                            UserId = 3,
-                            RoleId = 6
-                        },
-                        new
-                        {
-                            UserId = 4,
-                            RoleId = 6
-                        },
-                        new
-                        {
-                            UserId = 5,
-                            RoleId = 6
-                        },
-                        new
-                        {
-                            UserId = 6,
-                            RoleId = 1
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
@@ -830,11 +716,6 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.Ticket", b =>
                 {
-                    b.HasOne("Domain.Entities.User", "Assignee")
-                        .WithMany("AssignedTickets")
-                        .HasForeignKey("AssigneeId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.HasOne("Domain.Entities.Category", "Category")
                         .WithMany()
                         .HasForeignKey("CategoryId")
@@ -865,8 +746,6 @@ namespace Infrastructure.Migrations
                         .WithMany("Tickets")
                         .HasForeignKey("ProjectId");
 
-                    b.Navigation("Assignee");
-
                     b.Navigation("Category");
 
                     b.Navigation("CauseType");
@@ -878,6 +757,37 @@ namespace Infrastructure.Migrations
                     b.Navigation("ImplementationPlan");
 
                     b.Navigation("Project");
+                });
+
+            modelBuilder.Entity("Domain.Entities.TicketAssignee", b =>
+                {
+                    b.HasOne("Domain.Entities.User", null)
+                        .WithMany("AssignedTickets")
+                        .HasForeignKey("AssigneeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.User", "Assignee")
+                        .WithMany()
+                        .HasForeignKey("AssigneeId1")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Ticket", null)
+                        .WithMany("Assignees")
+                        .HasForeignKey("TicketId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Ticket", "Ticket")
+                        .WithMany()
+                        .HasForeignKey("TicketId1")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Assignee");
+
+                    b.Navigation("Ticket");
                 });
 
             modelBuilder.Entity("Domain.Entities.User", b =>
@@ -969,6 +879,8 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.Ticket", b =>
                 {
+                    b.Navigation("Assignees");
+
                     b.Navigation("Comments");
 
                     b.Navigation("Histories");

@@ -15,7 +15,7 @@ namespace Application.Services;
 public interface ITicketService
 {
     Task<Result> Create(CreateTicketRequest createTicketRequest);
-    Task<Result> Assign(AssignTicketDto assignTicketDto );
+    Task<Result> Assign(AssignTicketRequest assignTicketRequest );
     Task<Result> RejectTicket(RejectTicketDto rejectTicketDto);
     Task<Result> HandleTicket(int ticketId);
     Task<Result> FollowTicket(int ticketId);
@@ -98,46 +98,59 @@ public class TicketService(ICloudinaryService cloudinary, IUnitOfWork unitOfWork
         return Result.IsSuccess();
     }
 
-    public async Task<Result> Assign(AssignTicketDto assignTicketDto)
+    public async Task<Result> Assign(AssignTicketRequest assignTicketRequest)
     {
         var currentLoginUserId = userService.GetLoginUserId();
         
-        var ticket = await unitOfWork.Ticket.GetByIdAsync(assignTicketDto.TicketId);
+        var ticket = await unitOfWork.Ticket.GetByIdAsync(assignTicketRequest.TicketId);
         
         var headOfDepartment = await unitOfWork.User.FindByIdAsync(ticket.HeadDepartmentId);
-
         if (currentLoginUserId != headOfDepartment.Id)
             return AuthenErrors.NotAuthorized;
+
+        var assignees = await unitOfWork.User.FindByIdsAsync(assignTicketRequest.AssigneeIds);
         
-        var assignee = await unitOfWork.User.FindByIdAsync(assignTicketDto.AssigneeId);
-        if (assignee.DepartmentId != headOfDepartment.DepartmentId)
-            return new Error("Business Error", "Chosen employee does not belong to relative department");
-                
-        ticket.Assignee = assignee;
+        ticket.Assignees.Clear();
+        
+        foreach (var assignee in assignees)
+        {
+            var ticketAssignee = new TicketAssignee
+            {
+                AssigneeId = assignee.Id,
+                TicketId = ticket.Id,
+                Assignee = assignee
+            };
+            ticket.Assignees.Add(ticketAssignee);
+        }
+        
         ticket.Status = Status.Received;
 
+        var assigneeNames = GetNames(ticket.Assignees);
         var progress = new Progress
         {
             EmployeeName = headOfDepartment.UserName!,
             TicketStatus = ticket.Status.ToString(),
-            Note = $"{ticket.HeadOfDepartment.UserName} Received request"
+            Note = $"{headOfDepartment.UserName} assigned ticket to {assigneeNames}"
         };
         
         ticket.Progresses.Add(progress);
         await unitOfWork.SaveChangesAsync();
-        
-        var sendTicketDto = new SendTicketEmailDto
+
+        // Gửi email cho tất cả assignees
+        foreach (var assignee in assignees)
         {
-            Header = EmailHeader.Assigned,
-            TicketId = ticket.Id,
-            CreatorName = ticket.Creator.FullName,
-            ReceiverEmail = assignee.Email!,
-            ReceiverName = assignee.FullName,
-            TicketTitle = ticket.Title,
-            Priority = ticket.Priority.ToString() 
-        };
-        
-        await emailBackgroundService.QueueEmailAsync(sendTicketDto);
+            var sendTicketDto = new SendTicketEmailDto
+            {
+                Header = EmailHeader.Assigned,
+                TicketId = ticket.Id,
+                CreatorName = ticket.Creator.FullName,
+                ReceiverEmail = assignee.Email!,
+                ReceiverName = assignee.FullName,
+                TicketTitle = ticket.Title,
+                Priority = ticket.Priority.ToString() 
+            };
+            await emailBackgroundService.QueueEmailAsync(sendTicketDto);
+        }
         
         return Result.IsSuccess();
     }
@@ -182,21 +195,22 @@ public class TicketService(ICloudinaryService cloudinary, IUnitOfWork unitOfWork
     {
         var ticket = await unitOfWork.Ticket.GetByIdAsync(ticketId);
 
-        if (ticket.AssigneeId == null) return new Error("Business Error", "This ticket hasn't been assigned yet");
+        if (ticket.Assignees.Count == 0) 
+            return new Error("Business Error", "This ticket hasn't been assigned yet");
         
         var currentLoginUserId = userService.GetLoginUserId();
-        var assignee = await unitOfWork.User.FindByIdAsync(ticket.AssigneeId.Value);
-
-        if (currentLoginUserId != assignee.Id)
+        
+        var isAssigned = ticket.Assignees.Any(ta => ta.AssigneeId == currentLoginUserId);
+        if (!isAssigned)
             return AuthenErrors.NotAuthorized;
         
         ticket.Status = Status.InProgress;
 
         var progress = new Progress
         {
-            EmployeeName = assignee.UserName!,
+            EmployeeName = GetNames(ticket.Assignees),
             TicketStatus = ticket.Status.ToString(),
-            Note = $"{ticket.Assignee!.UserName} is handling request"
+            Note = $"{GetNames(ticket.Assignees)} is handling request"
         };
         ticket.Progresses.Add(progress);
         await unitOfWork.SaveChangesAsync();
@@ -218,7 +232,7 @@ public class TicketService(ICloudinaryService cloudinary, IUnitOfWork unitOfWork
 
     public async Task<Result<GetListTicketResponse>> GetListTicket(GetListTicketRequest request)
     {
-        var query = unitOfWork.Ticket.GetAll();
+        var query = unitOfWork.Ticket.GetAll().Include(t=>t.Assignees);
 
         var tickets = await query
             .OrderBy(u => u.Id)
@@ -237,5 +251,16 @@ public class TicketService(ICloudinaryService cloudinary, IUnitOfWork unitOfWork
         
         return getListTicketResponse;
     }
+    
+    public static string GetNames(List<TicketAssignee>? assignees)
+    {
+        if (assignees == null || assignees.Count == 0)
+            return "Chưa có người nhận";
+        
+        var names = assignees
+            .Select(a => a.Assignee.UserName)
+            .ToList();
+        
+        return string.Join(", ", names);
+    }
 }
-

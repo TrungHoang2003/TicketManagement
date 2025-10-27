@@ -163,7 +163,6 @@ namespace Infrastructure.Migrations
                     Title = table.Column<string>(type: "text", nullable: false),
                     CategoryId = table.Column<int>(type: "integer", nullable: false),
                     CreatorId = table.Column<int>(type: "integer", nullable: false),
-                    AssigneeId = table.Column<int>(type: "integer", nullable: true),
                     HeadDepartmentId = table.Column<int>(type: "integer", nullable: false),
                     ProjectId = table.Column<int>(type: "integer", nullable: true),
                     CauseTypeId = table.Column<int>(type: "integer", nullable: true),
@@ -201,12 +200,6 @@ namespace Infrastructure.Migrations
                         column: x => x.ProjectId,
                         principalTable: "Projects",
                         principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Tickets_Users_AssigneeId",
-                        column: x => x.AssigneeId,
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Tickets_Users_CreatorId",
                         column: x => x.CreatorId,
@@ -372,6 +365,44 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "TicketAssignees",
+                columns: table => new
+                {
+                    TicketId = table.Column<int>(type: "integer", nullable: false),
+                    AssigneeId = table.Column<int>(type: "integer", nullable: false),
+                    AssigneeId1 = table.Column<int>(type: "integer", nullable: false),
+                    TicketId1 = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TicketAssignees", x => new { x.TicketId, x.AssigneeId });
+                    table.ForeignKey(
+                        name: "FK_TicketAssignees_Tickets_TicketId",
+                        column: x => x.TicketId,
+                        principalTable: "Tickets",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_TicketAssignees_Tickets_TicketId1",
+                        column: x => x.TicketId1,
+                        principalTable: "Tickets",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_TicketAssignees_Users_AssigneeId",
+                        column: x => x.AssigneeId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_TicketAssignees_Users_AssigneeId1",
+                        column: x => x.AssigneeId1,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Attachments",
                 columns: table => new
                 {
@@ -434,34 +465,6 @@ namespace Infrastructure.Migrations
                     { 6, null, "Head", "HEAD" }
                 });
 
-            migrationBuilder.InsertData(
-                table: "Users",
-                columns: new[] { "Id", "AccessFailedCount", "AvatarUrl", "ConcurrencyStamp", "DepartmentId", "Email", "EmailConfirmed", "FullName", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
-                values: new object[,]
-                {
-                    { 2, 0, null, "d3e9a1c7-4b2f-4e0a-97c9-79a58a7dbe12", 3, "quangha27103@gmail.com", true, "Nguyễn Quang Hà", false, null, "QUANGHA27103@GMAIL.COM", "HA123", null, null, false, "5b1d9f4e-3a2c-4d7f-9f0a-1a2b3c4d5e6f", false, "ha123" },
-                    { 3, 0, null, "b6e5d2a3-8f2b-43a1-9053-1a9f6e4c1a21", 3, "21a10010397@students.hou.edu.vn", true, "Admin", false, null, "21A10010397@STUDENTS.HOU.EDU.VN", "ADMIN", null, null, false, "d2f8a7c1-6b3e-4f8a-9c2d-7e8f9a0b1c2d", false, "admin" },
-                    { 4, 0, null, "f2a1b7c5-8c9d-4a1b-9e3f-7c8b6a4d2e1f", 1, "levanthien332003@gmail.com", true, "Lê Văn Thiện", false, null, "LEVANTHIEN332003@GMAIL.COM", "THIEN123", null, null, false, "a7c9e2f4-1b3d-4a6f-8c9d-0e1f2a3b4c5d", false, "thien123" },
-                    { 5, 0, null, "a9c8b7d6-1e2f-4a3b-9d0e-5f6a7c8b9e0f", 2, "trunghoang220703@gmail.com", true, "Hoàng Việt Trung", false, null, "TRUNGHOANG220703@GMAIL.COM", "TRUNG123", null, null, false, "c3e4b5a6-7d8f-4a1b-9c0d-2e3f4a5b6c7d", false, "trung123" },
-                    { 6, 0, null, "d8f5a2b1-3c9e-47a2-86f0-1b2d3e4f5a6b", 2, "minhson6a1@gmail.com", true, "Nguyễn Minh Sơn", false, null, "MINHSON6A1@GMAIL.COM", "SON123", null, null, false, "9f8e7d6c-5b4a-3c2d-1e0f-9a8b7c6d5e4f", false, "son123" }
-                });
-
-            migrationBuilder.InsertData(
-                table: "UserRoles",
-                columns: new[] { "RoleId", "UserId" },
-                values: new object[,]
-                {
-                    { 5, 2 },
-                    { 6, 2 },
-                    { 3, 3 },
-                    { 6, 3 },
-                    { 2, 4 },
-                    { 6, 4 },
-                    { 4, 5 },
-                    { 6, 5 },
-                    { 1, 6 }
-                });
-
             migrationBuilder.CreateIndex(
                 name: "IX_Attachments_CommentId",
                 table: "Attachments",
@@ -494,9 +497,19 @@ namespace Infrastructure.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Tickets_AssigneeId",
-                table: "Tickets",
+                name: "IX_TicketAssignees_AssigneeId",
+                table: "TicketAssignees",
                 column: "AssigneeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TicketAssignees_AssigneeId1",
+                table: "TicketAssignees",
+                column: "AssigneeId1");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TicketAssignees_TicketId1",
+                table: "TicketAssignees",
+                column: "TicketId1");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Tickets_CategoryId",
@@ -574,6 +587,9 @@ namespace Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "RoleClaims");
+
+            migrationBuilder.DropTable(
+                name: "TicketAssignees");
 
             migrationBuilder.DropTable(
                 name: "UserClaims");
