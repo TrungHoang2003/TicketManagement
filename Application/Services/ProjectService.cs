@@ -8,8 +8,8 @@ namespace Application.Services;
 
 public interface IProjectService
 {
-    Task<Result> Create(CreateProjectDto createProjectDto);
-    Task<Result> Update(UpdateProjectDto updateProjectDto);
+    Task<Result> Create(CreateProjectRequest createProjectRequest);
+    Task<Result> Update(UpdateProjectRequest updateProjectRequest);
     Task<Result> Delete(int projectId);
     Task<Result<List<ProjectDto>>> GetAll();
     Task<Result<ProjectDto>> GetById(int projectId);
@@ -17,12 +17,12 @@ public interface IProjectService
 
 public class ProjectService(IUnitOfWork unitOfWork) : IProjectService
 {
-    public async Task<Result> Create(CreateProjectDto createProjectDto)
+    public async Task<Result> Create(CreateProjectRequest createProjectRequest)
     {
         var project = new Project
         {
-            Name = createProjectDto.Name,
-            Description = createProjectDto.Description
+            Name = createProjectRequest.Name,
+            Description = createProjectRequest.Description
         };
 
         await unitOfWork.Project.AddAsync(project);
@@ -30,16 +30,16 @@ public class ProjectService(IUnitOfWork unitOfWork) : IProjectService
         return Result.IsSuccess();
     }
 
-    public async Task<Result> Update(UpdateProjectDto updateProjectDto)
+    public async Task<Result> Update(UpdateProjectRequest updateProjectRequest)
     {
-        var project = await unitOfWork.Project.GetByIdAsync(updateProjectDto.Id);
+        var project = await unitOfWork.Project.GetByIdAsync(updateProjectRequest.Id);
         if (project == null)
         {
             return new Error("Not Found", "Project not found");
         }
 
-        project.Name = updateProjectDto.Name;
-        project.Description = updateProjectDto.Description;
+        project.Name = updateProjectRequest.Name;
+        project.Description = updateProjectRequest.Description;
         await unitOfWork.Project.Update(project);
         await unitOfWork.SaveChangesAsync();
         return Result.IsSuccess();

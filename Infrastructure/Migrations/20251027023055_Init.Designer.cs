@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251021034503_Init")]
+    [Migration("20251027023055_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -488,76 +488,86 @@ namespace Infrastructure.Migrations
                         {
                             Id = 2,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "16650cc2-b509-4650-aeac-a33ac919ea98",
+                            ConcurrencyStamp = "d3e9a1c7-4b2f-4e0a-97c9-79a58a7dbe12",
                             DepartmentId = 3,
                             Email = "quangha27103@gmail.com",
                             EmailConfirmed = true,
                             FullName = "Nguyễn Quang Hà",
                             LockoutEnabled = false,
                             NormalizedEmail = "QUANGHA27103@GMAIL.COM",
-                            NormalizedUserName = "NGUYEN QUANG HA",
+                            NormalizedUserName = "HA123",
                             PhoneNumberConfirmed = false,
-                            TwoFactorEnabled = false
+                            SecurityStamp = "5b1d9f4e-3a2c-4d7f-9f0a-1a2b3c4d5e6f",
+                            TwoFactorEnabled = false,
+                            UserName = "ha123"
                         },
                         new
                         {
                             Id = 3,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "d9445020-6962-4a47-9a55-dcce366657eb",
+                            ConcurrencyStamp = "b6e5d2a3-8f2b-43a1-9053-1a9f6e4c1a21",
                             DepartmentId = 3,
                             Email = "21a10010397@students.hou.edu.vn",
                             EmailConfirmed = true,
-                            FullName = "admin",
+                            FullName = "Admin",
                             LockoutEnabled = false,
                             NormalizedEmail = "21A10010397@STUDENTS.HOU.EDU.VN",
                             NormalizedUserName = "ADMIN",
                             PhoneNumberConfirmed = false,
-                            TwoFactorEnabled = false
+                            SecurityStamp = "d2f8a7c1-6b3e-4f8a-9c2d-7e8f9a0b1c2d",
+                            TwoFactorEnabled = false,
+                            UserName = "admin"
                         },
                         new
                         {
                             Id = 4,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "b31d78a7-fd35-47bf-aad8-c10dcda10c02",
+                            ConcurrencyStamp = "f2a1b7c5-8c9d-4a1b-9e3f-7c8b6a4d2e1f",
                             DepartmentId = 1,
                             Email = "levanthien332003@gmail.com",
                             EmailConfirmed = true,
                             FullName = "Lê Văn Thiện",
                             LockoutEnabled = false,
                             NormalizedEmail = "LEVANTHIEN332003@GMAIL.COM",
-                            NormalizedUserName = "LE VAN THIEN",
+                            NormalizedUserName = "THIEN123",
                             PhoneNumberConfirmed = false,
-                            TwoFactorEnabled = false
+                            SecurityStamp = "a7c9e2f4-1b3d-4a6f-8c9d-0e1f2a3b4c5d",
+                            TwoFactorEnabled = false,
+                            UserName = "thien123"
                         },
                         new
                         {
                             Id = 5,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "65a58964-36a6-4197-9a8d-e57a8784149b",
+                            ConcurrencyStamp = "a9c8b7d6-1e2f-4a3b-9d0e-5f6a7c8b9e0f",
                             DepartmentId = 2,
                             Email = "trunghoang220703@gmail.com",
                             EmailConfirmed = true,
                             FullName = "Hoàng Việt Trung",
                             LockoutEnabled = false,
                             NormalizedEmail = "TRUNGHOANG220703@GMAIL.COM",
-                            NormalizedUserName = "HOANG VIET TRUNG",
+                            NormalizedUserName = "TRUNG123",
                             PhoneNumberConfirmed = false,
-                            TwoFactorEnabled = false
+                            SecurityStamp = "c3e4b5a6-7d8f-4a1b-9c0d-2e3f4a5b6c7d",
+                            TwoFactorEnabled = false,
+                            UserName = "trung123"
                         },
                         new
                         {
                             Id = 6,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "07d9290b-ca7b-4c05-bd0c-e13d0a6ed803",
+                            ConcurrencyStamp = "d8f5a2b1-3c9e-47a2-86f0-1b2d3e4f5a6b",
                             DepartmentId = 2,
                             Email = "minhson6a1@gmail.com",
                             EmailConfirmed = true,
                             FullName = "Nguyễn Minh Sơn",
                             LockoutEnabled = false,
                             NormalizedEmail = "MINHSON6A1@GMAIL.COM",
-                            NormalizedUserName = "NGUYEN MINH SON",
+                            NormalizedUserName = "SON123",
                             PhoneNumberConfirmed = false,
-                            TwoFactorEnabled = false
+                            SecurityStamp = "9f8e7d6c-5b4a-3c2d-1e0f-9a8b7c6d5e4f",
+                            TwoFactorEnabled = false,
+                            UserName = "son123"
                         });
                 });
 

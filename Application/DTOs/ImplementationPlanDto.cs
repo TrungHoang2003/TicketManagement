@@ -1,6 +1,6 @@
 namespace Application.DTOs;
 
-public class CreateImplementationPlanDto
+public class CreateImplementationPlanRequest
 {
     public string Name { get; set; }
     public string Description { get; set; }

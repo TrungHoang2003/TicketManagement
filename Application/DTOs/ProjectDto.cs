@@ -1,12 +1,12 @@
 namespace Application.DTOs;
 
-public class CreateProjectDto
+public class CreateProjectRequest
 {
     public string Name { get; set; }
     public string Description { get; set; }
 }
 
-public class UpdateProjectDto
+public class UpdateProjectRequest
 {
     public int Id { get; set; }
     public string Name { get; set; }

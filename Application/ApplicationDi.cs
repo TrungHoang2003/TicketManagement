@@ -1,4 +1,5 @@
-﻿using Application.Services;
+﻿using Application.Mappings;
+using Application.Services;
 using BuildingBlocks.Settings;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,6 +33,13 @@ public static class ApplicationDi
         services.AddSingleton<IEmailBackgroundService, EmailBackgroundService>();
         services.AddHostedService<EmailBackgroundService>(provider => 
             (EmailBackgroundService)provider.GetRequiredService<IEmailBackgroundService>());
+        
+        
+        //Add Automapper
+        services.AddAutoMapper(cfg =>
+        {
+            cfg.AddProfile<MappingProfile>();
+        });
         
         return services;
     }
