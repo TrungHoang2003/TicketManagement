@@ -8,8 +8,8 @@ namespace Application.Services;
 
 public interface IProjectService
 {
-    Task<Result> Create(CreateProjectDto createProjectDto);
-    Task<Result> Update(UpdateProjectDto updateProjectDto);
+    Task<Result> Create(CreateProjectRequest createProjectDto);
+    Task<Result> Update(UpdateProjectRequest updateProjectDto);
     Task<Result> Delete(int projectId);
     Task<Result<List<ProjectDto>>> GetAll();
     Task<Result<ProjectDto>> GetById(int projectId);
@@ -17,7 +17,7 @@ public interface IProjectService
 
 public class ProjectService(IUnitOfWork unitOfWork) : IProjectService
 {
-    public async Task<Result> Create(CreateProjectDto createProjectDto)
+    public async Task<Result> Create(CreateProjectRequest createProjectDto)
     {
         var project = new Project
         {
@@ -30,7 +30,7 @@ public class ProjectService(IUnitOfWork unitOfWork) : IProjectService
         return Result.IsSuccess();
     }
 
-    public async Task<Result> Update(UpdateProjectDto updateProjectDto)
+    public async Task<Result> Update(UpdateProjectRequest updateProjectDto)
     {
         var project = await unitOfWork.Project.GetByIdAsync(updateProjectDto.Id);
 

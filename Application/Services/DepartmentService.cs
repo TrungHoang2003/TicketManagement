@@ -9,8 +9,8 @@ namespace Application.Services;
 
 public interface IDepartmentService
 {
-    Task<Result> Create(CreateDepartmentDto createDepartmentDto);
-    Task<Result> Update(UpdateDepartmentDto updateDepartmentDto);
+    Task<Result> Create(CreateDepartmentRequest createDepartmentRequest);
+    Task<Result> Update(UpdateDepartmentRequest updateDepartmentDto);
     Task<Result> Delete(int departmentId);
     Task<Result<List<DepartmentDto>>> GetAll();
     Task<Result<DepartmentDto>> GetById(int departmentId);
@@ -18,11 +18,11 @@ public interface IDepartmentService
 
 public class DepartmentService(IUnitOfWork unitOfWork) : IDepartmentService
 {
-    public async Task<Result> Create(CreateDepartmentDto createDepartmentDto)
+    public async Task<Result> Create(CreateDepartmentRequest createDepartmentRequest)
     {
         var department = new Department
         {
-            Name = createDepartmentDto.Name
+            Name = createDepartmentRequest.Name
         };
 
         await unitOfWork.Department.AddAsync(department);
@@ -30,7 +30,7 @@ public class DepartmentService(IUnitOfWork unitOfWork) : IDepartmentService
         return Result.IsSuccess();
     }
 
-    public async Task<Result> Update(UpdateDepartmentDto updateDepartmentDto)
+    public async Task<Result> Update(UpdateDepartmentRequest updateDepartmentDto)
     {
         var department = await unitOfWork.Department.GetByIdAsync(updateDepartmentDto.Id);
 

@@ -1,34 +1,37 @@
 ﻿using Application.DTOs;
 using Application.Erros;
 using Application.Mappings;
+using AutoMapper;
 using BuildingBlocks.Commons;
 using BuildingBlocks.EmailHelper;
 using CloudinaryDotNet.Core;
 using Domain.Entities;
 using Infrastructure.Background;
 using Infrastructure.Repositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace Application.Services;
 
 public interface ITicketService
 {
-    Task<Result> Create(CreateTicketDto createTicketDto);
-    Task<Result> Assign(AssignDto assignDto );
+    Task<Result> Create(CreateTicketRequest createTicketRequest);
+    Task<Result> Assign(AssignTicketDto assignTicketDto );
     Task<Result> RejectTicket(RejectTicketDto rejectTicketDto);
     Task<Result> HandleTicket(int ticketId);
     Task<Result> FollowTicket(int ticketId);
+    Task<Result<GetListTicketResponse>> GetListTicket(GetListTicketRequest request);
 };
 
 public class TicketService(ICloudinaryService cloudinary, IUnitOfWork unitOfWork,
-    IEmailBackgroundService emailBackgroundService, IUserService userService) : ITicketService
+    IEmailBackgroundService emailBackgroundService, IUserService userService, IMapper mapper) : ITicketService
 {
-    public async Task<Result> Create(CreateTicketDto createTicketDto)
+    public async Task<Result> Create(CreateTicketRequest createTicketRequest)
     {
         var creator = await unitOfWork.User.FindByIdAsync(userService.GetLoginUserId());
-        var category = await unitOfWork.Category.GetByIdAsync(createTicketDto.CategoryId);
+        var category = await unitOfWork.Category.GetByIdAsync(createTicketRequest.CategoryId);
 
         var headOfDepartment = await unitOfWork.User.GetHeadOfDepartment(category.DepartmentId);
-        var stringPriority = createTicketDto.Priority.ToLowerInvariant();
+        var stringPriority = createTicketRequest.Priority.ToLowerInvariant();
         var priority = stringPriority switch
         {
             "high" => Priority.High,
@@ -38,14 +41,14 @@ public class TicketService(ICloudinaryService cloudinary, IUnitOfWork unitOfWork
 
         var ticket = new Ticket
         {
-            Title = createTicketDto.Title,
+            Title = createTicketRequest.Title,
             Creator = creator,
             Category = category,
             Priority = priority,
-            Content = createTicketDto.Content,
+            Content = createTicketRequest.Content,
             HeadOfDepartment = headOfDepartment,
-            DesiredCompleteDate = createTicketDto.DesiredCompleteDate,
-            ProjectId = createTicketDto.ProjectId
+            DesiredCompleteDate = createTicketRequest.DesiredCompleteDate,
+            ProjectId = createTicketRequest.ProjectId
         };
         
         var progress = new Progress
@@ -58,9 +61,9 @@ public class TicketService(ICloudinaryService cloudinary, IUnitOfWork unitOfWork
         await unitOfWork.Ticket.AddAsync(ticket);
         await unitOfWork.SaveChangesAsync();
         
-        if (createTicketDto.Base64Files != null && createTicketDto.Base64Files.Count != 0)
+        if (createTicketRequest.Base64Files != null && createTicketRequest.Base64Files.Count != 0)
         {
-            var result = await cloudinary.UploadFiles(createTicketDto.Base64Files);
+            var result = await cloudinary.UploadFiles(createTicketRequest.Base64Files);
             var attachmentList = new List<Attachment>();
             
             foreach (var url in result)
@@ -95,18 +98,18 @@ public class TicketService(ICloudinaryService cloudinary, IUnitOfWork unitOfWork
         return Result.IsSuccess();
     }
 
-    public async Task<Result> Assign(AssignDto assignDto)
+    public async Task<Result> Assign(AssignTicketDto assignTicketDto)
     {
         var currentLoginUserId = userService.GetLoginUserId();
         
-        var ticket = await unitOfWork.Ticket.GetByIdAsync(assignDto.TicketId);
+        var ticket = await unitOfWork.Ticket.GetByIdAsync(assignTicketDto.TicketId);
         
         var headOfDepartment = await unitOfWork.User.FindByIdAsync(ticket.HeadDepartmentId);
 
         if (currentLoginUserId != headOfDepartment.Id)
             return AuthenErrors.NotAuthorized;
         
-        var assignee = await unitOfWork.User.FindByIdAsync(assignDto.AssigneeId);
+        var assignee = await unitOfWork.User.FindByIdAsync(assignTicketDto.AssigneeId);
         if (assignee.DepartmentId != headOfDepartment.DepartmentId)
             return new Error("Business Error", "Chosen employee does not belong to relative department");
                 
@@ -212,6 +215,27 @@ public class TicketService(ICloudinaryService cloudinary, IUnitOfWork unitOfWork
         
         return Result.IsSuccess();
     }
-    
+
+    public async Task<Result<GetListTicketResponse>> GetListTicket(GetListTicketRequest request)
+    {
+        var query = unitOfWork.Ticket.GetAll();
+
+        var tickets = await query
+            .OrderBy(u => u.Id)
+            .Skip((request.PageNumber - 1) * request.PageSize)
+            .Take(request.PageSize)
+            .ToListAsync();
+        
+        var ticketDtos = mapper.Map<List<TicketDto>>(tickets);
+        var totalCount = await query.CountAsync();
+        
+        var getListTicketResponse = new GetListTicketResponse
+        {
+            Tickets = ticketDtos,
+            TotalCount = totalCount
+        };
+        
+        return getListTicketResponse;
+    }
 }
 

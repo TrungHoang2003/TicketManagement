@@ -10,7 +10,7 @@ public class ImplementationPlanController(IImplementationPlanService implementat
 {
     [Authorize(Policy = "AdminOnly")]
     [HttpPost("create")]
-    public async Task<IActionResult> Create([FromBody] CreateImplementationPlanDto createImplementationPlanDto)
+    public async Task<IActionResult> Create([FromBody] CreateImplementationPlanRequest createImplementationPlanDto)
     {
         var result = await implementationPlanService.Create(createImplementationPlanDto);
         if (!result.Success) return BadRequest(result.Error);

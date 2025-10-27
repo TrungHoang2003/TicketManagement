@@ -439,11 +439,11 @@ namespace Infrastructure.Migrations
                 columns: new[] { "Id", "AccessFailedCount", "AvatarUrl", "ConcurrencyStamp", "DepartmentId", "Email", "EmailConfirmed", "FullName", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
                 values: new object[,]
                 {
-                    { 2, 0, null, "16650cc2-b509-4650-aeac-a33ac919ea98", 3, "quangha27103@gmail.com", true, "Nguyễn Quang Hà", false, null, "QUANGHA27103@GMAIL.COM", "NGUYEN QUANG HA", null, null, false, null, false, null },
-                    { 3, 0, null, "d9445020-6962-4a47-9a55-dcce366657eb", 3, "21a10010397@students.hou.edu.vn", true, "admin", false, null, "21A10010397@STUDENTS.HOU.EDU.VN", "ADMIN", null, null, false, null, false, null },
-                    { 4, 0, null, "b31d78a7-fd35-47bf-aad8-c10dcda10c02", 1, "levanthien332003@gmail.com", true, "Lê Văn Thiện", false, null, "LEVANTHIEN332003@GMAIL.COM", "LE VAN THIEN", null, null, false, null, false, null },
-                    { 5, 0, null, "65a58964-36a6-4197-9a8d-e57a8784149b", 2, "trunghoang220703@gmail.com", true, "Hoàng Việt Trung", false, null, "TRUNGHOANG220703@GMAIL.COM", "HOANG VIET TRUNG", null, null, false, null, false, null },
-                    { 6, 0, null, "07d9290b-ca7b-4c05-bd0c-e13d0a6ed803", 2, "minhson6a1@gmail.com", true, "Nguyễn Minh Sơn", false, null, "MINHSON6A1@GMAIL.COM", "NGUYEN MINH SON", null, null, false, null, false, null }
+                    { 2, 0, null, "d3e9a1c7-4b2f-4e0a-97c9-79a58a7dbe12", 3, "quangha27103@gmail.com", true, "Nguyễn Quang Hà", false, null, "QUANGHA27103@GMAIL.COM", "HA123", null, null, false, "5b1d9f4e-3a2c-4d7f-9f0a-1a2b3c4d5e6f", false, "ha123" },
+                    { 3, 0, null, "b6e5d2a3-8f2b-43a1-9053-1a9f6e4c1a21", 3, "21a10010397@students.hou.edu.vn", true, "Admin", false, null, "21A10010397@STUDENTS.HOU.EDU.VN", "ADMIN", null, null, false, "d2f8a7c1-6b3e-4f8a-9c2d-7e8f9a0b1c2d", false, "admin" },
+                    { 4, 0, null, "f2a1b7c5-8c9d-4a1b-9e3f-7c8b6a4d2e1f", 1, "levanthien332003@gmail.com", true, "Lê Văn Thiện", false, null, "LEVANTHIEN332003@GMAIL.COM", "THIEN123", null, null, false, "a7c9e2f4-1b3d-4a6f-8c9d-0e1f2a3b4c5d", false, "thien123" },
+                    { 5, 0, null, "a9c8b7d6-1e2f-4a3b-9d0e-5f6a7c8b9e0f", 2, "trunghoang220703@gmail.com", true, "Hoàng Việt Trung", false, null, "TRUNGHOANG220703@GMAIL.COM", "TRUNG123", null, null, false, "c3e4b5a6-7d8f-4a1b-9c0d-2e3f4a5b6c7d", false, "trung123" },
+                    { 6, 0, null, "d8f5a2b1-3c9e-47a2-86f0-1b2d3e4f5a6b", 2, "minhson6a1@gmail.com", true, "Nguyễn Minh Sơn", false, null, "MINHSON6A1@GMAIL.COM", "SON123", null, null, false, "9f8e7d6c-5b4a-3c2d-1e0f-9a8b7c6d5e4f", false, "son123" }
                 });
 
             migrationBuilder.InsertData(

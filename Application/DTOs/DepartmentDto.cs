@@ -1,12 +1,12 @@
 
 namespace Application.DTOs;
 
-public class CreateDepartmentDto
+public class CreateDepartmentRequest
 {
     public string Name { get; set; }
 }
 
-public class UpdateDepartmentDto
+public class UpdateDepartmentRequest
 {
     public int Id { get; set; }
     public string Name { get; set; }

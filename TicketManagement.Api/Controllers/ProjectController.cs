@@ -10,7 +10,7 @@ public class ProjectController(IProjectService projectService) : Controller
 {
     [Authorize(Policy = "AdminOnly")]
     [HttpPost("create")]
-    public async Task<IActionResult> Create([FromBody] CreateProjectDto createProjectDto)
+    public async Task<IActionResult> Create([FromBody] CreateProjectRequest createProjectDto)
     {
         var result = await projectService.Create(createProjectDto);
         if (!result.Success) return BadRequest(result.Error);
@@ -19,7 +19,7 @@ public class ProjectController(IProjectService projectService) : Controller
 
     [Authorize(Policy = "AdminOnly")]
     [HttpPost("update")]
-    public async Task<IActionResult> Update([FromBody] UpdateProjectDto updateProjectDto)
+    public async Task<IActionResult> Update([FromBody] UpdateProjectRequest updateProjectDto)
     {
         var result = await projectService.Update(updateProjectDto);
         if (!result.Success) return BadRequest(result.Error);

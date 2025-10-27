@@ -12,18 +12,18 @@ public class DepartmentController(IDepartmentService departmentService): Control
 {
     [Authorize(Policy = "AdminOnly")]
     [HttpPost("create")]
-    public async Task<IActionResult> Create([FromBody] CreateDepartmentDto createDepartmentDto)
+    public async Task<IActionResult> Create([FromBody] CreateDepartmentRequest createDepartmentRequest)
     {
-        var result = await departmentService.Create(createDepartmentDto);
+        var result = await departmentService.Create(createDepartmentRequest);
         if (!result.Success) return BadRequest(result.Error);
         return Ok(result);
     }
 
     [Authorize(Policy = "AdminOnly")]
     [HttpPost("update")]
-    public async Task<IActionResult> Update([FromBody] UpdateDepartmentDto updateDepartmentDto)
+    public async Task<IActionResult> Update([FromBody] UpdateDepartmentRequest updateDepartmentRequest)
     {
-        var result = await departmentService.Update(updateDepartmentDto);
+        var result = await departmentService.Update(updateDepartmentRequest);
         if (!result.Success) return BadRequest(result.Error);
         return Ok(result);
     }

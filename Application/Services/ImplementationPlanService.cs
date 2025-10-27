@@ -8,7 +8,7 @@ namespace Application.Services;
 
 public interface IImplementationPlanService
 {
-    Task<Result> Create(CreateImplementationPlanDto createImplementationPlanDto);
+    Task<Result> Create(CreateImplementationPlanRequest createImplementationPlanRequest);
     Task<Result> Update(UpdateImplementationPlanDto updateImplementationPlanDto);
     Task<Result> Delete(int implementationPlanId);
     Task<Result<List<ImplementationPlanDto>>> GetAll();
@@ -17,12 +17,12 @@ public interface IImplementationPlanService
 
 public class ImplementationPlanService(IUnitOfWork unitOfWork) : IImplementationPlanService
 {
-    public async Task<Result> Create(CreateImplementationPlanDto createImplementationPlanDto)
+    public async Task<Result> Create(CreateImplementationPlanRequest createImplementationPlanRequest)
     {
         var implementationPlan = new ImplementationPlan
         {
-            Name = createImplementationPlanDto.Name,
-            Description = createImplementationPlanDto.Description
+            Name = createImplementationPlanRequest.Name,
+            Description = createImplementationPlanRequest.Description
         };
 
         await unitOfWork.ImplementationPlan.AddAsync(implementationPlan);
