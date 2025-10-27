@@ -45,7 +45,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
             new IdentityRole<int> { Id = 6, Name = "Head", NormalizedName = "HEAD" }
         );
 
-
         builder.Entity<Category>().HasData(
             new Category { Id = 1, Name = "Sửa chữa thiết bị văn phòng", DepartmentId = 1},
             new Category { Id = 2, Name = "Vấn đề về điện, nước, điều hòa",DepartmentId = 1},
