@@ -53,6 +53,10 @@ public class GetListTicketRequest
 {
     public int PageSize { get; set; }
     public int PageNumber { get; set; }
+    public string? Status { get; set; }
+    public string? Prority { get; set; }
+    public int? CategoryId { get; set; }
+    public string? Title { get; set; }
 }
 
 public class GetListTicketResponse
