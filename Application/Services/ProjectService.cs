@@ -8,8 +8,8 @@ namespace Application.Services;
 
 public interface IProjectService
 {
-    Task<Result> Create(CreateProjectRequest createProjectRequest);
-    Task<Result> Update(UpdateProjectRequest updateProjectRequest);
+    Task<Result> Create(CreateProjectRequest createProjectDto);
+    Task<Result> Update(UpdateProjectRequest updateProjectDto);
     Task<Result> Delete(int projectId);
     Task<Result<List<ProjectDto>>> GetAll();
     Task<Result<ProjectDto>> GetById(int projectId);
@@ -17,12 +17,12 @@ public interface IProjectService
 
 public class ProjectService(IUnitOfWork unitOfWork) : IProjectService
 {
-    public async Task<Result> Create(CreateProjectRequest createProjectRequest)
+    public async Task<Result> Create(CreateProjectRequest createProjectDto)
     {
         var project = new Project
         {
-            Name = createProjectRequest.Name,
-            Description = createProjectRequest.Description
+            Name = createProjectDto.Name,
+            Description = createProjectDto.Description
         };
 
         await unitOfWork.Project.AddAsync(project);
@@ -30,16 +30,12 @@ public class ProjectService(IUnitOfWork unitOfWork) : IProjectService
         return Result.IsSuccess();
     }
 
-    public async Task<Result> Update(UpdateProjectRequest updateProjectRequest)
+    public async Task<Result> Update(UpdateProjectRequest updateProjectDto)
     {
-        var project = await unitOfWork.Project.GetByIdAsync(updateProjectRequest.Id);
-        if (project == null)
-        {
-            return new Error("Not Found", "Project not found");
-        }
+        var project = await unitOfWork.Project.GetByIdAsync(updateProjectDto.Id);
 
-        project.Name = updateProjectRequest.Name;
-        project.Description = updateProjectRequest.Description;
+        project.Name = updateProjectDto.Name;
+        project.Description = updateProjectDto.Description;
         await unitOfWork.Project.Update(project);
         await unitOfWork.SaveChangesAsync();
         return Result.IsSuccess();
@@ -48,11 +44,6 @@ public class ProjectService(IUnitOfWork unitOfWork) : IProjectService
     public async Task<Result> Delete(int projectId)
     {
         var project = await unitOfWork.Project.GetByIdAsync(projectId);
-        if (project == null)
-        {
-            return new Error("Not Found", "Project not found");
-        }
-
         await unitOfWork.Project.Delete(project);
         await unitOfWork.SaveChangesAsync();
         return Result.IsSuccess();
@@ -74,11 +65,6 @@ public class ProjectService(IUnitOfWork unitOfWork) : IProjectService
     public async Task<Result<ProjectDto>> GetById(int projectId)
     {
         var project = await unitOfWork.Project.GetByIdAsync(projectId);
-        if (project == null)
-        {
-            return new Error("Not Found", "Project not found");
-        }
-
         var projectDto = new ProjectDto
         {
             Id = project.Id,

@@ -33,10 +33,6 @@ public class ImplementationPlanService(IUnitOfWork unitOfWork) : IImplementation
     public async Task<Result> Update(UpdateImplementationPlanDto updateImplementationPlanDto)
     {
         var implementationPlan = await unitOfWork.ImplementationPlan.GetByIdAsync(updateImplementationPlanDto.Id);
-        if (implementationPlan == null)
-        {
-            return new Error("Not Found", "ImplementationPlan not found");
-        }
 
         implementationPlan.Name = updateImplementationPlanDto.Name;
         implementationPlan.Description = updateImplementationPlanDto.Description;
@@ -48,10 +44,6 @@ public class ImplementationPlanService(IUnitOfWork unitOfWork) : IImplementation
     public async Task<Result> Delete(int implementationPlanId)
     {
         var implementationPlan = await unitOfWork.ImplementationPlan.GetByIdAsync(implementationPlanId);
-        if (implementationPlan == null)
-        {
-            return new Error("Not Found", "ImplementationPlan not found");
-        }
 
         await unitOfWork.ImplementationPlan.Delete(implementationPlan);
         await unitOfWork.SaveChangesAsync();
@@ -73,10 +65,6 @@ public class ImplementationPlanService(IUnitOfWork unitOfWork) : IImplementation
     public async Task<Result<ImplementationPlanDto>> GetById(int implementationPlanId)
     {
         var implementationPlan = await unitOfWork.ImplementationPlan.GetByIdAsync(implementationPlanId);
-        if (implementationPlan == null)
-        {
-            return new Error("Not Found", "ImplementationPlan not found");
-        }
 
         var implementationPlanDto = new ImplementationPlanDto
         {
