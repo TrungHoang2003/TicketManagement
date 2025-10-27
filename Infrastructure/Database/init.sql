@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict L5Czxqjf4Q051xbS9667pzgjwHiQpuzCOFVL6TMzA8hQBngtexzf7SkkCBmEMUE
+\restrict 8iPLk5IlHbgFmG1IhjrO1NFIFW2w04iebkOokfuPNK5Ibkszo7dln2SNOvocIrI
 
 -- Dumped from database version 16.10 (Debian 16.10-1.pgdg13+1)
 -- Dumped by pg_dump version 16.10 (Debian 16.10-1.pgdg13+1)
@@ -564,12 +564,16 @@ INSERT INTO public."Departments" VALUES (3, 'QA');
 -- Data for Name: Progress; Type: TABLE DATA; Schema: public; Owner: root
 --
 
+INSERT INTO public."Progress" VALUES (1, 1, 'Pending', 'Hoàng Việt Trung đã tạo yêu cầu', 'Hoàng Việt Trung', '2025-10-27 09:14:17.322922+00');
+INSERT INTO public."Progress" VALUES (2, 2, 'Pending', 'Hoàng Việt Trung đã tạo yêu cầu', 'Hoàng Việt Trung', '2025-10-27 09:16:55.314505+00');
+INSERT INTO public."Progress" VALUES (3, 3, 'Pending', 'Hoàng Việt Trung đã tạo yêu cầu', 'Hoàng Việt Trung', '2025-10-27 09:21:20.509646+00');
 
 
 --
 -- Data for Name: Projects; Type: TABLE DATA; Schema: public; Owner: root
 --
 
+INSERT INTO public."Projects" VALUES (1, 'project1', '123');
 
 
 --
@@ -600,6 +604,9 @@ INSERT INTO public."Roles" VALUES (6, 'Head', 'HEAD', NULL);
 -- Data for Name: Tickets; Type: TABLE DATA; Schema: public; Owner: root
 --
 
+INSERT INTO public."Tickets" VALUES (1, '123', 11, 3, 3, 1, NULL, NULL, NULL, '2025-10-27 14:30:00+00', NULL, NULL, '123', 'High', 'Pending', '2025-10-27 09:14:17.322919+00');
+INSERT INTO public."Tickets" VALUES (2, '123', 11, 3, 3, 1, NULL, NULL, NULL, '2025-10-27 14:30:00+00', NULL, NULL, '123', 'High', 'Pending', '2025-10-27 09:16:55.314503+00');
+INSERT INTO public."Tickets" VALUES (3, '123', 11, 3, 3, 1, NULL, NULL, NULL, '2025-10-27 14:30:00+00', NULL, NULL, '123', 'High', 'Pending', '2025-10-27 09:21:20.508779+00');
 
 
 --
@@ -625,6 +632,7 @@ INSERT INTO public."UserRoles" VALUES (5, 5);
 INSERT INTO public."UserRoles" VALUES (5, 6);
 INSERT INTO public."UserRoles" VALUES (6, 2);
 INSERT INTO public."UserRoles" VALUES (6, 6);
+INSERT INTO public."UserRoles" VALUES (7, 3);
 
 
 --
@@ -640,7 +648,8 @@ INSERT INTO public."UserRoles" VALUES (6, 6);
 INSERT INTO public."Users" VALUES (4, 'Nguyễn Minh Sơn', 2, NULL, 'minhson6a1@gmail.com', 'MINHSON6A1@GMAIL.COM', 'minhson6a1@gmail.com', 'MINHSON6A1@GMAIL.COM', false, NULL, 'SXOXIY3IVV2LWTJQMFC5XG4YKI7TJP77', 'b0d16f8a-2b42-4dd3-88cb-00a9039c60f0', NULL, false, false, NULL, true, 0);
 INSERT INTO public."Users" VALUES (5, 'Nguyễn Quang Hà', 3, NULL, 'quangha27103@gmail.com', 'QUANGHA27103@GMAIL.COM', 'quangha27103@gmail.com', 'QUANGHA27103@GMAIL.COM', false, NULL, '2DBAVHJ3YMDUJRTGHHDDHL3P74BXES7Y', '37dd2e42-9eec-45ff-a5d3-fd5deb743b42', NULL, false, false, NULL, true, 0);
 INSERT INTO public."Users" VALUES (6, 'Lê Văn Thiện', 1, NULL, 'levanthien332003@gmail.com', 'LEVANTHIEN332003@GMAIL.COM', 'levanthien332003@gmail.com', 'LEVANTHIEN332003@GMAIL.COM', false, NULL, 'ICFRSLSQK5NOHVPU4ZEBTN32VT66CT7W', '2b3ecb71-6b8c-4a11-801e-b49870c16920', NULL, false, false, NULL, true, 0);
-INSERT INTO public."Users" VALUES (3, 'Hoàng Việt Trung', 2, 'https://lh3.googleusercontent.com/a/ACg8ocKAVfGAFmXDsx2IMO4WYg8pAqAoc3JtcsjDq3qcK9USIvcJ9Q=s96-c', 'trunghoang220703@gmail.com', 'TRUNGHOANG220703@GMAIL.COM', 'trunghoang220703@gmail.com', 'TRUNGHOANG220703@GMAIL.COM', true, NULL, '25OJWU3J3UFKD4LWHIAFTGHAQXT2BYNG', '3e7f3ee0-b3a8-41fc-b6d0-d05809efaf9a', NULL, false, false, NULL, true, 0);
+INSERT INTO public."Users" VALUES (3, 'Hoàng Việt Trung', 2, 'https://lh3.googleusercontent.com/a/ACg8ocKAVfGAFmXDsx2IMO4WYg8pAqAoc3JtcsjDq3qcK9USIvcJ9Q=s96-c', 'trunghoang220703@gmail.com', 'TRUNGHOANG220703@GMAIL.COM', 'trunghoang220703@gmail.com', 'TRUNGHOANG220703@GMAIL.COM', true, NULL, '25OJWU3J3UFKD4LWHIAFTGHAQXT2BYNG', 'a78090f8-24d2-4c26-abb7-a40ceacc2b76', NULL, false, false, NULL, true, 0);
+INSERT INTO public."Users" VALUES (7, 'admin', 1, 'https://lh3.googleusercontent.com/a/ACg8ocJlUgqTJVoEDUx6Y_iYgakP71cRFFhF8d8if-LJCl0M1tldLg=s96-c', '21a100100397@students.hou.edu.vn', '21A100100397@STUDENTS.HOU.EDU.VN', '21a100100397@students.hou.edu.vn', '21A100100397@STUDENTS.HOU.EDU.VN', true, NULL, 'SSUPP7ZRLKUGZE4L5K34D2Z7EO7W3MYP', '30792a92-32e9-472c-8911-f87d0bf6a1f6', NULL, false, false, NULL, true, 0);
 
 
 --
@@ -703,14 +712,14 @@ SELECT pg_catalog.setval('public."ImplementationPlans_Id_seq"', 1, false);
 -- Name: Progress_Id_seq; Type: SEQUENCE SET; Schema: public; Owner: root
 --
 
-SELECT pg_catalog.setval('public."Progress_Id_seq"', 1, false);
+SELECT pg_catalog.setval('public."Progress_Id_seq"', 3, true);
 
 
 --
 -- Name: Projects_Id_seq; Type: SEQUENCE SET; Schema: public; Owner: root
 --
 
-SELECT pg_catalog.setval('public."Projects_Id_seq"', 1, false);
+SELECT pg_catalog.setval('public."Projects_Id_seq"', 1, true);
 
 
 --
@@ -731,7 +740,7 @@ SELECT pg_catalog.setval('public."Roles_Id_seq"', 7, false);
 -- Name: Tickets_Id_seq; Type: SEQUENCE SET; Schema: public; Owner: root
 --
 
-SELECT pg_catalog.setval('public."Tickets_Id_seq"', 1, false);
+SELECT pg_catalog.setval('public."Tickets_Id_seq"', 3, true);
 
 
 --
@@ -745,7 +754,7 @@ SELECT pg_catalog.setval('public."UserClaims_Id_seq"', 1, false);
 -- Name: Users_Id_seq; Type: SEQUENCE SET; Schema: public; Owner: root
 --
 
-SELECT pg_catalog.setval('public."Users_Id_seq"', 6, true);
+SELECT pg_catalog.setval('public."Users_Id_seq"', 7, true);
 
 
 --
@@ -1219,5 +1228,5 @@ ALTER TABLE ONLY public."Users"
 -- PostgreSQL database dump complete
 --
 
-\unrestrict L5Czxqjf4Q051xbS9667pzgjwHiQpuzCOFVL6TMzA8hQBngtexzf7SkkCBmEMUE
+\unrestrict 8iPLk5IlHbgFmG1IhjrO1NFIFW2w04iebkOokfuPNK5Ibkszo7dln2SNOvocIrI
 
