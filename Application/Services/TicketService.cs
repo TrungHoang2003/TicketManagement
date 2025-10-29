@@ -235,6 +235,7 @@ public class TicketService(ICloudinaryService cloudinary, IUnitOfWork unitOfWork
         var query = unitOfWork.Ticket
             .GetAll()
             .Include(t=>t.Assignees)
+            .ThenInclude(a=>a.Assignee)
             .AsQueryable();
 
         if (!string.IsNullOrEmpty(request.Title))

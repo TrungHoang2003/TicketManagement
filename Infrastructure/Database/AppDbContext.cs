@@ -61,9 +61,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
         builder.Entity<Attachment>().Property(a => a.EntityType)
             .HasConversion<string>();
 
-        builder.Entity<User>().HasMany(u => u.AssignedTickets);
-        builder.Entity<Ticket>().HasMany(t => t.Assignees);
-
         builder.ApplyConfiguration(new TicketConfiguration());
         builder.ApplyConfiguration(new TicketAssigneeConfiguration());
     }
