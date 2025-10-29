@@ -232,8 +232,36 @@ public class TicketService(ICloudinaryService cloudinary, IUnitOfWork unitOfWork
 
     public async Task<Result<GetListTicketResponse>> GetListTicket(GetListTicketRequest request)
     {
-        var query = unitOfWork.Ticket.GetAll().Include(t=>t.Assignees);
+        var query = unitOfWork.Ticket
+            .GetAll()
+            .Include(t=>t.Assignees)
+            .AsQueryable();
 
+        if (!string.IsNullOrEmpty(request.Title))
+        {
+            query = query.Where(t => t.Title.Contains(request.Title));
+        }
+
+        if (!string.IsNullOrEmpty(request.Status))
+        {
+            query = query.Where(t => t.Status.ToString().ToLower() == request.Status.ToLower());
+        }
+        
+        if (!string.IsNullOrEmpty(request.Prority))
+        {
+            query = query.Where(t => t.Priority.ToString().ToLower() == request.Prority.ToLower());
+        }
+        
+        if (request.CreateAt.HasValue)
+        {
+            query = query.Where(t => t.CreatedAt == request.CreateAt.Value);
+        }
+
+        if (request.CategoryId.HasValue)
+        {
+            query = query.Where(t => t.CategoryId == request.CategoryId.Value);
+        }
+        
         var tickets = await query
             .OrderBy(u => u.Id)
             .Skip((request.PageNumber - 1) * request.PageSize)

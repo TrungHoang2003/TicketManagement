@@ -13,7 +13,7 @@ public class TicketDto: IMapFrom<Ticket>
    public int CreatorId { get; set; }
    public string Priority { get; set; }
    public string AssigneeNames { get; set; }
-   public string CreateDate { get; set; }
+   public string CreateAt { get; set; }
    public string Status { get; set; }
    
    public void Mapping(MappingProfile profile)
@@ -57,6 +57,7 @@ public class GetListTicketRequest
     public string? Prority { get; set; }
     public int? CategoryId { get; set; }
     public string? Title { get; set; }
+    public DateTime? CreateAt { get; set; }
 }
 
 public class GetListTicketResponse
