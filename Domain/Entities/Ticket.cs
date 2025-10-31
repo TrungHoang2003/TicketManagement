@@ -8,7 +8,7 @@ public class Ticket: Entity
     public int CategoryId { get; set; } 
     public int CreatorId { get; set; }
     public int HeadDepartmentId { get; set; }
-    public int? ProjectId { get; set; }
+    public int ProjectId { get; set; }
     public int? CauseTypeId { get; set; }
     public int? ImplementationPlanId { get; set; }
     public string? Cause { get; set; }
@@ -26,7 +26,7 @@ public class Ticket: Entity
     public Category Category{ get; set; }
     public User Creator { get; set; }
     public User HeadOfDepartment { get; set; }
-    public Project? Project { get; set; }
+    public Project Project { get; set; }
     public CauseType? CauseType { get; set; }
     public ImplementationPlan? ImplementationPlan { get; set; }
     public List<Progress> Progresses { get; set; } = [];

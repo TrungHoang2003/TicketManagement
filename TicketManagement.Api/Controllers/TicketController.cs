@@ -42,4 +42,12 @@ public class TicketController(ITicketService ticketService): Controller
         if(!result.Success) return BadRequest(result.Error);
         return Ok(result);
     }
+    
+    [HttpPost("get_detail")]
+    public async Task<IActionResult> GetDetail([FromQuery] int ticketId)
+    {
+        var result = await ticketService.GetDetailTicket(ticketId);
+        if(!result.Success) return BadRequest(result.Error);
+        return Ok(result);
+    }
 }

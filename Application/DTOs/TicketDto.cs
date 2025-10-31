@@ -1,6 +1,7 @@
 ﻿using Application.Mappings;
 using Application.Services;
 using Domain.Entities;
+using Org.BouncyCastle.Asn1.Crmf;
 
 namespace Application.DTOs;
 
@@ -8,11 +9,12 @@ public class TicketDto: IMapFrom<Ticket>
 {
    public int Id { get; set; }
    public string Title { get; set; }
-   public int CategoryId { get; set; }
-   public int? HeadDepartmentId { get; set; }
-   public int CreatorId { get; set; }
+   public string Category { get; set; }
+   public string Project { get; set; }
+   public string? HeadDepartment { get; set; }
+   public int Creator { get; set; }
    public string Priority { get; set; }
-   public string AssigneeNames { get; set; }
+   public string? AssigneeNames { get; set; }
    public string CreateAt { get; set; }
    public string Status { get; set; }
    
@@ -20,10 +22,37 @@ public class TicketDto: IMapFrom<Ticket>
    {
        profile.CreateMap<Ticket, TicketDto>()
            .ForMember(dest => dest.AssigneeNames, opt =>
-               opt.MapFrom(src => TicketService.GetNames(src.Assignees)));
+               opt.MapFrom(src => TicketService.GetNames(src.Assignees)))
+           .ForMember(dest => dest.Category, opt =>
+               opt.MapFrom(src => src.Category.Name))
+           .ForMember(dest => dest.HeadDepartment, opt =>
+               opt.MapFrom(src => src.HeadOfDepartment.FullName))
+           .ForMember(dest => dest.Project, opt =>
+               opt.MapFrom(src => src.Project.Name));
    }
 }
 
+public class TicketDetailDto : TicketDto
+{
+   public string CauseType { get; set; }
+   public string ImplementationPlan { get; set; }
+    public string Content { get; set; }
+    public DateTime DesiredCompleteDate{ get; set; }
+    public DateTime? ExpectedStartDate { get; set; }
+    public DateTime? ExpectedCompleteDate{ get; set; }
+    
+    public void Mapping(MappingProfile profile)
+    {
+        profile.CreateMap<Ticket, TicketDetailDto>()
+            .ForMember(dest => dest.CauseType, opt =>
+                opt.MapFrom(src => src.CauseType != null ? src.CauseType.Name : null));
+
+        profile.CreateMap<Ticket, TicketDetailDto>()
+            .ForMember(dest => dest.ImplementationPlan, opt =>
+                opt.MapFrom(src => src.ImplementationPlan != null ? src.ImplementationPlan.Name : null));
+    }
+
+}
 
 public class CreateTicketRequest
 {
@@ -51,6 +80,9 @@ public class AssignTicketRequest
 
 public class GetListTicketRequest
 {
+    public bool? IsAssigned{ get; set; }
+    public bool? IsCreated { get; set; }
+    public bool? IsFollowing { get; set; }
     public int PageSize { get; set; }
     public int PageNumber { get; set; }
     public string? Status { get; set; }

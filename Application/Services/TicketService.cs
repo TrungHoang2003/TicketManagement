@@ -19,6 +19,7 @@ public interface ITicketService
     Task<Result> RejectTicket(RejectTicketDto rejectTicketDto);
     Task<Result> HandleTicket(int ticketId);
     Task<Result> FollowTicket(int ticketId);
+    Task<Result<TicketDetailDto>> GetDetailTicket(int ticketId);
     Task<Result<GetListTicketResponse>> GetListTicket(GetListTicketRequest request);
 };
 
@@ -230,13 +231,47 @@ public class TicketService(ICloudinaryService cloudinary, IUnitOfWork unitOfWork
         return Result.IsSuccess();
     }
 
+    public async Task<Result<TicketDetailDto>> GetDetailTicket(int ticketId)
+    {
+        var ticket = await unitOfWork.Ticket.GetAll()
+            .Where(t => t.Id == ticketId)
+            .Include(t => t.Assignees)
+            .ThenInclude(a => a.Assignee)
+            .Include(t => t.Category)
+            .Include(t => t.Project)
+            .Include(t => t.Creator)
+            .Include(t => t.HeadOfDepartment)
+            .Include(t => t.CauseType)
+            .Include(t => t.ImplementationPlan)
+            .FirstOrDefaultAsync();
+        
+        if (ticket == null)
+            return new Error("NotFound", $"Ticket with id {ticketId} not found");
+        
+        var detailTicket = mapper.Map<TicketDetailDto>(ticket);
+        return detailTicket;
+    }
+
     public async Task<Result<GetListTicketResponse>> GetListTicket(GetListTicketRequest request)
     {
+        var loginUserId = userService.GetLoginUserId();
         var query = unitOfWork.Ticket
-            .GetAll()
-            .Include(t=>t.Assignees)
-            .ThenInclude(a=>a.Assignee)
-            .AsQueryable();
+            .GetAll().AsQueryable();
+
+        if (request.IsAssigned.HasValue && request.IsAssigned.Value)
+        {
+            query = query.Where(t => t.Assignees.Any(a => a.AssigneeId == loginUserId));
+        }
+        
+        if (request.IsCreated.HasValue && request.IsCreated.Value)
+        {
+            query = query.Where(t => t.CreatorId == loginUserId);
+        }
+        
+        if (request.IsFollowing.HasValue && request.IsFollowing.Value)
+        {
+            query = query.Where(t => t.HeadDepartmentId== loginUserId);
+        }
 
         if (!string.IsNullOrEmpty(request.Title))
         {
@@ -262,6 +297,11 @@ public class TicketService(ICloudinaryService cloudinary, IUnitOfWork unitOfWork
         {
             query = query.Where(t => t.CategoryId == request.CategoryId.Value);
         }
+
+        query = query.Include(t=>t.Assignees)
+            .ThenInclude(a => a.Assignee);
+        
+        var totalCount = await query.CountAsync();
         
         var tickets = await query
             .OrderBy(u => u.Id)
@@ -270,14 +310,13 @@ public class TicketService(ICloudinaryService cloudinary, IUnitOfWork unitOfWork
             .ToListAsync();
         
         var ticketDtos = mapper.Map<List<TicketDto>>(tickets);
-        var totalCount = await query.CountAsync();
         
         var getListTicketResponse = new GetListTicketResponse
         {
             Tickets = ticketDtos,
             TotalCount = totalCount
         };
-        
+
         return getListTicketResponse;
     }
     
