@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict RUGfQmL2dCMJx3f4pDIaKEccoBvE2AisobqnRw4Q3XY51pGLGdAo1e6SnItDT9U
+\restrict o6yaBUWBd9MjrrjrXJcKpsrtD2S8EZ6t86cWepihodszIlL6oJLqit87JUY60Q3
 
 -- Dumped from database version 16.10 (Debian 16.10-1.pgdg13+1)
 -- Dumped by pg_dump version 16.10 (Debian 16.10-1.pgdg13+1)
@@ -350,7 +350,7 @@ CREATE TABLE public."Tickets" (
     "CategoryId" integer NOT NULL,
     "CreatorId" integer NOT NULL,
     "HeadDepartmentId" integer NOT NULL,
-    "ProjectId" integer,
+    "ProjectId" integer DEFAULT 0 NOT NULL,
     "CauseTypeId" integer,
     "ImplementationPlanId" integer,
     "Cause" text,
@@ -647,8 +647,8 @@ INSERT INTO public."UserRoles" VALUES (7, 3);
 INSERT INTO public."Users" VALUES (4, 'Nguyễn Minh Sơn', 2, NULL, 'minhson6a1@gmail.com', 'MINHSON6A1@GMAIL.COM', 'minhson6a1@gmail.com', 'MINHSON6A1@GMAIL.COM', false, NULL, 'SXOXIY3IVV2LWTJQMFC5XG4YKI7TJP77', 'b0d16f8a-2b42-4dd3-88cb-00a9039c60f0', NULL, false, false, NULL, true, 0);
 INSERT INTO public."Users" VALUES (5, 'Nguyễn Quang Hà', 3, NULL, 'quangha27103@gmail.com', 'QUANGHA27103@GMAIL.COM', 'quangha27103@gmail.com', 'QUANGHA27103@GMAIL.COM', false, NULL, '2DBAVHJ3YMDUJRTGHHDDHL3P74BXES7Y', '37dd2e42-9eec-45ff-a5d3-fd5deb743b42', NULL, false, false, NULL, true, 0);
 INSERT INTO public."Users" VALUES (6, 'Lê Văn Thiện', 1, NULL, 'levanthien332003@gmail.com', 'LEVANTHIEN332003@GMAIL.COM', 'levanthien332003@gmail.com', 'LEVANTHIEN332003@GMAIL.COM', false, NULL, 'ICFRSLSQK5NOHVPU4ZEBTN32VT66CT7W', '2b3ecb71-6b8c-4a11-801e-b49870c16920', NULL, false, false, NULL, true, 0);
-INSERT INTO public."Users" VALUES (3, 'Hoàng Việt Trung', 2, 'https://lh3.googleusercontent.com/a/ACg8ocKAVfGAFmXDsx2IMO4WYg8pAqAoc3JtcsjDq3qcK9USIvcJ9Q=s96-c', 'trunghoang220703@gmail.com', 'TRUNGHOANG220703@GMAIL.COM', 'trunghoang220703@gmail.com', 'TRUNGHOANG220703@GMAIL.COM', true, NULL, '25OJWU3J3UFKD4LWHIAFTGHAQXT2BYNG', 'a78090f8-24d2-4c26-abb7-a40ceacc2b76', NULL, false, false, NULL, true, 0);
 INSERT INTO public."Users" VALUES (7, 'admin', 1, 'https://lh3.googleusercontent.com/a/ACg8ocJlUgqTJVoEDUx6Y_iYgakP71cRFFhF8d8if-LJCl0M1tldLg=s96-c', '21a100100397@students.hou.edu.vn', '21A100100397@STUDENTS.HOU.EDU.VN', '21a100100397@students.hou.edu.vn', '21A100100397@STUDENTS.HOU.EDU.VN', true, NULL, 'SSUPP7ZRLKUGZE4L5K34D2Z7EO7W3MYP', '30792a92-32e9-472c-8911-f87d0bf6a1f6', NULL, false, false, NULL, true, 0);
+INSERT INTO public."Users" VALUES (3, 'Hoàng Việt Trung', 2, 'https://lh3.googleusercontent.com/a/ACg8ocKAVfGAFmXDsx2IMO4WYg8pAqAoc3JtcsjDq3qcK9USIvcJ9Q=s96-c', 'trunghoang220703@gmail.com', 'TRUNGHOANG220703@GMAIL.COM', 'trunghoang220703@gmail.com', 'TRUNGHOANG220703@GMAIL.COM', true, NULL, '25OJWU3J3UFKD4LWHIAFTGHAQXT2BYNG', '5485dad5-1a26-4a75-8178-5b569e8bad9f', NULL, false, false, NULL, true, 0);
 
 
 --
@@ -657,6 +657,7 @@ INSERT INTO public."Users" VALUES (7, 'admin', 1, 'https://lh3.googleusercontent
 
 INSERT INTO public."__EFMigrationsHistory" VALUES ('20251029035948_Init', '9.0.8');
 INSERT INTO public."__EFMigrationsHistory" VALUES ('20251029040207_Fix', '9.0.8');
+INSERT INTO public."__EFMigrationsHistory" VALUES ('20251031042734_Configuration', '9.0.8');
 
 
 --
@@ -1127,7 +1128,7 @@ ALTER TABLE ONLY public."Tickets"
 --
 
 ALTER TABLE ONLY public."Tickets"
-    ADD CONSTRAINT "FK_Tickets_Projects_ProjectId" FOREIGN KEY ("ProjectId") REFERENCES public."Projects"("Id");
+    ADD CONSTRAINT "FK_Tickets_Projects_ProjectId" FOREIGN KEY ("ProjectId") REFERENCES public."Projects"("Id") ON DELETE CASCADE;
 
 
 --
@@ -1198,5 +1199,5 @@ ALTER TABLE ONLY public."Users"
 -- PostgreSQL database dump complete
 --
 
-\unrestrict RUGfQmL2dCMJx3f4pDIaKEccoBvE2AisobqnRw4Q3XY51pGLGdAo1e6SnItDT9U
+\unrestrict o6yaBUWBd9MjrrjrXJcKpsrtD2S8EZ6t86cWepihodszIlL6oJLqit87JUY60Q3
 
