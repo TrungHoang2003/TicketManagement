@@ -32,26 +32,36 @@ public class TicketDto: IMapFrom<Ticket>
    }
 }
 
-public class TicketDetailDto : TicketDto
+public class TicketDetailDto : IMapFrom<Ticket>
 {
-   public string CauseType { get; set; }
-   public string ImplementationPlan { get; set; }
+    public string CauseType { get; set; }
+    public string ImplementationPlan { get; set; }
+    public string? AssigneeNames { get; set; }
+    public string Category { get; set; }
+    public string Project { get; set; }
+    public string? HeadDepartment { get; set; }
     public string Content { get; set; }
-    public DateTime DesiredCompleteDate{ get; set; }
+    public DateTime DesiredCompleteDate { get; set; }
     public DateTime? ExpectedStartDate { get; set; }
-    public DateTime? ExpectedCompleteDate{ get; set; }
-    
+    public DateTime? ExpectedCompleteDate { get; set; }
+    public List<string> FileUrls { get; set; } = [];
+
     public void Mapping(MappingProfile profile)
     {
         profile.CreateMap<Ticket, TicketDetailDto>()
+            .ForMember(dest => dest.AssigneeNames, opt =>
+                opt.MapFrom(src => TicketService.GetNames(src.Assignees)))
+            .ForMember(dest => dest.Category, opt =>
+                opt.MapFrom(src => src.Category.Name))
+            .ForMember(dest => dest.HeadDepartment, opt =>
+                opt.MapFrom(src => src.HeadOfDepartment.FullName))
+            .ForMember(dest => dest.Project, opt =>
+                opt.MapFrom(src => src.Project.Name))
             .ForMember(dest => dest.CauseType, opt =>
-                opt.MapFrom(src => src.CauseType != null ? src.CauseType.Name : null));
-
-        profile.CreateMap<Ticket, TicketDetailDto>()
+                opt.MapFrom(src => src.CauseType != null ? src.CauseType.Name : null))
             .ForMember(dest => dest.ImplementationPlan, opt =>
                 opt.MapFrom(src => src.ImplementationPlan != null ? src.ImplementationPlan.Name : null));
     }
-
 }
 
 public class CreateTicketRequest

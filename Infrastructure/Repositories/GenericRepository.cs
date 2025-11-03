@@ -11,7 +11,8 @@ public interface IGenericRepository<T> where T:class, IEntity
     Task Delete(T entity);
     Task<T> GetByIdAsync(int id);
     Task AddRangeAsync(List<T> entities);
-    IQueryable<T> GetAll(); 
+    IQueryable<T> GetAll();
+    Task<bool> ExistsAsync(int id);
 }
 
 public class GenericRepository<T>(AppDbContext dbContext): IGenericRepository<T> where T:class, IEntity
@@ -24,6 +25,11 @@ public class GenericRepository<T>(AppDbContext dbContext): IGenericRepository<T>
     public IQueryable<T> GetAll()
     {
         return dbContext.Set<T>().AsQueryable();
+    }
+
+    public async Task<bool> ExistsAsync(int id)
+    {
+        return  await dbContext.Set<T>().AnyAsync(e=>e.Id == id);
     }
 
     public async Task AddAsync(T entity)

@@ -2,6 +2,7 @@
 using Application.Erros;
 using Application.Mappings;
 using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using BuildingBlocks.Commons;
 using BuildingBlocks.EmailHelper;
 using CloudinaryDotNet.Core;
@@ -138,7 +139,7 @@ public class TicketService(ICloudinaryService cloudinary, IUnitOfWork unitOfWork
         await unitOfWork.SaveChangesAsync();
 
         // Gửi email cho tất cả assignees
-        foreach (var assignee in assignees)
+        foreach (var assignee in assignees) 
         {
             var sendTicketDto = new SendTicketEmailDto
             {
@@ -243,13 +244,20 @@ public class TicketService(ICloudinaryService cloudinary, IUnitOfWork unitOfWork
             .Include(t => t.HeadOfDepartment)
             .Include(t => t.CauseType)
             .Include(t => t.ImplementationPlan)
+            .ProjectTo<TicketDetailDto>(mapper.ConfigurationProvider)
             .FirstOrDefaultAsync();
         
         if (ticket == null)
             return new Error("NotFound", $"Ticket with id {ticketId} not found");
         
-        var detailTicket = mapper.Map<TicketDetailDto>(ticket);
-        return detailTicket;
+        var fileUrls = await unitOfWork.Attachment.GetAll()
+            .Where(a => a.EntityType == EntityType.Ticket && a.EntityId == ticketId)
+            .Select(a => a.Url)
+            .ToListAsync();
+        
+        ticket.FileUrls = fileUrls;
+        
+        return ticket;
     }
 
     public async Task<Result<GetListTicketResponse>> GetListTicket(GetListTicketRequest request)

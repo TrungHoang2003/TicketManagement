@@ -25,6 +25,7 @@ public static class ApplicationDi
         services.AddScoped<IDepartmentService, DepartmentService>();
         services.AddScoped<IProjectService, ProjectService>();
         services.AddScoped<ICauseTypeService, CauseTypeService>();
+        services.AddScoped<ICommentService, CommentService>();
         services.AddScoped<IImplementationPlanService, ImplementationPlanService>();
         services.AddHttpClient<IGoogleAuthService, GoogleAuthService>();
         services.AddSingleton<ICloudinaryService,CloudinaryService>();
