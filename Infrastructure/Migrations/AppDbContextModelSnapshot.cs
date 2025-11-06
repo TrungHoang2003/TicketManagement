@@ -63,7 +63,7 @@ namespace Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("Department")
+                    b.Property<int>("DepartmentId")
                         .HasColumnType("integer");
 
                     b.Property<string>("Name")
@@ -78,69 +78,90 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            Department = 1,
+                            DepartmentId = 1,
                             Name = "Sửa chữa thiết bị văn phòng"
                         },
                         new
                         {
                             Id = 2,
-                            Department = 1,
+                            DepartmentId = 1,
                             Name = "Vấn đề về điện, nước, điều hòa"
                         },
                         new
                         {
                             Id = 3,
-                            Department = 1,
+                            DepartmentId = 1,
                             Name = "Bảo trì cơ sở hạ tầng"
                         },
                         new
                         {
                             Id = 4,
-                            Department = 1,
+                            DepartmentId = 1,
                             Name = "Vấn đề về an ninh, bảo vệ"
                         },
                         new
                         {
                             Id = 5,
-                            Department = 3,
+                            DepartmentId = 3,
                             Name = "Khiếu nại dịch vụ"
                         },
                         new
                         {
                             Id = 6,
-                            Department = 3,
+                            DepartmentId = 3,
                             Name = "Yêu cầu tư vấn sản phẩm"
                         },
                         new
                         {
                             Id = 7,
-                            Department = 3,
+                            DepartmentId = 3,
                             Name = "Phản hồi chất lượng"
                         },
                         new
                         {
                             Id = 8,
-                            Department = 3,
+                            DepartmentId = 3,
                             Name = "Giải quyết tranh chấp"
                         },
                         new
                         {
                             Id = 9,
-                            Department = 3,
+                            DepartmentId = 3,
                             Name = "Lỗi phần mềm, ứng dụng"
                         },
                         new
                         {
                             Id = 10,
-                            Department = 3,
+                            DepartmentId = 3,
                             Name = "Vấn đề mạng, kết nối"
                         },
                         new
                         {
                             Id = 11,
-                            Department = 2,
+                            DepartmentId = 2,
                             Name = "Cài đặt, cấu hình thiết bị IT"
                         });
+                });
+
+            modelBuilder.Entity("Domain.Entities.CauseType", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CauseTypes", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Comment", b =>
@@ -150,6 +171,13 @@ namespace Infrastructure.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("TicketId")
                         .HasColumnType("integer");
@@ -203,6 +231,13 @@ namespace Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<int>("TicketId")
                         .HasColumnType("integer");
 
@@ -211,6 +246,27 @@ namespace Infrastructure.Migrations
                     b.HasIndex("TicketId");
 
                     b.ToTable("Histories", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Entities.ImplementationPlan", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ImplementationPlans", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Progress", b =>
@@ -232,9 +288,6 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("Step")
-                        .HasColumnType("integer");
-
                     b.Property<int>("TicketId")
                         .HasColumnType("integer");
 
@@ -249,6 +302,27 @@ namespace Infrastructure.Migrations
                     b.ToTable("Progress");
                 });
 
+            modelBuilder.Entity("Domain.Entities.Project", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Projects", (string)null);
+                });
+
             modelBuilder.Entity("Domain.Entities.Ticket", b =>
                 {
                     b.Property<int>("Id")
@@ -257,10 +331,13 @@ namespace Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("AssigneeId")
+                    b.Property<int>("CategoryId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("CategoryId")
+                    b.Property<string>("Cause")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("CauseTypeId")
                         .HasColumnType("integer");
 
                     b.Property<string>("Content")
@@ -273,12 +350,27 @@ namespace Infrastructure.Migrations
                     b.Property<int>("CreatorId")
                         .HasColumnType("integer");
 
+                    b.Property<DateTime>("DesiredCompleteDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("ExpectedCompleteDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("ExpectedStartDate")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<int>("HeadDepartmentId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("ImplementationPlanId")
                         .HasColumnType("integer");
 
                     b.Property<string>("Priority")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<int>("ProjectId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -290,15 +382,34 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AssigneeId");
-
                     b.HasIndex("CategoryId");
+
+                    b.HasIndex("CauseTypeId");
 
                     b.HasIndex("CreatorId");
 
                     b.HasIndex("HeadDepartmentId");
 
+                    b.HasIndex("ImplementationPlanId");
+
+                    b.HasIndex("ProjectId");
+
                     b.ToTable("Tickets", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Entities.TicketAssignee", b =>
+                {
+                    b.Property<int>("TicketId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("AssigneeId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("TicketId", "AssigneeId");
+
+                    b.HasIndex("AssigneeId");
+
+                    b.ToTable("TicketAssignees", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.User", b =>
@@ -438,6 +549,12 @@ namespace Infrastructure.Migrations
                             Id = 5,
                             Name = "Head Of QA",
                             NormalizedName = "HEAD OF QA"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Name = "Head",
+                            NormalizedName = "HEAD"
                         });
                 });
 
@@ -565,7 +682,7 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Entities.History", b =>
                 {
                     b.HasOne("Domain.Entities.Ticket", "Ticket")
-                        .WithMany()
+                        .WithMany("Histories")
                         .HasForeignKey("TicketId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -586,16 +703,15 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.Ticket", b =>
                 {
-                    b.HasOne("Domain.Entities.User", "Assignee")
-                        .WithMany("AssignedTickets")
-                        .HasForeignKey("AssigneeId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.HasOne("Domain.Entities.Category", "Category")
                         .WithMany()
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("Domain.Entities.CauseType", "CauseType")
+                        .WithMany("Tickets")
+                        .HasForeignKey("CauseTypeId");
 
                     b.HasOne("Domain.Entities.User", "Creator")
                         .WithMany("CreatedTickets")
@@ -609,13 +725,46 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Assignee");
+                    b.HasOne("Domain.Entities.ImplementationPlan", "ImplementationPlan")
+                        .WithMany("Tickets")
+                        .HasForeignKey("ImplementationPlanId");
+
+                    b.HasOne("Domain.Entities.Project", "Project")
+                        .WithMany("Tickets")
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Category");
+
+                    b.Navigation("CauseType");
 
                     b.Navigation("Creator");
 
                     b.Navigation("HeadOfDepartment");
+
+                    b.Navigation("ImplementationPlan");
+
+                    b.Navigation("Project");
+                });
+
+            modelBuilder.Entity("Domain.Entities.TicketAssignee", b =>
+                {
+                    b.HasOne("Domain.Entities.User", "Assignee")
+                        .WithMany("AssignedTickets")
+                        .HasForeignKey("AssigneeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Ticket", "Ticket")
+                        .WithMany("Assignees")
+                        .HasForeignKey("TicketId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Assignee");
+
+                    b.Navigation("Ticket");
                 });
 
             modelBuilder.Entity("Domain.Entities.User", b =>
@@ -680,6 +829,11 @@ namespace Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Domain.Entities.CauseType", b =>
+                {
+                    b.Navigation("Tickets");
+                });
+
             modelBuilder.Entity("Domain.Entities.Comment", b =>
                 {
                     b.Navigation("Attachments");
@@ -690,9 +844,23 @@ namespace Infrastructure.Migrations
                     b.Navigation("Employees");
                 });
 
+            modelBuilder.Entity("Domain.Entities.ImplementationPlan", b =>
+                {
+                    b.Navigation("Tickets");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Project", b =>
+                {
+                    b.Navigation("Tickets");
+                });
+
             modelBuilder.Entity("Domain.Entities.Ticket", b =>
                 {
+                    b.Navigation("Assignees");
+
                     b.Navigation("Comments");
+
+                    b.Navigation("Histories");
 
                     b.Navigation("Progresses");
                 });

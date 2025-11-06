@@ -11,7 +11,7 @@ namespace TicketManagement.Api.Controllers;
 public class AuthenticationController(IUserService userService, IGoogleAuthService googleAuthService): Controller
 {
     [HttpPost("login")]
-    public async Task<IActionResult> Login([FromBody] UserLoginDto userLoginDto)
+    public async Task<IActionResult> Login([FromBody] UserLoginRequest userLoginDto)
     {
         var result = await userService.Login(userLoginDto);
         if (!result.Success) return BadRequest(result.Error);

@@ -11,7 +11,7 @@ public class UserController(IUserService userService): Controller
 {
     //[Authorize(Policy = "AdminOnly")]
     [HttpPost("create")]
-    public async Task<IActionResult> Create([FromBody] CreateUserDto createUserDto)
+    public async Task<IActionResult> Create([FromBody] CreateUserRequest createUserDto)
     {
         var result = await userService.Create(createUserDto);
         if (!result.Success) return BadRequest(result.Error);
@@ -20,9 +20,9 @@ public class UserController(IUserService userService): Controller
     
     //[Authorize(Policy = "AdminOnly")]
     [HttpPost("update")]
-    public async Task<IActionResult> Update([FromBody] UpdateUserDto updateUserDto)
+    public async Task<IActionResult> Update([FromBody] UpdateUserRequest updateUserRequest)
     {
-        var result = await userService.Update(updateUserDto);
+        var result = await userService.Update(updateUserRequest);
         if (!result.Success) return BadRequest(result.Error);
         return Ok(result);
     }

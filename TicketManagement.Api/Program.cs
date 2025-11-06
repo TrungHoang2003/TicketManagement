@@ -1,7 +1,6 @@
 using System.Text;
 using Application;
 using BuildingBlocks.Commons;
-using BuildingBlocks.EmailHelper;
 using DotNetEnv;
 using Infrastructure;
 using Scalar.AspNetCore;
@@ -9,6 +8,7 @@ using Serilog;
 using TicketManagement.Api.Middlewares;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using TicketManagement.Api.Transformers;
 
 var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
 var envFile = environment switch
@@ -27,7 +27,11 @@ if (File.Exists(envPath))
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddOpenApi();
+builder.Services.AddOpenApi("v1", opt =>
+{
+    opt.AddDocumentTransformer<BearerSecuritySchemeTransformer>();
+});
+
 // Get connection string from configuration
 var postgresConnectionStr= builder.Configuration["ConnectionStrings:DefaultConnection"];
 var redisConnectionStr = builder.Configuration["ConnectionStrings:Redis"];

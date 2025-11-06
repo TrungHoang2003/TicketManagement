@@ -12,13 +12,15 @@ public interface IUserRepository
 {
     Task<IdentityResult> UpdateAsync(User user);
     Task<User> FindByIdAsync(int id);
+    Task<List<User>> FindByIdsAsync(List<int> ids);
     Task<User> FindByNameAsync(string userName);
     Task<IList<string>> GetRolesAsync(User user);
     Task<bool> CheckPasswordAsync(User user, string password);
     Task<IdentityResult> CreateAsync(User user, string? password = null);
     Task<User> FindByEmailAsync(string email);
     Task<IdentityResult> AddToRoleAsync(User user, string role);
-    Task<User> GetHeadOfDepartment(string departmentName);
+    Task<IdentityResult> AddToRolesAsync(User user, List<string> roles);
+    Task<User> GetHeadOfDepartment(int departmentId);
     Task<User> GetAdmin();
 }
 
@@ -40,8 +42,19 @@ public class UserRepository(UserManager<User> userManager, ILogger<UserRepositor
 
     public async Task<User> FindByEmailAsync(string email)
     {
+        logger.LogInformation("Searching for user with email: {Email}", email);
+        
         var result = await userManager.FindByEmailAsync(email);
-        if (result == null) throw new BusinessException($"User {email} not found");
+        
+        if (result == null) 
+        {
+            logger.LogWarning("User not found with email: {Email}", email);
+            throw new BusinessException($"User {email} not found");
+        }
+        
+        logger.LogInformation("Found user: Id={UserId}, Username={Username}, Email={Email}", 
+            result.Id, result.UserName, result.Email);
+        
         return result;
     }
 
@@ -66,11 +79,20 @@ public class UserRepository(UserManager<User> userManager, ILogger<UserRepositor
     {
         try
         {
-            return await userManager.GetRolesAsync(user);
+            logger.LogInformation("Getting roles for user: {UserId}, Email: {Email}, Username: {Username}", 
+                user.Id, user.Email, user.UserName);
+            
+            var roles = await userManager.GetRolesAsync(user);
+            
+            logger.LogInformation("Found {RoleCount} roles for user {UserId}: {Roles}", 
+                roles.Count, user.Id, string.Join(", ", roles));
+            
+            return roles;
         }
         catch (Exception e)
         {
-            logger.LogError("Error while getting Roles: {e.Message}", e.Message);
+            logger.LogError(e, "Error while getting Roles for user {UserId}: {ErrorMessage}", 
+                user.Id, e.Message);
             throw;
         }
     }
@@ -80,23 +102,26 @@ public class UserRepository(UserManager<User> userManager, ILogger<UserRepositor
         return await userManager.AddToRoleAsync(user, role);
     }
 
-    public async Task<User> GetHeadOfDepartment(string departmentName)
+    public async Task<IdentityResult> AddToRolesAsync(User user, List<string> roles)
     {
-        var role = departmentName switch
-        {
-            "AD" => "Head Of AD",
-            "QA" => "Head Of QA",
-            "IT" => "Head Of IT",
-            _ => throw new ArgumentOutOfRangeException()
-        };
-        
-        var users = await userManager.GetUsersInRoleAsync(role);
-        return users.FirstOrDefault() ?? throw new BusinessException($"No head found for department: {departmentName}");
+        return await userManager.AddToRolesAsync(user, roles);
+    }
+    
+    public async Task<User> GetHeadOfDepartment(int departmentId)
+    {
+        var users = await userManager.GetUsersInRoleAsync("Head");
+        var head = users.FirstOrDefault(u => u.DepartmentId == departmentId);
+        return head ?? throw new BusinessException($"No head found for department: {departmentId}");
     }
 
     public async Task<User> GetAdmin()
     {
         var result = await userManager.GetUsersInRoleAsync("admin");
         return result.First();
+    }
+
+    public async Task<List<User>> FindByIdsAsync(List<int> ids)
+    {
+        return await dbContext.Users.Where(u => ids.Contains(u.Id)).ToListAsync();
     }
 }

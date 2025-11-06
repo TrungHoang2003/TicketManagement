@@ -1,4 +1,5 @@
-﻿using Application.Services;
+﻿using Application.Mappings;
+using Application.Services;
 using BuildingBlocks.Settings;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,6 +21,12 @@ public static class ApplicationDi
         services.AddScoped<IEmailService, EmailService>();
         services.AddScoped<IProgressService, ProgressService>();
         services.AddScoped<IGoogleAuthService, GoogleAuthService>();
+        services.AddScoped<ICategoryService, CategoryService>();
+        services.AddScoped<IDepartmentService, DepartmentService>();
+        services.AddScoped<IProjectService, ProjectService>();
+        services.AddScoped<ICauseTypeService, CauseTypeService>();
+        services.AddScoped<ICommentService, CommentService>();
+        services.AddScoped<IImplementationPlanService, ImplementationPlanService>();
         services.AddHttpClient<IGoogleAuthService, GoogleAuthService>();
         services.AddSingleton<ICloudinaryService,CloudinaryService>();
         
@@ -27,6 +34,13 @@ public static class ApplicationDi
         services.AddSingleton<IEmailBackgroundService, EmailBackgroundService>();
         services.AddHostedService<EmailBackgroundService>(provider => 
             (EmailBackgroundService)provider.GetRequiredService<IEmailBackgroundService>());
+        
+        
+        //Add Automapper
+        services.AddAutoMapper(cfg =>
+        {
+            cfg.AddProfile<MappingProfile>();
+        });
         
         return services;
     }

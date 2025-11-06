@@ -12,9 +12,9 @@ namespace Application.Services;
 
 public interface IUserService
 {
-   Task<Result<UserLoginResponse>> Login(UserLoginDto userLoginDto);
-   Task<Result> Create(CreateUserDto createUserDto);
-   Task<Result> Update(UpdateUserDto updateUserDto);
+   Task<Result<UserLoginResponse>> Login(UserLoginRequest userLoginDto);
+   Task<Result> Create(CreateUserRequest createUserDto);
+   Task<Result> Update(UpdateUserRequest updateUserRequest);
    Task<Result<List<UsersByDepartmentDto>>> GetByDepartment(int departmentId);
    int GetLoginUserId();
 }
@@ -22,15 +22,15 @@ public interface IUserService
 public class UserService(IHttpContextAccessor httpContextAccessor, IUserRepository userRepo, IJwtService jwtService,
    IRedisService redisService, IDepartmentRepository departmentRepo, AppDbContext dbContext) : IUserService
 {
-   public async Task<Result> Update(UpdateUserDto updateUserDto)
+   public async Task<Result> Update(UpdateUserRequest updateUserRequest)
    {
-      var existingUser = await userRepo.FindByIdAsync(updateUserDto.Id);
+      var existingUser = await userRepo.FindByIdAsync(updateUserRequest.Id);
 
-      if(updateUserDto.DepartmentId.HasValue) existingUser.DepartmentId = updateUserDto.DepartmentId.Value;
-      if (updateUserDto.FullName != null) existingUser.FullName = updateUserDto.FullName;
-      if (updateUserDto.Username != null) existingUser.UserName = updateUserDto.Username;
-      if (updateUserDto.Role != null)
-         await userRepo.AddToRoleAsync(existingUser, updateUserDto.Role);
+      if(updateUserRequest.DepartmentId.HasValue) existingUser.DepartmentId = updateUserRequest.DepartmentId.Value;
+      if (updateUserRequest.FullName != null) existingUser.FullName = updateUserRequest.FullName;
+      if (updateUserRequest.Username != null) existingUser.UserName = updateUserRequest.Username;
+      if (updateUserRequest.Roles != null)
+         await userRepo.AddToRolesAsync(existingUser, updateUserRequest.Roles);
 
       var result = await userRepo.UpdateAsync(existingUser);
       if (result.Succeeded) return Result.IsSuccess();
@@ -57,7 +57,7 @@ public class UserService(IHttpContextAccessor httpContextAccessor, IUserReposito
       return userId;
    }
 
-   public async Task<Result<UserLoginResponse>> Login(UserLoginDto userLoginDto)
+   public async Task<Result<UserLoginResponse>> Login(UserLoginRequest userLoginDto)
    {
       var user = await userRepo.FindByEmailAsync(userLoginDto.Email);
 
@@ -84,7 +84,7 @@ public class UserService(IHttpContextAccessor httpContextAccessor, IUserReposito
       });
    }
 
-   public async Task<Result> Create(CreateUserDto dto)
+   public async Task<Result> Create(CreateUserRequest dto)
    {
       var department = await departmentRepo.GetByIdAsync(dto.DepartmentId);
       
@@ -93,7 +93,8 @@ public class UserService(IHttpContextAccessor httpContextAccessor, IUserReposito
          FullName = dto.FullName,
          UserName = dto.Email,
          Email = dto.Email,
-         Department = department
+         Department = department,
+         DepartmentId = department.Id
       };
 
       var result = await userRepo.CreateAsync(user);
@@ -103,7 +104,8 @@ public class UserService(IHttpContextAccessor httpContextAccessor, IUserReposito
          return Result.Failure(new Error("Register.Failed", string.Join(",", errors)));
       }
 
-      await userRepo.AddToRoleAsync(user, dto.Role);
+      await userRepo.AddToRolesAsync(user, dto.Roles);
+         
       return Result.IsSuccess();
    }
 }

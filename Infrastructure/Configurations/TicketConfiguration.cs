@@ -17,11 +17,6 @@ public class TicketConfiguration:IEntityTypeConfiguration<Ticket>
             .WithMany()
             .HasForeignKey(t => t.CategoryId);
         
-        // Cấu hình relationship với Assignee
-        builder.HasOne(t => t.Assignee)
-            .WithMany(u => u.AssignedTickets)
-            .HasForeignKey(t => t.AssigneeId)
-            .OnDelete(DeleteBehavior.Restrict);
         
         // Cấu hình relationship với Creator
         builder.HasOne(t => t.Creator)
@@ -42,6 +37,18 @@ public class TicketConfiguration:IEntityTypeConfiguration<Ticket>
         builder.HasMany(t => t.Progresses)
             .WithOne(p => p.Ticket)
             .HasForeignKey(p => p.TicketId);
+
+        builder.HasOne(t => t.ImplementationPlan)
+            .WithMany(ip => ip.Tickets)
+            .HasForeignKey(t => t.ImplementationPlanId);
+        
+        builder.HasOne(t => t.CauseType)
+            .WithMany(ct => ct.Tickets)
+            .HasForeignKey(t => t.CauseTypeId);
+        
+        builder.HasOne(t => t.Project)
+            .WithMany(p => p.Tickets)
+            .HasForeignKey(t => t.ProjectId);
         
         builder.Property(t => t.Status).HasConversion<string>();
         builder.Property(t => t.Priority).HasConversion<string>();
