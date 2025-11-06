@@ -9,7 +9,7 @@ namespace TicketManagement.Api.Controllers;
 [Route("user")]
 public class UserController(IUserService userService): Controller
 {
-    [Authorize(Policy = "AdminOnly")]
+    //[Authorize(Policy = "AdminOnly")]
     [HttpPost("create")]
     public async Task<IActionResult> Create([FromBody] CreateUserDto createUserDto)
     {
@@ -18,7 +18,7 @@ public class UserController(IUserService userService): Controller
         return Ok(result);
     }
     
-    [Authorize(Policy = "AdminOnly")]
+    //[Authorize(Policy = "AdminOnly")]
     [HttpPost("update")]
     public async Task<IActionResult> Update([FromBody] UpdateUserDto updateUserDto)
     {
@@ -27,7 +27,7 @@ public class UserController(IUserService userService): Controller
         return Ok(result);
     }
 
-    [HttpGet("get_by_department")]
+    //[HttpGet("get_by_department")]
     public async Task<IActionResult> GetByDepartment([FromQuery] int departmentId)
     {
         var result = await userService.GetByDepartment(departmentId);
