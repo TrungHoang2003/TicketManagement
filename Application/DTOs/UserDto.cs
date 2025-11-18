@@ -1,4 +1,5 @@
 ﻿using Application.Mappings;
+using AutoMapper;
 using Domain.Entities;
 
 namespace Application.DTOs;
@@ -9,6 +10,8 @@ public class UserDto: IMapFrom<User>
     public string FullName { get; set; } 
     public int DepartmentId { get; set; } 
     public string? AvatarUrl { get; set; }
+    public string Email { get; set; }
+    public IList<string> Roles { get; set; }
     public string? PhoneNumber { get; set; }
 }
 

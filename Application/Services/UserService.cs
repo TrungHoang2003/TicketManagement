@@ -56,8 +56,12 @@ public class UserService(IHttpContextAccessor httpContextAccessor, IUserReposito
     public async Task<Result<UserDto>> GetById(int id)
     {
         var user = await userManager.FindByIdAsync(id.ToString());
-        var userDto = mapper.Map<UserDto>(user);
         if (user == null) return UserErrors.UserNotFound;
+        
+        var roles = await userManager.GetRolesAsync(user);
+        
+        var userDto = mapper.Map<UserDto>(user);
+        userDto.Roles = roles;
         return userDto;
     }
 
