@@ -37,8 +37,12 @@ public class AuthenticationController(IUserService userService, IGoogleAuthServi
     public async Task<IActionResult> GoogleCallBack([FromQuery] string code)
     {
         var result = await googleAuthService.GoogleCallBack(code);
-        if (!result.Success) return BadRequest(result.Error);
+        if (!result.Success)
+        {
+            var errorMessage = $"{result.Error?.Code}: {result.Error?.Description}";
+            var redirectUrl = $"https://localhost:5173/login?error={Uri.EscapeDataString(errorMessage)}";
+            return Redirect(redirectUrl);
+        }
         return Redirect(result.Data);
-        //return Ok(result);
     }
 }
