@@ -27,10 +27,17 @@ public class UserController(IUserService userService): Controller
         return Ok(result);
     }
 
-    [HttpGet("get_by_department")]
-    public async Task<IActionResult> GetByDepartment([FromQuery] int departmentId)
+    [HttpGet("get_by_id")]
+    public async Task<IActionResult> GetById([FromQuery] int userId)
     {
-        var result = await userService.GetByDepartment(departmentId);
+        var result = await userService.GetById(userId);
+        return Ok(result);
+    }
+    
+    [HttpGet("get_all")]
+    public async Task<IActionResult> GetAll()
+    {
+        var result = await userService.GetAll();
         return Ok(result);
     }
 }

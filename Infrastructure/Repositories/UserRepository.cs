@@ -26,6 +26,7 @@ public interface IUserRepository
 
 public class UserRepository(UserManager<User> userManager, ILogger<UserRepository> logger, AppDbContext dbContext) :  IUserRepository
 {
+
     public async Task<User> FindByIdAsync(int id)
     {
         var result =  await userManager.FindByIdAsync(id.ToString());
@@ -119,6 +120,7 @@ public class UserRepository(UserManager<User> userManager, ILogger<UserRepositor
         var result = await userManager.GetUsersInRoleAsync("admin");
         return result.First();
     }
+    
 
     public async Task<List<User>> FindByIdsAsync(List<int> ids)
     {

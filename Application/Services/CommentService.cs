@@ -54,7 +54,7 @@ public class CommentService(AppDbContext dbContext, IUnitOfWork unitOfWork, IClo
             var attachments = new List<Attachment>();
 
             foreach (var url in result)
-            {
+            { 
                 var attachment = new Attachment
                 {
                     EntityId = comment.Id,

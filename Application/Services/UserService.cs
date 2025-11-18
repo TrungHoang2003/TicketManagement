@@ -1,11 +1,14 @@
 ﻿using System.Security.Claims;
 using Application.DTOs;
 using Application.Erros;
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using BuildingBlocks.Commons;
 using Infrastructure.Repositories;
 using Domain.Entities;
 using Infrastructure.Database;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace Application.Services;
@@ -16,11 +19,13 @@ public interface IUserService
    Task<Result> Create(CreateUserRequest createUserDto);
    Task<Result> Update(UpdateUserRequest updateUserRequest);
    Task<Result<List<UsersByDepartmentDto>>> GetByDepartment(int departmentId);
+   Task<Result<UserDto>> GetById(int id);
+   Task<Result<List<UserDto>>> GetAll();
    int GetLoginUserId();
 }
 
 public class UserService(IHttpContextAccessor httpContextAccessor, IUserRepository userRepo, IJwtService jwtService,
-   IRedisService redisService, IDepartmentRepository departmentRepo, AppDbContext dbContext) : IUserService
+   IRedisService redisService, IDepartmentRepository departmentRepo, AppDbContext dbContext, UserManager<User> userManager, IMapper mapper) : IUserService
 {
    public async Task<Result> Update(UpdateUserRequest updateUserRequest)
    {
@@ -48,8 +53,21 @@ public class UserService(IHttpContextAccessor httpContextAccessor, IUserReposito
       return users;
    }
 
+    public async Task<Result<UserDto>> GetById(int id)
+    {
+        var user = await userManager.FindByIdAsync(id.ToString());
+        var userDto = mapper.Map<UserDto>(user);
+        if (user == null) return UserErrors.UserNotFound;
+        return userDto;
+    }
 
-   public int GetLoginUserId()
+    public async Task<Result<List<UserDto>>> GetAll()
+    {
+       return await dbContext.Users.AsQueryable().ProjectTo<UserDto>(mapper.ConfigurationProvider).ToListAsync();
+    }
+
+
+    public int GetLoginUserId()
    {
       var userIdClaim = httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 

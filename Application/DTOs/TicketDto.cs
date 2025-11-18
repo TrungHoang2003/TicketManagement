@@ -85,6 +85,11 @@ public class AssignTicketRequest
 {
     public List<int> AssigneeIds { get; set; }
     public int TicketId { get; set; }
+    public DateTime? ExpectedStartDate { get; set; }
+    public DateTime? ExpectedCompleteDate { get; set; }
+    public string Cause { get; set; }
+    public int CauseTypeId { get; set; }
+    public int ImplementationPlanId { get; set; }
     public string Note { get; set; }
 }
 

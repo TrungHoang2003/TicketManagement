@@ -105,6 +105,12 @@ public class TicketService(ICloudinaryService cloudinary, IUnitOfWork unitOfWork
         var currentLoginUserId = userService.GetLoginUserId();
         
         var ticket = await unitOfWork.Ticket.GetByIdAsync(assignTicketRequest.TicketId);
+
+        ticket.Cause = assignTicketRequest.Cause;
+        ticket.ImplementationPlanId = assignTicketRequest.ImplementationPlanId;
+        ticket.ExpectedStartDate = assignTicketRequest.ExpectedStartDate;
+        ticket.ExpectedCompleteDate = assignTicketRequest.ExpectedCompleteDate;
+        ticket.CauseTypeId = assignTicketRequest.CauseTypeId;
         
         var headOfDepartment = await unitOfWork.User.FindByIdAsync(ticket.HeadDepartmentId);
         if (currentLoginUserId != headOfDepartment.Id)
