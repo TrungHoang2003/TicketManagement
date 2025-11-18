@@ -9,6 +9,7 @@ using CloudinaryDotNet.Core;
 using Domain.Entities;
 using Infrastructure.Background;
 using Infrastructure.Repositories;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace Application.Services;
@@ -113,6 +114,7 @@ public class TicketService(ICloudinaryService cloudinary, IUnitOfWork unitOfWork
         ticket.CauseTypeId = assignTicketRequest.CauseTypeId;
         
         var headOfDepartment = await unitOfWork.User.FindByIdAsync(ticket.HeadDepartmentId);
+        
         if (currentLoginUserId != headOfDepartment.Id)
             return AuthenErrors.NotAuthorized;
 
@@ -312,7 +314,9 @@ public class TicketService(ICloudinaryService cloudinary, IUnitOfWork unitOfWork
             query = query.Where(t => t.CategoryId == request.CategoryId.Value);
         }
 
-        query = query.Include(t=>t.Assignees)
+        query = query.Include(t => t.Category).
+            Include(t=>t.Project).
+            Include(t => t.Assignees)
             .ThenInclude(a => a.Assignee);
         
         var totalCount = await query.CountAsync();
@@ -321,13 +325,12 @@ public class TicketService(ICloudinaryService cloudinary, IUnitOfWork unitOfWork
             .OrderBy(u => u.Id)
             .Skip((request.PageNumber - 1) * request.PageSize)
             .Take(request.PageSize)
+            .ProjectTo<TicketDto>(mapper.ConfigurationProvider)
             .ToListAsync();
-        
-        var ticketDtos = mapper.Map<List<TicketDto>>(tickets);
         
         var getListTicketResponse = new GetListTicketResponse
         {
-            Tickets = ticketDtos,
+            Tickets = tickets,
             TotalCount = totalCount
         };
 

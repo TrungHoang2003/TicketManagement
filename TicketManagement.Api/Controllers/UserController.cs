@@ -18,7 +18,7 @@ public class UserController(IUserService userService): Controller
         return Ok(result);
     }
     
-    [Authorize(Policy = "AdminOnly")]
+    //[Authorize(Policy = "AdminOnly")]
     [HttpPost("update")]
     public async Task<IActionResult> Update([FromBody] UpdateUserRequest updateUserRequest)
     {

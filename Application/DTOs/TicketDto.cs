@@ -10,9 +10,10 @@ public class TicketDto: IMapFrom<Ticket>
    public int Id { get; set; }
    public string Title { get; set; }
    public string Category { get; set; }
+   public int CategoryId { get; set; }
    public string Project { get; set; }
    public string? HeadDepartment { get; set; }
-   public int Creator { get; set; }
+   public string Creator { get; set; }
    public string Priority { get; set; }
    public string? AssigneeNames { get; set; }
    public string CreateAt { get; set; }
@@ -27,8 +28,10 @@ public class TicketDto: IMapFrom<Ticket>
                opt.MapFrom(src => src.Category.Name))
            .ForMember(dest => dest.HeadDepartment, opt =>
                opt.MapFrom(src => src.HeadOfDepartment.FullName))
-           .ForMember(dest => dest.Project, opt =>
-               opt.MapFrom(src => src.Project.Name));
+           .ForMember(dest => dest.Project, opt => 
+               opt.MapFrom(src => src.Project.Name))
+           .ForMember(dest => dest.Creator, opt =>
+           opt.MapFrom(src => src.Creator.FullName));
    }
 }
 
