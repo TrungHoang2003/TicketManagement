@@ -30,6 +30,7 @@ public class AuthenticationController(IUserService userService, IGoogleAuthServi
     {
         var result = await googleAuthService.GoogleCallBack(code);
         if (!result.Success) return BadRequest(result.Error);
-        return Ok(result);
+        return Redirect(result.Data);
+        //return Ok(result);
     }
 }
