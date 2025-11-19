@@ -1,6 +1,10 @@
 # 🎫 TicketManagement System
 
-An enterprise internal ticket management system built with .NET 8 and Clean Architecture.
+An enterprise internal ticket management system built with .NET 9 and Clean Architecture.
+
+> 📖 **New Documentation Available:**  
+> - [📝 Comprehensive Code Review](CODE_REVIEW.md) - Detailed analysis of the codebase with recommendations
+> - [🤝 Contributing Guidelines](CONTRIBUTING.md) - How to contribute to this project
 
 ## 📋 Project Overview
 
@@ -138,7 +142,7 @@ public class User : IdentityUser<int>
 ## 🚀 Installation and Setup
 
 ### **Prerequisites**
-- .NET 8 SDK
+- .NET 9 SDK
 - Docker & Docker Compose
 - PostgreSQL
 - Redis
