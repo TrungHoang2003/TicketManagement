@@ -46,10 +46,6 @@ public class TicketConfiguration:IEntityTypeConfiguration<Ticket>
             .WithMany(ct => ct.Tickets)
             .HasForeignKey(t => t.CauseTypeId);
         
-        builder.HasOne(t => t.Project)
-            .WithMany(p => p.Tickets)
-            .HasForeignKey(t => t.ProjectId);
-        
         builder.Property(t => t.Status).HasConversion<string>();
         builder.Property(t => t.Priority).HasConversion<string>();
     }

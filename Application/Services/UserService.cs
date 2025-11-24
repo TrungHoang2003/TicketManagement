@@ -67,7 +67,16 @@ public class UserService(IHttpContextAccessor httpContextAccessor, IUserReposito
 
     public async Task<Result<List<UserDto>>> GetAll()
     {
-       return await dbContext.Users.AsQueryable().ProjectTo<UserDto>(mapper.ConfigurationProvider).ToListAsync();
+       
+       var users = await dbContext.Users.AsQueryable().ProjectTo<UserDto>(mapper.ConfigurationProvider).ToListAsync();
+
+       foreach (var user in users)
+       {
+          var roles = await userRepo.GetRolesAsync(await userRepo.FindByIdAsync(user.Id));
+            user.Roles = roles;
+       }
+
+       return users;
     }
 
 

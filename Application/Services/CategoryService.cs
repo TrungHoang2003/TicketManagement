@@ -22,6 +22,7 @@ public class CategoryService(IUnitOfWork unitOfWork) : ICategoryService
         var category = new Category
         {
             Name = createCategoryDto.Name,
+            Description = createCategoryDto.Description,
             DepartmentId = createCategoryDto.DepartmentId
         };
 

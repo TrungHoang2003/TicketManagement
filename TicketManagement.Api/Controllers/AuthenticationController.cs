@@ -24,19 +24,15 @@ public class AuthenticationController(IUserService userService, IGoogleAuthServi
         var url = googleAuthService.GetGoogleAuthUrl();
         return Task.FromResult<IActionResult>(Ok(url));
     }
-
-    [HttpGet("google-callback-test")]
-    public async Task<IActionResult> GoogleCallBackTest([FromQuery] string code)
-    {
-        var result = await googleAuthService.GoogleCallBack(code);
-        if (!result.Success) return BadRequest(result.Error);
-        return Ok(result);
-    }
     
     [HttpGet("google-callback")]
     public async Task<IActionResult> GoogleCallBack([FromQuery] string code)
     {
         var result = await googleAuthService.GoogleCallBack(code);
+        
+        if (!result.Success) return BadRequest(result.Error);
+        return Ok(result);
+        
         if (!result.Success)
         {
             var errorMessage = $"{result.Error?.Code}: {result.Error?.Description}";

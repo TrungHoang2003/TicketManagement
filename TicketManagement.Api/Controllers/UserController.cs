@@ -7,6 +7,7 @@ namespace TicketManagement.Api.Controllers;
 
 [ApiController]
 [Route("user")]
+[Authorize]
 public class UserController(IUserService userService): Controller
 {
     //[Authorize(Policy = "AdminOnly")]

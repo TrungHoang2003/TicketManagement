@@ -66,6 +66,10 @@ namespace Infrastructure.Migrations
                     b.Property<int>("DepartmentId")
                         .HasColumnType("integer");
 
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
@@ -73,74 +77,6 @@ namespace Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Categories", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            DepartmentId = 1,
-                            Name = "Sửa chữa thiết bị văn phòng"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            DepartmentId = 1,
-                            Name = "Vấn đề về điện, nước, điều hòa"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            DepartmentId = 1,
-                            Name = "Bảo trì cơ sở hạ tầng"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            DepartmentId = 1,
-                            Name = "Vấn đề về an ninh, bảo vệ"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            DepartmentId = 3,
-                            Name = "Khiếu nại dịch vụ"
-                        },
-                        new
-                        {
-                            Id = 6,
-                            DepartmentId = 3,
-                            Name = "Yêu cầu tư vấn sản phẩm"
-                        },
-                        new
-                        {
-                            Id = 7,
-                            DepartmentId = 3,
-                            Name = "Phản hồi chất lượng"
-                        },
-                        new
-                        {
-                            Id = 8,
-                            DepartmentId = 3,
-                            Name = "Giải quyết tranh chấp"
-                        },
-                        new
-                        {
-                            Id = 9,
-                            DepartmentId = 3,
-                            Name = "Lỗi phần mềm, ứng dụng"
-                        },
-                        new
-                        {
-                            Id = 10,
-                            DepartmentId = 3,
-                            Name = "Vấn đề mạng, kết nối"
-                        },
-                        new
-                        {
-                            Id = 11,
-                            DepartmentId = 2,
-                            Name = "Cài đặt, cấu hình thiết bị IT"
-                        });
                 });
 
             modelBuilder.Entity("Domain.Entities.CauseType", b =>
@@ -204,23 +140,6 @@ namespace Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Departments", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "AD"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "IT"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "QA"
-                        });
                 });
 
             modelBuilder.Entity("Domain.Entities.History", b =>
@@ -302,27 +221,6 @@ namespace Infrastructure.Migrations
                     b.ToTable("Progress");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Project", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Projects", (string)null);
-                });
-
             modelBuilder.Entity("Domain.Entities.Ticket", b =>
                 {
                     b.Property<int>("Id")
@@ -369,9 +267,6 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("ProjectId")
-                        .HasColumnType("integer");
-
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("text");
@@ -391,8 +286,6 @@ namespace Infrastructure.Migrations
                     b.HasIndex("HeadDepartmentId");
 
                     b.HasIndex("ImplementationPlanId");
-
-                    b.HasIndex("ProjectId");
 
                     b.ToTable("Tickets", (string)null);
                 });
@@ -528,31 +421,43 @@ namespace Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = 3,
+                            Id = 2,
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = 4,
+                            Id = 3,
                             Name = "Head Of IT",
                             NormalizedName = "HEAD OF IT"
                         },
                         new
                         {
-                            Id = 2,
+                            Id = 4,
                             Name = "Head Of AD",
                             NormalizedName = "HEAD OF AD"
                         },
                         new
                         {
                             Id = 5,
-                            Name = "Head Of QA",
-                            NormalizedName = "HEAD OF QA"
+                            Name = "Head Of Sales",
+                            NormalizedName = "HEAD OF SALES"
                         },
                         new
                         {
                             Id = 6,
+                            Name = "Head Of HR",
+                            NormalizedName = "HEAD OF HR"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Name = "Head Of Finance",
+                            NormalizedName = "HEAD OF FINANCE"
+                        },
+                        new
+                        {
+                            Id = 8,
                             Name = "Head",
                             NormalizedName = "HEAD"
                         });
@@ -729,12 +634,6 @@ namespace Infrastructure.Migrations
                         .WithMany("Tickets")
                         .HasForeignKey("ImplementationPlanId");
 
-                    b.HasOne("Domain.Entities.Project", "Project")
-                        .WithMany("Tickets")
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Category");
 
                     b.Navigation("CauseType");
@@ -744,8 +643,6 @@ namespace Infrastructure.Migrations
                     b.Navigation("HeadOfDepartment");
 
                     b.Navigation("ImplementationPlan");
-
-                    b.Navigation("Project");
                 });
 
             modelBuilder.Entity("Domain.Entities.TicketAssignee", b =>
@@ -845,11 +742,6 @@ namespace Infrastructure.Migrations
                 });
 
             modelBuilder.Entity("Domain.Entities.ImplementationPlan", b =>
-                {
-                    b.Navigation("Tickets");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Project", b =>
                 {
                     b.Navigation("Tickets");
                 });

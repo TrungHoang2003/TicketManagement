@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251029035948_Init")]
+    [Migration("20251124025823_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -69,6 +69,10 @@ namespace Infrastructure.Migrations
                     b.Property<int>("DepartmentId")
                         .HasColumnType("integer");
 
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
@@ -76,74 +80,6 @@ namespace Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Categories", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            DepartmentId = 1,
-                            Name = "Sửa chữa thiết bị văn phòng"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            DepartmentId = 1,
-                            Name = "Vấn đề về điện, nước, điều hòa"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            DepartmentId = 1,
-                            Name = "Bảo trì cơ sở hạ tầng"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            DepartmentId = 1,
-                            Name = "Vấn đề về an ninh, bảo vệ"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            DepartmentId = 3,
-                            Name = "Khiếu nại dịch vụ"
-                        },
-                        new
-                        {
-                            Id = 6,
-                            DepartmentId = 3,
-                            Name = "Yêu cầu tư vấn sản phẩm"
-                        },
-                        new
-                        {
-                            Id = 7,
-                            DepartmentId = 3,
-                            Name = "Phản hồi chất lượng"
-                        },
-                        new
-                        {
-                            Id = 8,
-                            DepartmentId = 3,
-                            Name = "Giải quyết tranh chấp"
-                        },
-                        new
-                        {
-                            Id = 9,
-                            DepartmentId = 3,
-                            Name = "Lỗi phần mềm, ứng dụng"
-                        },
-                        new
-                        {
-                            Id = 10,
-                            DepartmentId = 3,
-                            Name = "Vấn đề mạng, kết nối"
-                        },
-                        new
-                        {
-                            Id = 11,
-                            DepartmentId = 2,
-                            Name = "Cài đặt, cấu hình thiết bị IT"
-                        });
                 });
 
             modelBuilder.Entity("Domain.Entities.CauseType", b =>
@@ -207,23 +143,6 @@ namespace Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Departments", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "AD"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "IT"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "QA"
-                        });
                 });
 
             modelBuilder.Entity("Domain.Entities.History", b =>
@@ -372,7 +291,7 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int?>("ProjectId")
+                    b.Property<int>("ProjectId")
                         .HasColumnType("integer");
 
                     b.Property<string>("Status")
@@ -408,19 +327,9 @@ namespace Infrastructure.Migrations
                     b.Property<int>("AssigneeId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("AssigneeId1")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("TicketId1")
-                        .HasColumnType("integer");
-
                     b.HasKey("TicketId", "AssigneeId");
 
                     b.HasIndex("AssigneeId");
-
-                    b.HasIndex("AssigneeId1");
-
-                    b.HasIndex("TicketId1");
 
                     b.ToTable("TicketAssignees", (string)null);
                 });
@@ -541,31 +450,43 @@ namespace Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = 3,
+                            Id = 2,
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = 4,
+                            Id = 3,
                             Name = "Head Of IT",
                             NormalizedName = "HEAD OF IT"
                         },
                         new
                         {
-                            Id = 2,
+                            Id = 4,
                             Name = "Head Of AD",
                             NormalizedName = "HEAD OF AD"
                         },
                         new
                         {
                             Id = 5,
-                            Name = "Head Of QA",
-                            NormalizedName = "HEAD OF QA"
+                            Name = "Head Of Sales",
+                            NormalizedName = "HEAD OF SALES"
                         },
                         new
                         {
                             Id = 6,
+                            Name = "Head Of HR",
+                            NormalizedName = "HEAD OF HR"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Name = "Head Of Finance",
+                            NormalizedName = "HEAD OF FINANCE"
+                        },
+                        new
+                        {
+                            Id = 8,
                             Name = "Head",
                             NormalizedName = "HEAD"
                         });
@@ -744,7 +665,9 @@ namespace Infrastructure.Migrations
 
                     b.HasOne("Domain.Entities.Project", "Project")
                         .WithMany("Tickets")
-                        .HasForeignKey("ProjectId");
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Category");
 
@@ -761,27 +684,15 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.TicketAssignee", b =>
                 {
-                    b.HasOne("Domain.Entities.User", null)
+                    b.HasOne("Domain.Entities.User", "Assignee")
                         .WithMany("AssignedTickets")
                         .HasForeignKey("AssigneeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.Entities.User", "Assignee")
-                        .WithMany()
-                        .HasForeignKey("AssigneeId1")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Entities.Ticket", null)
+                    b.HasOne("Domain.Entities.Ticket", "Ticket")
                         .WithMany("Assignees")
                         .HasForeignKey("TicketId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Entities.Ticket", "Ticket")
-                        .WithMany()
-                        .HasForeignKey("TicketId1")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

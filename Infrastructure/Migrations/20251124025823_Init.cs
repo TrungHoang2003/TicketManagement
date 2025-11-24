@@ -21,6 +21,7 @@ namespace Infrastructure.Migrations
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Name = table.Column<string>(type: "text", nullable: false),
+                    Description = table.Column<string>(type: "text", nullable: false),
                     DepartmentId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
@@ -164,7 +165,7 @@ namespace Infrastructure.Migrations
                     CategoryId = table.Column<int>(type: "integer", nullable: false),
                     CreatorId = table.Column<int>(type: "integer", nullable: false),
                     HeadDepartmentId = table.Column<int>(type: "integer", nullable: false),
-                    ProjectId = table.Column<int>(type: "integer", nullable: true),
+                    ProjectId = table.Column<int>(type: "integer", nullable: false),
                     CauseTypeId = table.Column<int>(type: "integer", nullable: true),
                     ImplementationPlanId = table.Column<int>(type: "integer", nullable: true),
                     Cause = table.Column<string>(type: "text", nullable: true),
@@ -199,7 +200,8 @@ namespace Infrastructure.Migrations
                         name: "FK_Tickets_Projects_ProjectId",
                         column: x => x.ProjectId,
                         principalTable: "Projects",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Tickets_Users_CreatorId",
                         column: x => x.CreatorId,
@@ -369,9 +371,7 @@ namespace Infrastructure.Migrations
                 columns: table => new
                 {
                     TicketId = table.Column<int>(type: "integer", nullable: false),
-                    AssigneeId = table.Column<int>(type: "integer", nullable: false),
-                    AssigneeId1 = table.Column<int>(type: "integer", nullable: false),
-                    TicketId1 = table.Column<int>(type: "integer", nullable: false)
+                    AssigneeId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -383,20 +383,8 @@ namespace Infrastructure.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_TicketAssignees_Tickets_TicketId1",
-                        column: x => x.TicketId1,
-                        principalTable: "Tickets",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
                         name: "FK_TicketAssignees_Users_AssigneeId",
                         column: x => x.AssigneeId,
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_TicketAssignees_Users_AssigneeId1",
-                        column: x => x.AssigneeId1,
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -425,44 +413,18 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.InsertData(
-                table: "Categories",
-                columns: new[] { "Id", "DepartmentId", "Name" },
-                values: new object[,]
-                {
-                    { 1, 1, "Sửa chữa thiết bị văn phòng" },
-                    { 2, 1, "Vấn đề về điện, nước, điều hòa" },
-                    { 3, 1, "Bảo trì cơ sở hạ tầng" },
-                    { 4, 1, "Vấn đề về an ninh, bảo vệ" },
-                    { 5, 3, "Khiếu nại dịch vụ" },
-                    { 6, 3, "Yêu cầu tư vấn sản phẩm" },
-                    { 7, 3, "Phản hồi chất lượng" },
-                    { 8, 3, "Giải quyết tranh chấp" },
-                    { 9, 3, "Lỗi phần mềm, ứng dụng" },
-                    { 10, 3, "Vấn đề mạng, kết nối" },
-                    { 11, 2, "Cài đặt, cấu hình thiết bị IT" }
-                });
-
-            migrationBuilder.InsertData(
-                table: "Departments",
-                columns: new[] { "Id", "Name" },
-                values: new object[,]
-                {
-                    { 1, "AD" },
-                    { 2, "IT" },
-                    { 3, "QA" }
-                });
-
-            migrationBuilder.InsertData(
                 table: "Roles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
                 values: new object[,]
                 {
                     { 1, null, "Employee", "EMPLOYEE" },
-                    { 2, null, "Head Of AD", "HEAD OF AD" },
-                    { 3, null, "Admin", "ADMIN" },
-                    { 4, null, "Head Of IT", "HEAD OF IT" },
-                    { 5, null, "Head Of QA", "HEAD OF QA" },
-                    { 6, null, "Head", "HEAD" }
+                    { 2, null, "Admin", "ADMIN" },
+                    { 3, null, "Head Of IT", "HEAD OF IT" },
+                    { 4, null, "Head Of AD", "HEAD OF AD" },
+                    { 5, null, "Head Of Sales", "HEAD OF SALES" },
+                    { 6, null, "Head Of HR", "HEAD OF HR" },
+                    { 7, null, "Head Of Finance", "HEAD OF FINANCE" },
+                    { 8, null, "Head", "HEAD" }
                 });
 
             migrationBuilder.CreateIndex(
@@ -500,16 +462,6 @@ namespace Infrastructure.Migrations
                 name: "IX_TicketAssignees_AssigneeId",
                 table: "TicketAssignees",
                 column: "AssigneeId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_TicketAssignees_AssigneeId1",
-                table: "TicketAssignees",
-                column: "AssigneeId1");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_TicketAssignees_TicketId1",
-                table: "TicketAssignees",
-                column: "TicketId1");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Tickets_CategoryId",

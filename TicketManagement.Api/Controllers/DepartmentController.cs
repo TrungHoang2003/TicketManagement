@@ -8,9 +8,10 @@ namespace TicketManagement.Api.Controllers;
 
 [ApiController]
 [Route("department")]
+[Authorize]
 public class DepartmentController(IDepartmentService departmentService): Controller
 {
-    [Authorize(Policy = "AdminOnly")]
+    // [Authorize(Policy = "AdminOnly")]
     [HttpPost("create")]
     public async Task<IActionResult> Create([FromBody] CreateDepartmentRequest createDepartmentRequest)
     {
@@ -19,7 +20,7 @@ public class DepartmentController(IDepartmentService departmentService): Control
         return Ok(result);
     }
 
-    [Authorize(Policy = "AdminOnly")]
+    // [Authorize(Policy = "AdminOnly")]
     [HttpPost("update")]
     public async Task<IActionResult> Update([FromBody] UpdateDepartmentRequest updateDepartmentRequest)
     {
@@ -28,7 +29,7 @@ public class DepartmentController(IDepartmentService departmentService): Control
         return Ok(result);
     }
 
-    [Authorize(Policy = "AdminOnly")]
+    // [Authorize(Policy = "AdminOnly")]
     [HttpDelete("delete")]
     public async Task<IActionResult> Delete([FromQuery] int departmentId)
     {
@@ -37,7 +38,7 @@ public class DepartmentController(IDepartmentService departmentService): Control
         return Ok(result);
     }
 
-    [Authorize(Policy = "AdminOnly")]
+    // [Authorize(Policy = "AdminOnly")]
     [HttpGet("get_all")]
     public async Task<IActionResult> GetAll()
     {
@@ -45,7 +46,7 @@ public class DepartmentController(IDepartmentService departmentService): Control
         return Ok(result);
     }
 
-    [Authorize(Policy = "AdminOnly")]
+    // [Authorize(Policy = "AdminOnly")]
     [HttpGet("get_by_id")]
     public async Task<IActionResult> GetById([FromQuery] int departmentId)
     {

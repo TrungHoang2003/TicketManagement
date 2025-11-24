@@ -1,11 +1,13 @@
 ﻿using Application.DTOs;
 using Application.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace TicketManagement.Api.Controllers;
 
 [ApiController]
 [Route("[controller]")]
+[Authorize]
 public class CommentController(ICommentService commentService): Controller
 {
     [HttpPost("create")]

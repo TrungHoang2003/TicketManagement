@@ -51,7 +51,6 @@ public class TicketService(ICloudinaryService cloudinary, IUnitOfWork unitOfWork
             Content = createTicketRequest.Content,
             HeadOfDepartment = headOfDepartment,
             DesiredCompleteDate = createTicketRequest.DesiredCompleteDate,
-            ProjectId = createTicketRequest.ProjectId
         };
         
         var progress = new Progress
@@ -247,7 +246,6 @@ public class TicketService(ICloudinaryService cloudinary, IUnitOfWork unitOfWork
             .Include(t => t.Assignees)
             .ThenInclude(a => a.Assignee)
             .Include(t => t.Category)
-            .Include(t => t.Project)
             .Include(t => t.Creator)
             .Include(t => t.HeadOfDepartment)
             .Include(t => t.CauseType)
@@ -315,7 +313,6 @@ public class TicketService(ICloudinaryService cloudinary, IUnitOfWork unitOfWork
         }
 
         query = query.Include(t => t.Category).
-            Include(t=>t.Project).
             Include(t => t.Assignees)
             .ThenInclude(a => a.Assignee);
         

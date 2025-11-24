@@ -9,7 +9,7 @@ namespace TicketManagement.Api.Controllers;
 [Route("category")]
 public class CategoryController(ICategoryService categoryService) : Controller
 {
-    [Authorize(Policy = "AdminOnly")]
+    // [Authorize(Policy = "AdminOnly")]
     [HttpPost("create")]
     public async Task<IActionResult> Create([FromBody] CreateCategoryDto createCategoryDto)
     {
@@ -18,7 +18,7 @@ public class CategoryController(ICategoryService categoryService) : Controller
         return Ok(result);
     }
 
-    [Authorize(Policy = "AdminOnly")]
+    // [Authorize(Policy = "AdminOnly")]
     [HttpPost("update")]
     public async Task<IActionResult> Update([FromBody] UpdateCategoryDto updateCategoryDto)
     {
@@ -27,7 +27,7 @@ public class CategoryController(ICategoryService categoryService) : Controller
         return Ok(result);
     }
 
-    [Authorize(Policy = "AdminOnly")]
+    // [Authorize(Policy = "AdminOnly")]
     [HttpDelete("delete")]
     public async Task<IActionResult> Delete([FromQuery] int categoryId)
     {
@@ -36,7 +36,7 @@ public class CategoryController(ICategoryService categoryService) : Controller
         return Ok(result);
     }
 
-    [Authorize(Policy = "AdminOnly")]
+    // [Authorize(Policy = "AdminOnly")]
     [HttpGet("get_all")]
     public async Task<IActionResult> GetAll()
     {
@@ -44,7 +44,7 @@ public class CategoryController(ICategoryService categoryService) : Controller
         return Ok(result);
     }
 
-    [Authorize(Policy = "AdminOnly")]
+    // [Authorize(Policy = "AdminOnly")]
     [HttpGet("get_by_id")]
     public async Task<IActionResult> GetById([FromQuery] int categoryId)
     {

@@ -1,10 +1,12 @@
 ﻿using Application.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace TicketManagement.Api.Controllers;
 
 [ApiController]
 [Route("[controller]")]
+[Authorize]
 public class ProgressController(IProgressService progressService): Controller
 {
     [HttpGet("get_ticket_progresses")]

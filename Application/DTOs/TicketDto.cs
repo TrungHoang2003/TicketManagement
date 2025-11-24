@@ -11,7 +11,6 @@ public class TicketDto: IMapFrom<Ticket>
    public string Title { get; set; }
    public string Category { get; set; }
    public int CategoryId { get; set; }
-   public string Project { get; set; }
    public string? HeadDepartment { get; set; }
    public string Creator { get; set; }
    public string Priority { get; set; }
@@ -28,8 +27,6 @@ public class TicketDto: IMapFrom<Ticket>
                opt.MapFrom(src => src.Category.Name))
            .ForMember(dest => dest.HeadDepartment, opt =>
                opt.MapFrom(src => src.HeadOfDepartment.FullName))
-           .ForMember(dest => dest.Project, opt => 
-               opt.MapFrom(src => src.Project.Name))
            .ForMember(dest => dest.Creator, opt =>
            opt.MapFrom(src => src.Creator.FullName));
    }
@@ -41,7 +38,6 @@ public class TicketDetailDto : IMapFrom<Ticket>
     public string ImplementationPlan { get; set; }
     public string? AssigneeNames { get; set; }
     public string Category { get; set; }
-    public string Project { get; set; }
     public string? HeadDepartment { get; set; }
     public string Content { get; set; }
     public DateTime DesiredCompleteDate { get; set; }
@@ -58,8 +54,6 @@ public class TicketDetailDto : IMapFrom<Ticket>
                 opt.MapFrom(src => src.Category.Name))
             .ForMember(dest => dest.HeadDepartment, opt =>
                 opt.MapFrom(src => src.HeadOfDepartment.FullName))
-            .ForMember(dest => dest.Project, opt =>
-                opt.MapFrom(src => src.Project.Name))
             .ForMember(dest => dest.CauseType, opt =>
                 opt.MapFrom(src => src.CauseType != null ? src.CauseType.Name : null))
             .ForMember(dest => dest.ImplementationPlan, opt =>
@@ -73,7 +67,6 @@ public class CreateTicketRequest
     public int CategoryId { get; set; } 
     public string Content { get; set; }
     public string Priority { get; set; }
-    public int ProjectId { get; set; }
     public DateTime DesiredCompleteDate{ get; set; }
     public List<string>? Base64Files { get; set; }
 }
