@@ -23,7 +23,6 @@ public class Ticket: Entity
     public List<Comment> Comments { get; set; } = [];
     public Category Category{ get; set; }
     public User Creator { get; set; }
-    public User HeadOfDepartment { get; set; }
     public CauseType? CauseType { get; set; }
     public List<Progress> Progresses { get; set; } = [];
     public List<TicketAssignee> Assignees { get; set; } = [];
@@ -44,5 +43,6 @@ public enum Status
     Received = 2,
     InProgress = 3,
     Rejected = 4,
-    Closed = 5
+    Completed = 5,
+    Closed = 6
 }

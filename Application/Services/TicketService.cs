@@ -1,15 +1,10 @@
 ﻿using Application.DTOs;
 using Application.Erros;
-using Application.Mappings;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using BuildingBlocks.Commons;
-using BuildingBlocks.EmailHelper;
-using CloudinaryDotNet.Core;
 using Domain.Entities;
-using Infrastructure.Background;
 using Infrastructure.Repositories;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace Application.Services;
@@ -20,7 +15,6 @@ public interface ITicketService
     Task<Result> Assign(AssignTicketRequest assignTicketRequest );
     Task<Result> RejectTicket(RejectTicketDto rejectTicketDto);
     Task<Result> HandleTicket(int ticketId);
-    Task<Result> FollowTicket(int ticketId);
     Task<Result<TicketDetailDto>> GetDetailTicket(int ticketId);
     Task<Result<GetListTicketResponse>> GetListTicket(GetListTicketRequest request);
 };
@@ -49,7 +43,6 @@ public class TicketService(ICloudinaryService cloudinary, IUnitOfWork unitOfWork
             Category = category,
             Priority = priority,
             Content = createTicketRequest.Content,
-            HeadOfDepartment = headOfDepartment,
             DesiredCompleteDate = createTicketRequest.DesiredCompleteDate,
         };
         
@@ -59,6 +52,7 @@ public class TicketService(ICloudinaryService cloudinary, IUnitOfWork unitOfWork
             EmployeeName = creator.FullName,
             Note = $"{creator.FullName} đã tạo yêu cầu"
         };
+        
         ticket.Progresses.Add(progress);
         await unitOfWork.Ticket.AddAsync(ticket);
         await unitOfWork.SaveChangesAsync();
@@ -99,27 +93,15 @@ public class TicketService(ICloudinaryService cloudinary, IUnitOfWork unitOfWork
 
         return Result.IsSuccess();
     }
-
     public async Task<Result> Assign(AssignTicketRequest assignTicketRequest)
     {
         var currentLoginUserId = userService.GetLoginUserId();
-        
         var ticket = await unitOfWork.Ticket.GetByIdAsync(assignTicketRequest.TicketId);
-
-        ticket.Cause = assignTicketRequest.Cause;
-        ticket.ImplementationPlanId = assignTicketRequest.ImplementationPlanId;
-        ticket.ExpectedStartDate = assignTicketRequest.ExpectedStartDate;
-        ticket.ExpectedCompleteDate = assignTicketRequest.ExpectedCompleteDate;
-        ticket.CauseTypeId = assignTicketRequest.CauseTypeId;
-        
-        var headOfDepartment = await unitOfWork.User.FindByIdAsync(ticket.HeadDepartmentId);
-        
-        if (currentLoginUserId != headOfDepartment.Id)
-            return AuthenErrors.NotAuthorized;
-
+        var headOfDepartment = await unitOfWork.User.FindByIdAsync(currentLoginUserId);
         var assignees = await unitOfWork.User.FindByIdsAsync(assignTicketRequest.AssigneeIds);
-        
-        ticket.Assignees.Clear();
+
+        if (ticket.Assignees.Count == 0)
+            ticket.Status = Status.InProgress;
         
         foreach (var assignee in assignees)
         {
@@ -132,14 +114,12 @@ public class TicketService(ICloudinaryService cloudinary, IUnitOfWork unitOfWork
             ticket.Assignees.Add(ticketAssignee);
         }
         
-        ticket.Status = Status.Received;
-
-        var assigneeNames = GetNames(ticket.Assignees);
+        var assigneeNames = GetAssigneeNames(ticket.Assignees);
         var progress = new Progress
         {
             EmployeeName = headOfDepartment.UserName!,
             TicketStatus = ticket.Status.ToString(),
-            Note = $"{headOfDepartment.UserName} assigned ticket to {assigneeNames}"
+            Note = $"{headOfDepartment.UserName} phân công {assigneeNames} xử lý ticket"
         };
         
         ticket.Progresses.Add(progress);
@@ -156,6 +136,7 @@ public class TicketService(ICloudinaryService cloudinary, IUnitOfWork unitOfWork
                 ReceiverEmail = assignee.Email!,
                 ReceiverName = assignee.FullName,
                 TicketTitle = ticket.Title,
+                Note = assignTicketRequest.Note,
                 Priority = ticket.Priority.ToString() 
             };
             await emailBackgroundService.QueueEmailAsync(sendTicketDto);
@@ -167,19 +148,19 @@ public class TicketService(ICloudinaryService cloudinary, IUnitOfWork unitOfWork
     public async Task<Result> RejectTicket(RejectTicketDto rejectTicketDto)
     {
         var ticket = await unitOfWork.Ticket.GetByIdAsync(rejectTicketDto.TicketId);
+        
+        var currentLoginUserId = userService.GetLoginUserId();
+        var currentHead = await unitOfWork.User.FindByIdAsync(currentLoginUserId);
 
-        if (ticket.Status != Status.Pending)
-            return new Error("Business Error", "This ticket is being handled, cannot be rejected");
-        
-        var headOfDepartment = await unitOfWork.User.FindByIdAsync(ticket.HeadDepartmentId);
-        
         var progress = new Progress
         {
-            EmployeeName = headOfDepartment.UserName!,
+            EmployeeName = CreateUserRequest.F!,
             TicketStatus = ticket.Status.ToString(),
             Note = $"{ticket.HeadOfDepartment.UserName} Received request"
         };
+        
         ticket.Status = Status.Rejected;
+        
         ticket.Progresses.Add(progress);
         await unitOfWork.SaveChangesAsync();
         
@@ -203,39 +184,29 @@ public class TicketService(ICloudinaryService cloudinary, IUnitOfWork unitOfWork
     public async Task<Result> HandleTicket(int ticketId)
     {
         var ticket = await unitOfWork.Ticket.GetByIdAsync(ticketId);
-
-        if (ticket.Assignees.Count == 0) 
-            return new Error("Business Error", "This ticket hasn't been assigned yet");
-        
         var currentLoginUserId = userService.GetLoginUserId();
+        var currentUser =  await unitOfWork.User.FindByIdAsync(currentLoginUserId);
         
-        var isAssigned = ticket.Assignees.Any(ta => ta.AssigneeId == currentLoginUserId);
-        if (!isAssigned)
-            return AuthenErrors.NotAuthorized;
-        
-        ticket.Status = Status.InProgress;
+        if(ticket.Assignees.Count == 0)
+            ticket.Status = Status.Received;
 
         var progress = new Progress
         {
-            EmployeeName = GetNames(ticket.Assignees),
+            EmployeeName = GetAssigneeNames(ticket.Assignees),
             TicketStatus = ticket.Status.ToString(),
-            Note = $"{GetNames(ticket.Assignees)} is handling request"
-        };
+            Note = $" Trưởng phòng ban {currentUser.FullName} đã tiếp nhận ticket"
+        }; 
+        
+        var ticketHead = new TicketHead
+        {
+            HeadId = currentLoginUserId,
+            Ticket = ticket,
+        }; ticket.Heads.Add(ticketHead);
+        
         ticket.Progresses.Add(progress);
+        
         await unitOfWork.SaveChangesAsync();
 
-        return Result.IsSuccess();
-    }
-
-    public async Task<Result> FollowTicket(int ticketId)
-    {
-        var ticket = await unitOfWork.Ticket.GetByIdAsync(ticketId);
-        var userId = userService.GetLoginUserId();
-        var user = await unitOfWork.User.FindByIdAsync(userId);
-        
-        user.FollowingTickets.Add(ticket);
-        await unitOfWork.SaveChangesAsync();
-        
         return Result.IsSuccess();
     }
 
@@ -247,7 +218,6 @@ public class TicketService(ICloudinaryService cloudinary, IUnitOfWork unitOfWork
             .ThenInclude(a => a.Assignee)
             .Include(t => t.Category)
             .Include(t => t.Creator)
-            .Include(t => t.HeadOfDepartment)
             .Include(t => t.CauseType)
             .Include(t => t.ImplementationPlan)
             .ProjectTo<TicketDetailDto>(mapper.ConfigurationProvider)
@@ -282,11 +252,6 @@ public class TicketService(ICloudinaryService cloudinary, IUnitOfWork unitOfWork
             query = query.Where(t => t.CreatorId == loginUserId);
         }
         
-        if (request.IsFollowing.HasValue && request.IsFollowing.Value)
-        {
-            query = query.Where(t => t.HeadDepartmentId== loginUserId);
-        }
-
         if (!string.IsNullOrEmpty(request.Title))
         {
             query = query.Where(t => t.Title.Contains(request.Title));
@@ -334,7 +299,19 @@ public class TicketService(ICloudinaryService cloudinary, IUnitOfWork unitOfWork
         return getListTicketResponse;
     }
     
-    public static string GetNames(List<TicketAssignee>? assignees)
+    public static string GetHeadNames(List<TicketHead>? heads)
+    {
+        if (heads == null || heads.Count == 0)
+            return "Chưa có người nhận";
+        
+        var names =heads 
+            .Select(a => a.Head.UserName)
+            .ToList();
+        
+        return string.Join(", ", names);
+    }
+    
+    public static string GetAssigneeNames(List<TicketAssignee>? assignees)
     {
         if (assignees == null || assignees.Count == 0)
             return "Chưa có người nhận";

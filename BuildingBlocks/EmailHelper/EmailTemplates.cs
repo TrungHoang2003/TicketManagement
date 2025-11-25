@@ -56,7 +56,7 @@ public static class EmailTemplates
         </html>";
     }
     
-    public static string GetTicketAssignedTemplate(string assigneeName, string ticketTitle, int ticketId, string creatorName, string priority)
+    public static string GetTicketAssignedTemplate(string assigneeName, string ticketTitle, int ticketId, string creatorName, string priority, string note)
     {
         return $@"
         <!DOCTYPE html>
@@ -82,6 +82,7 @@ public static class EmailTemplates
                 <div class='content'>
                     <h2>Xin chào {assigneeName}!</h2>
                     <p>Có một ticket mới cần được bạn xử lý trong hệ thống:</p>
+                    <p>Ghi chú: {note}</p>
                     
                     <div class='ticket-info'>
                         <h3>📋 Thông tin Ticket</h3>

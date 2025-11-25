@@ -22,11 +22,11 @@ public class TicketDto: IMapFrom<Ticket>
    {
        profile.CreateMap<Ticket, TicketDto>()
            .ForMember(dest => dest.AssigneeNames, opt =>
-               opt.MapFrom(src => TicketService.GetNames(src.Assignees)))
+               opt.MapFrom(src => TicketService.GetAssigneeNames(src.Assignees)))
            .ForMember(dest => dest.Category, opt =>
                opt.MapFrom(src => src.Category.Name))
            .ForMember(dest => dest.HeadDepartment, opt =>
-               opt.MapFrom(src => src.HeadOfDepartment.FullName))
+               opt.MapFrom(src => TicketService.GetHeadNames(src.Heads)))
            .ForMember(dest => dest.Creator, opt =>
            opt.MapFrom(src => src.Creator.FullName));
    }
@@ -49,11 +49,11 @@ public class TicketDetailDto : IMapFrom<Ticket>
     {
         profile.CreateMap<Ticket, TicketDetailDto>()
             .ForMember(dest => dest.AssigneeNames, opt =>
-                opt.MapFrom(src => TicketService.GetNames(src.Assignees)))
+                opt.MapFrom(src => TicketService.GetAssigneeNames(src.Assignees)))
             .ForMember(dest => dest.Category, opt =>
                 opt.MapFrom(src => src.Category.Name))
             .ForMember(dest => dest.HeadDepartment, opt =>
-                opt.MapFrom(src => src.HeadOfDepartment.FullName))
+                opt.MapFrom(src => TicketService.GetHeadNames(src.Heads)))
             .ForMember(dest => dest.CauseType, opt =>
                 opt.MapFrom(src => src.CauseType != null ? src.CauseType.Name : null));
     }
@@ -69,6 +69,12 @@ public class CreateTicketRequest
     public List<string>? Base64Files { get; set; }
 }
 
+public class ForwardTicketRequest
+{
+    public int TicketId { get; set; }
+    public int HeadId{ get; set; }
+}
+
 public class RejectTicketDto
 {
     public int TicketId { get; set; } 
@@ -79,11 +85,6 @@ public class AssignTicketRequest
 {
     public List<int> AssigneeIds { get; set; }
     public int TicketId { get; set; }
-    public DateTime? ExpectedStartDate { get; set; }
-    public DateTime? ExpectedCompleteDate { get; set; }
-    public string Cause { get; set; }
-    public int CauseTypeId { get; set; }
-    public int ImplementationPlanId { get; set; }
     public string Note { get; set; }
 }
 
