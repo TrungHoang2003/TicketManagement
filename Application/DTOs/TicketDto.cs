@@ -55,9 +55,7 @@ public class TicketDetailDto : IMapFrom<Ticket>
             .ForMember(dest => dest.HeadDepartment, opt =>
                 opt.MapFrom(src => src.HeadOfDepartment.FullName))
             .ForMember(dest => dest.CauseType, opt =>
-                opt.MapFrom(src => src.CauseType != null ? src.CauseType.Name : null))
-            .ForMember(dest => dest.ImplementationPlan, opt =>
-                opt.MapFrom(src => src.ImplementationPlan != null ? src.ImplementationPlan.Name : null));
+                opt.MapFrom(src => src.CauseType != null ? src.CauseType.Name : null));
     }
 }
 

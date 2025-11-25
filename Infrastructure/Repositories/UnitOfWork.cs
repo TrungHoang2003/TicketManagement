@@ -12,13 +12,13 @@ public interface IUnitOfWork
    ICommentRepository Comment { get; }
    IHistoryRepository History { get; }
    ICauseTypeRepository CauseType { get; }
-   IImplementationPlanRepository ImplementationPlan { get; }
    IProgressRepository Progress { get; }
 
    Task SaveChangesAsync();
 }
 
-public class UnitOfWork(AppDbContext dbContext, ITicketRepository ticket, IUserRepository user, IDepartmentRepository department, ICategoryRepository category, IAttachmentRepository attachment, ICommentRepository comment, IHistoryRepository history, IProgressRepository progress, ICauseTypeRepository causeType, IImplementationPlanRepository implementationPlan) : IUnitOfWork
+public class UnitOfWork(AppDbContext dbContext, ITicketRepository ticket, IUserRepository user, IDepartmentRepository department, ICategoryRepository category, IAttachmentRepository attachment, ICommentRepository comment,
+   IHistoryRepository history, IProgressRepository progress, ICauseTypeRepository causeType ) : IUnitOfWork
 {
    public ITicketRepository Ticket { get; } = ticket;
    public IUserRepository User { get; } = user;
@@ -29,7 +29,6 @@ public class UnitOfWork(AppDbContext dbContext, ITicketRepository ticket, IUserR
    public IHistoryRepository History { get; } = history;
    public IProgressRepository Progress { get; } = progress;
    public ICauseTypeRepository CauseType { get; } = causeType;
-   public IImplementationPlanRepository ImplementationPlan { get; } = implementationPlan;
 
 
    public async Task SaveChangesAsync()

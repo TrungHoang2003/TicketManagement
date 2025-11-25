@@ -12,5 +12,5 @@ public class User: IdentityUser<int>
     public Department Department { get; set; }
     public List<TicketAssignee> AssignedTickets { get; set; } = [];
     public List<Ticket> CreatedTickets { get; set; } = [];
-    public List<Ticket> FollowingTickets { get; set; } = [];
+    public List<TicketHead> FollowingTicket{ get; set; } = [];
 }

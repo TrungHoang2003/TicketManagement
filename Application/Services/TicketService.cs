@@ -275,7 +275,7 @@ public class TicketService(ICloudinaryService cloudinary, IUnitOfWork unitOfWork
         if (request.IsAssigned.HasValue && request.IsAssigned.Value)
         {
             query = query.Where(t => t.Assignees.Any(a => a.AssigneeId == loginUserId));
-        }
+        } 
         
         if (request.IsCreated.HasValue && request.IsCreated.Value)
         {

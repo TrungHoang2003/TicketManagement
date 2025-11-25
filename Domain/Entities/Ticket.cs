@@ -7,9 +7,8 @@ public class Ticket: Entity
     public string Title { get; set;  }
     public int CategoryId { get; set; } 
     public int CreatorId { get; set; }
-    public int HeadDepartmentId { get; set; }
     public int? CauseTypeId { get; set; }
-    public int? ImplementationPlanId { get; set; }
+    public string? ImplementationPlan { get; set; }
     public string? Cause { get; set; }
     public DateTime DesiredCompleteDate{ get; set; }
     public DateTime? ExpectedStartDate { get; set; }
@@ -26,9 +25,9 @@ public class Ticket: Entity
     public User Creator { get; set; }
     public User HeadOfDepartment { get; set; }
     public CauseType? CauseType { get; set; }
-    public ImplementationPlan? ImplementationPlan { get; set; }
     public List<Progress> Progresses { get; set; } = [];
     public List<TicketAssignee> Assignees { get; set; } = [];
+    public List<TicketHead> Heads{ get; set; } = [];
     public List<History> Histories { get; set; } = [];
 }
 

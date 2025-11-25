@@ -24,12 +24,6 @@ public class TicketConfiguration:IEntityTypeConfiguration<Ticket>
             .HasForeignKey(t => t.CreatorId)
             .OnDelete(DeleteBehavior.Restrict);
         
-        // Cấu hình relationship với HeadDepartment
-        builder.HasOne(t => t.HeadOfDepartment)
-            .WithMany(u => u.FollowingTickets)
-            .HasForeignKey(t => t.HeadDepartmentId)
-            .OnDelete(DeleteBehavior.Restrict);
-        
         builder.HasMany(t => t.Comments)
             .WithOne(c=>c.Ticket)
             .HasForeignKey(h=>h.TicketId);
@@ -38,10 +32,6 @@ public class TicketConfiguration:IEntityTypeConfiguration<Ticket>
             .WithOne(p => p.Ticket)
             .HasForeignKey(p => p.TicketId);
 
-        builder.HasOne(t => t.ImplementationPlan)
-            .WithMany(ip => ip.Tickets)
-            .HasForeignKey(t => t.ImplementationPlanId);
-        
         builder.HasOne(t => t.CauseType)
             .WithMany(ct => ct.Tickets)
             .HasForeignKey(t => t.CauseTypeId);
