@@ -26,6 +26,22 @@ public class TicketController(ITicketService ticketService): Controller
         if(!result.Success) return BadRequest(result.Error);
         return Ok(result);
     }
+    
+    [HttpPost("add-head")]
+    public async Task<IActionResult> AddHead(AddHeadRequest request)
+    {
+        var result = await ticketService.AddHead(request);
+        if(!result.Success) return BadRequest(result.Error);
+        return Ok(result);
+    }
+
+    [HttpPost("handle")]
+    public async Task<IActionResult> Handle([FromQuery] int ticketId)
+    {
+        var result = await ticketService.HandleTicket(ticketId);
+        if(!result.Success) return BadRequest(result.Error);
+        return Ok(result);
+    }
 
     [HttpPost("reject")]
     public async Task<IActionResult> Reject(RejectTicketDto dto)

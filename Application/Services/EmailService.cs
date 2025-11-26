@@ -33,10 +33,6 @@ public class EmailService(IRedisService redis, IGoogleTokenService googleTokenSe
                subject = $"🎫 New Ticket Assigned to you: {dto.TicketTitle}";
                body = EmailTemplates.GetTicketAssignedTemplate(dto.ReceiverName, dto.TicketTitle,dto.TicketId, dto.CreatorName, dto.Priority, dto.Note ?? "");
                break;
-           case EmailHeader.Rejected:
-               subject = $"🎫 Your Ticket has been rejected: {dto.TicketTitle}";
-               body = EmailTemplates.GetTicketRejectedTemplate(dto.TicketTitle,dto.TicketId, dto.CreatorName, dto.Priority, dto.Reason);
-               break;
            default:
                throw new ArgumentOutOfRangeException();
         }

@@ -88,6 +88,13 @@ public class AssignTicketRequest
     public string Note { get; set; }
 }
 
+public class AddHeadRequest
+{
+    public List<int> HeadIds { get; set; }
+    public int TicketId { get; set; }
+    public string Note { get; set; }
+}
+
 public class GetListTicketRequest
 {
     public bool? IsAssigned{ get; set; }

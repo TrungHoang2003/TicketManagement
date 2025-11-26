@@ -4,6 +4,7 @@ using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using BuildingBlocks.Commons;
 using Domain.Entities;
+using Infrastructure.Database;
 using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,12 +16,13 @@ public interface ITicketService
     Task<Result> Assign(AssignTicketRequest assignTicketRequest );
     Task<Result> RejectTicket(RejectTicketDto rejectTicketDto);
     Task<Result> HandleTicket(int ticketId);
+    Task<Result> AddHead(AddHeadRequest addHeadRequest);
     Task<Result<TicketDetailDto>> GetDetailTicket(int ticketId);
     Task<Result<GetListTicketResponse>> GetListTicket(GetListTicketRequest request);
 };
 
 public class TicketService(ICloudinaryService cloudinary, IUnitOfWork unitOfWork,
-    IEmailBackgroundService emailBackgroundService, IUserService userService, IMapper mapper) : ITicketService
+    IEmailBackgroundService emailBackgroundService, IUserService userService, IMapper mapper, AppDbContext dbContext) : ITicketService
 {
     public async Task<Result> Create(CreateTicketRequest createTicketRequest)
     {
@@ -50,7 +52,7 @@ public class TicketService(ICloudinaryService cloudinary, IUnitOfWork unitOfWork
         {
             TicketStatus = ticket.Status.ToString(),
             EmployeeName = creator.FullName,
-            Note = $"{creator.FullName} đã tạo yêu cầu"
+            Note = "đã tạo yêu cầu"
         };
         
         ticket.Progresses.Add(progress);
@@ -97,7 +99,8 @@ public class TicketService(ICloudinaryService cloudinary, IUnitOfWork unitOfWork
     {
         var currentLoginUserId = userService.GetLoginUserId();
         var ticket = await unitOfWork.Ticket.GetByIdAsync(assignTicketRequest.TicketId);
-        var headOfDepartment = await unitOfWork.User.FindByIdAsync(currentLoginUserId);
+        var head = await unitOfWork.User.FindByIdAsync(currentLoginUserId);
+        
         var assignees = await unitOfWork.User.FindByIdsAsync(assignTicketRequest.AssigneeIds);
 
         if (ticket.Assignees.Count == 0)
@@ -117,9 +120,9 @@ public class TicketService(ICloudinaryService cloudinary, IUnitOfWork unitOfWork
         var assigneeNames = GetAssigneeNames(ticket.Assignees);
         var progress = new Progress
         {
-            EmployeeName = headOfDepartment.UserName!,
+            EmployeeName = head.FullName,
             TicketStatus = ticket.Status.ToString(),
-            Note = $"{headOfDepartment.UserName} phân công {assigneeNames} xử lý ticket"
+            Note = $"Trưởng phòng ban phân công {assigneeNames} xử lý ticket"
         };
         
         ticket.Progresses.Add(progress);
@@ -154,29 +157,15 @@ public class TicketService(ICloudinaryService cloudinary, IUnitOfWork unitOfWork
 
         var progress = new Progress
         {
-            EmployeeName = CreateUserRequest.F!,
+            EmployeeName = currentHead.FullName,
             TicketStatus = ticket.Status.ToString(),
-            Note = $"{ticket.HeadOfDepartment.UserName} Received request"
-        };
+            Note = $"Trưởng phòng ban từ chối với lý do: {rejectTicketDto.Reason}"
+        }; 
         
         ticket.Status = Status.Rejected;
         
         ticket.Progresses.Add(progress);
         await unitOfWork.SaveChangesAsync();
-        
-        var sendTicketDto = new SendTicketEmailDto
-        {
-            Header = EmailHeader.Rejected,
-            TicketId = ticket.Id,
-            CreatorName = ticket.Creator.FullName,
-            ReceiverEmail = ticket.Creator.Email!,
-            ReceiverName = ticket.Creator.FullName,
-            TicketTitle = ticket.Title,
-            Priority = ticket.Priority.ToString(),
-            Reason = rejectTicketDto.Reason
-        };
-        
-        await emailBackgroundService.QueueEmailAsync(sendTicketDto);
         
         return Result.IsSuccess();
     }
@@ -192,9 +181,9 @@ public class TicketService(ICloudinaryService cloudinary, IUnitOfWork unitOfWork
 
         var progress = new Progress
         {
-            EmployeeName = GetAssigneeNames(ticket.Assignees),
+            EmployeeName = currentUser.FullName,
             TicketStatus = ticket.Status.ToString(),
-            Note = $" Trưởng phòng ban {currentUser.FullName} đã tiếp nhận ticket"
+            Note = $"Trưởng phòng ban đã tiếp nhận ticket"
         }; 
         
         var ticketHead = new TicketHead
@@ -207,6 +196,57 @@ public class TicketService(ICloudinaryService cloudinary, IUnitOfWork unitOfWork
         
         await unitOfWork.SaveChangesAsync();
 
+        return Result.IsSuccess();
+    }
+
+    public async Task<Result> AddHead(AddHeadRequest addHeadRequest)
+    {
+        var ticket = await unitOfWork.Ticket
+            .GetAll()
+            .Include(t=>t.Heads)
+            .FirstOrDefaultAsync(t => t.Id == addHeadRequest.TicketId);
+
+        if (ticket == null)
+            return TicketErrors.TicketNotFound;
+        
+        var currentLoginUserId = userService.GetLoginUserId();
+        var currentUser =  await unitOfWork.User.FindByIdAsync(currentLoginUserId);
+        
+        var heads = new List<User>();
+        
+        foreach (var headId in addHeadRequest.HeadIds)
+        {
+            var head = await unitOfWork.User.FindByIdAsync(headId);
+            heads.Add(head);     
+        }
+        var headNames = GetHeadNames(ticket.Heads);
+        
+        var progress = new Progress
+        {
+            EmployeeName = currentUser.FullName,
+            TicketStatus = ticket.Status.ToString(),
+            Note = $"Request sự hỗ trợ từ trưởng phòng ban {headNames}"
+        }; 
+        
+        ticket.Progresses.Add(progress);
+        await unitOfWork.SaveChangesAsync();
+
+        // Gửi email cho tất cả Head request được thêm 
+        foreach (var head in heads ) 
+        {
+            var sendTicketDto = new SendTicketEmailDto
+            {
+                Header = EmailHeader.Created,
+                TicketId = ticket.Id,
+                CreatorName = ticket.Creator.FullName,
+                ReceiverEmail = head.Email!,
+                ReceiverName = head.FullName,
+                TicketTitle = ticket.Title,
+                Note = addHeadRequest.Note,
+                Priority = ticket.Priority.ToString() 
+            };
+            await emailBackgroundService.QueueEmailAsync(sendTicketDto);
+        }
         return Result.IsSuccess();
     }
 

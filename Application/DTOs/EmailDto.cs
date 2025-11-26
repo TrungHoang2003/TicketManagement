@@ -14,14 +14,12 @@ public class SendTicketEmailDto
     public string ReceiverName { get; set; }
     public string TicketTitle { get; set; }
     public string Priority { get; set; }
-    public string Reason { get; set; }
     public string? Note { get; set; }
 }
 
 public enum EmailHeader
 {
     Created = 1, 
-    Rejected = 2,
     Assigned = 3
 }
 
