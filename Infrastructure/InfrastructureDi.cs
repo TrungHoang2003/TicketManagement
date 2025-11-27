@@ -62,6 +62,7 @@ public static class IdentityInfrastructureDi
         services.AddScoped<ICauseTypeRepository, CauseTypeRepository>();
         services.AddScoped<ICommentRepository, CommentRepository>();
         services.AddScoped<IHistoryRepository, HistoryRepository>();
+        services.AddScoped<IEmbeddingRepository, EmbeddingRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();

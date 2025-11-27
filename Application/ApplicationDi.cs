@@ -12,6 +12,8 @@ public static class ApplicationDi
     {
         services.Configure<GoogleOAuthSettings>(configuration.GetSection("Authentication:Google"));
         services.Configure<JwtSettings>(configuration.GetSection("JWT"));
+        services.Configure<OllamaSettings>(configuration.GetSection("Ollama"));
+        services.Configure<RagPromptSettings>(configuration.GetSection("RagPrompt"));
         
         services.AddSingleton<IJwtService, JwtService>();
         services.AddSingleton<IGoogleTokenService, GoogleTokenService>();
@@ -25,6 +27,7 @@ public static class ApplicationDi
         services.AddScoped<IDepartmentService, DepartmentService>();
         services.AddScoped<ICauseTypeService, CauseTypeService>();
         services.AddScoped<ICommentService, CommentService>();
+        services.AddScoped<IRagService, RagService>();
         services.AddHttpClient<IGoogleAuthService, GoogleAuthService>();
         services.AddSingleton<ICloudinaryService,CloudinaryService>();
         
