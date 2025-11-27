@@ -1,6 +1,6 @@
 ﻿services:
   postgres:
-    image: postgres
+    image: pgvector/pgvector:pg17
     container_name: ticket-postgres
     environment:
       POSTGRES_USER: root
@@ -9,6 +9,7 @@
     ports:
       - "5432:5432"
     volumes:
+      - postgres_data:/var/lib/postgresql/data
       - ./Infrastructure/Database/init.sql:/docker-entrypoint-initdb.d/init.sql
   
   redis:
@@ -26,21 +27,21 @@
       - ./redis-data:/data
     command: redis-server --appendonly no --save ""
   
-  api:
-   ports:
-     - "5105:8080"
-   build:
-     context: . 
-     dockerfile: TicketManagement.Api/Dockerfile
-   container_name: ticket-api
-   depends_on:
-     - redis
-     - postgres
-   environment:
-     - ASPNETCORE_ENVIRONMENT=Development
-     - ASPNETCORE_URLS=http://+:8080
-   env_file:
-     - TicketManagement.Api/.env.docker
+#  api:
+#   ports:
+#     - "5105:8080"
+#   build:
+#     context: . 
+#     dockerfile: TicketManagement.Api/Dockerfile
+#   container_name: ticket-api
+#   depends_on:
+#     - redis
+#     - postgres
+#   environment:
+#     - ASPNETCORE_ENVIRONMENT=Development
+#     - ASPNETCORE_URLS=http://+:8080
+#   env_file:
+#     - TicketManagement.Api/.env.docker
       
 volumes:
   postgres_data:

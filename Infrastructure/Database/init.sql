@@ -1171,6 +1171,17 @@ ALTER TABLE ONLY public."Users"
     ADD CONSTRAINT "FK_Users_Departments_DepartmentId" FOREIGN KEY ("DepartmentId") REFERENCES public."Departments"("Id") ON DELETE CASCADE;
 
 
+-- Enable pgvector extension
+CREATE EXTENSION IF NOT EXISTS vector;
+
+-- Create sample table
+CREATE TABLE items (
+                       id SERIAL PRIMARY KEY,
+                       name VARCHAR(255) NOT NULL,
+                       item_data JSONB,
+                       embedding vector(1536) -- vector data
+);
+
 --
 -- PostgreSQL database dump complete
 --
