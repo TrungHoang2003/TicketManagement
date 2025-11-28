@@ -2,10 +2,10 @@
 -- PostgreSQL database dump
 --
 
-\restrict Kg4yHAY2uEtyk8oIqn6WYmU5uOnBBkpCByrOTLLCL8PZmBreCoVXY7bFd6hQNy2
+\restrict z5bj39EEVPhhG1ZhXcifimxK06KNpP2dnZ9qhSsc8soHuI4X9cUVhcwfMTIXPw8
 
--- Dumped from database version 18.1 (Debian 18.1-1.pgdg13+2)
--- Dumped by pg_dump version 18.1 (Debian 18.1-1.pgdg13+2)
+-- Dumped from database version 17.7 (Debian 17.7-3.pgdg12+1)
+-- Dumped by pg_dump version 17.7 (Debian 17.7-3.pgdg12+1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -20,6 +20,8 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 SET default_tablespace = '';
+
+SET default_table_access_method = heap;
 
 --
 -- Name: Attachments; Type: TABLE; Schema: public; Owner: root
@@ -634,6 +636,7 @@ INSERT INTO public."UserRoles" VALUES (21, 1);
 INSERT INTO public."UserRoles" VALUES (22, 1);
 INSERT INTO public."UserRoles" VALUES (23, 1);
 INSERT INTO public."UserRoles" VALUES (7, 2);
+INSERT INTO public."UserRoles" VALUES (24, 1);
 
 
 --
@@ -1171,19 +1174,9 @@ ALTER TABLE ONLY public."Users"
     ADD CONSTRAINT "FK_Users_Departments_DepartmentId" FOREIGN KEY ("DepartmentId") REFERENCES public."Departments"("Id") ON DELETE CASCADE;
 
 
--- Enable pgvector extension
-CREATE EXTENSION IF NOT EXISTS vector;
-
--- Create sample table
-CREATE TABLE items (
-                       id SERIAL PRIMARY KEY,
-                       name VARCHAR(255) NOT NULL,
-                       item_data JSONB,
-                       embedding vector(1536) -- vector data
-);
-
 --
 -- PostgreSQL database dump complete
 --
 
-\unrestrict Kg4yHAY2uEtyk8oIqn6WYmU5uOnBBkpCByrOTLLCL8PZmBreCoVXY7bFd6hQNy2
+\unrestrict z5bj39EEVPhhG1ZhXcifimxK06KNpP2dnZ9qhSsc8soHuI4X9cUVhcwfMTIXPw8
+
