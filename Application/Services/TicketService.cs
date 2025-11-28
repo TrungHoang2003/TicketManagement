@@ -288,6 +288,11 @@ public class TicketService(ICloudinaryService cloudinary, IUnitOfWork unitOfWork
             query = query.Where(t => t.Assignees.Any(a => a.AssigneeId == loginUserId));
         } 
         
+        if (request.IsFollowing.HasValue && request.IsFollowing.Value)
+        {
+            query = query.Where(t => t.Heads.Any(a => a.HeadId== loginUserId));
+        } 
+        
         if (request.IsCreated.HasValue && request.IsCreated.Value)
         {
             query = query.Where(t => t.CreatorId == loginUserId);
@@ -318,9 +323,10 @@ public class TicketService(ICloudinaryService cloudinary, IUnitOfWork unitOfWork
             query = query.Where(t => t.CategoryId == request.CategoryId.Value);
         }
 
-        query = query.Include(t => t.Category).
-            Include(t => t.Assignees)
-            .ThenInclude(a => a.Assignee);
+        query = query.Include(t => t.Category).Include(t => t.Assignees)
+            .ThenInclude(a => a.Assignee)
+            .Include(t => t.Heads)
+            .ThenInclude(h => h.Head);
         
         var totalCount = await query.CountAsync();
         

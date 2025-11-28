@@ -1175,6 +1175,17 @@ ALTER TABLE ONLY public."Users"
 
 
 --
+-- Name: idx_langchain_embedding_hnsw; Type: INDEX; Schema: public; Owner: root
+-- Tạo HNSW index cho cosine similarity search trên pgvector
+--
+
+CREATE INDEX IF NOT EXISTS idx_langchain_embedding_hnsw 
+ON langchain_pg_embedding 
+USING hnsw (embedding vector_cosine_ops) 
+WITH (m = 16, ef_construction = 64);
+
+
+--
 -- PostgreSQL database dump complete
 --
 
