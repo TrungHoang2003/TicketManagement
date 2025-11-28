@@ -256,10 +256,11 @@ public class TicketService(ICloudinaryService cloudinary, IUnitOfWork unitOfWork
             .Where(t => t.Id == ticketId)
             .Include(t => t.Assignees)
             .ThenInclude(a => a.Assignee)
+            .Include(t => t.Heads)
+            .ThenInclude(h => h.Head)
             .Include(t => t.Category)
             .Include(t => t.Creator)
             .Include(t => t.CauseType)
-            .Include(t => t.ImplementationPlan)
             .ProjectTo<TicketDetailDto>(mapper.ConfigurationProvider)
             .FirstOrDefaultAsync();
         
