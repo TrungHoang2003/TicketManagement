@@ -691,14 +691,14 @@ SELECT pg_catalog.setval('public."Attachments_Id_seq"', 1, false);
 -- Name: Categories_Id_seq; Type: SEQUENCE SET; Schema: public; Owner: root
 --
 
-SELECT pg_catalog.setval('public."Categories_Id_seq"', 1, false);
+SELECT setval('public."Categories_Id_seq"', COALESCE(MAX("Id"), 1)) FROM public."Categories";
 
 
 --
 -- Name: CauseTypes_Id_seq; Type: SEQUENCE SET; Schema: public; Owner: root
 --
 
-SELECT pg_catalog.setval('public."CauseTypes_Id_seq"', 1, true);
+SELECT setval('public."CauseTypes_Id_seq"', COALESCE(MAX("Id"), 1)) FROM public."CauseTypes";
 
 
 --
@@ -712,7 +712,7 @@ SELECT pg_catalog.setval('public."Comments_Id_seq"', 1, false);
 -- Name: Departments_Id_seq; Type: SEQUENCE SET; Schema: public; Owner: root
 --
 
-SELECT pg_catalog.setval('public."Departments_Id_seq"', 1, false);
+SELECT setval('public."Departments_Id_seq"', COALESCE(MAX("Id"), 1)) FROM public."Departments";
 
 
 --
@@ -726,7 +726,7 @@ SELECT pg_catalog.setval('public."Histories_Id_seq"', 1, false);
 -- Name: Progress_Id_seq; Type: SEQUENCE SET; Schema: public; Owner: root
 --
 
-SELECT pg_catalog.setval('public."Progress_Id_seq"', 13, true);
+SELECT setval('public."Progress_Id_seq"', COALESCE(MAX("Id"), 1)) FROM public."Progress";
 
 
 --
@@ -740,14 +740,14 @@ SELECT pg_catalog.setval('public."RoleClaims_Id_seq"', 1, false);
 -- Name: Roles_Id_seq; Type: SEQUENCE SET; Schema: public; Owner: root
 --
 
-SELECT pg_catalog.setval('public."Roles_Id_seq"', 9, false);
+SELECT setval('public."Roles_Id_seq"', COALESCE(MAX("Id"), 1)) FROM public."Roles";
 
 
 --
 -- Name: Tickets_Id_seq; Type: SEQUENCE SET; Schema: public; Owner: root
 --
 
-SELECT pg_catalog.setval('public."Tickets_Id_seq"', 10, true);
+SELECT setval('public."Tickets_Id_seq"', COALESCE(MAX("Id"), 1)) FROM public."Tickets";
 
 
 --
@@ -761,7 +761,7 @@ SELECT pg_catalog.setval('public."UserClaims_Id_seq"', 1, false);
 -- Name: Users_Id_seq; Type: SEQUENCE SET; Schema: public; Owner: root
 --
 
-SELECT pg_catalog.setval('public."Users_Id_seq"', 1, false);
+SELECT setval('public."Users_Id_seq"', COALESCE(MAX("Id"), 1)) FROM public."Users";
 
 
 --
