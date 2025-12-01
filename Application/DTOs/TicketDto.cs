@@ -38,6 +38,7 @@ public class TicketDetailDto : IMapFrom<Ticket>
     public int Id { get; set; }
     public string Title { get; set; }
     public string CauseType { get; set; }
+    public string? Cause { get; set; }
     public string ImplementationPlan { get; set; }
     public string? AssigneeNames { get; set; }
     public string Category { get; set; }
@@ -87,6 +88,17 @@ public class CreateTicketRequest
     public DateTime DesiredCompleteDate{ get; set; }
     public List<string>? Base64Files { get; set; }
     public List<string>? FileNames { get; set; }
+}
+
+public class UpdateTicketRequest
+{
+    public int TicketId { get; set; }
+    public List<string>? FileNames { get; set; }
+    public int? CauseTypeId { get; set; } 
+    public string? ImplementationPlan { get; set; }
+    public string? Cause { get; set; }
+    public DateTime? ExpectedStartDate { get; set; }
+    public DateTime? ExpectedCompleteDate{ get; set; }
 }
 
 public class ForwardTicketRequest

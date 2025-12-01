@@ -7,7 +7,7 @@ namespace TicketManagement.Api.Controllers;
 
 [ApiController]
 [Route("auth")]
-
+[AllowAnonymous]
 public class AuthenticationController(IUserService userService, IGoogleAuthService googleAuthService): Controller
 {
     [HttpPost("login")]

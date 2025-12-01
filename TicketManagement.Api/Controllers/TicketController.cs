@@ -11,7 +11,7 @@ namespace TicketManagement.Api.Controllers;
 public class TicketController(ITicketService ticketService): Controller
 {
     [HttpPost("create")]
-    public async Task<IActionResult> CreateTicket(CreateTicketRequest request)
+    public async Task<IActionResult> CreateTicket([FromBody] CreateTicketRequest request)
     {
         var result = await ticketService.Create(request);
         if (result.Success)
@@ -20,7 +20,7 @@ public class TicketController(ITicketService ticketService): Controller
     }
 
     [HttpPost("assign")]
-    public async Task<IActionResult> Assign(AssignTicketRequest ticketRequest)
+    public async Task<IActionResult> Assign([FromBody] AssignTicketRequest ticketRequest)
     {
         var result = await ticketService.Assign(ticketRequest);
         if(!result.Success) return BadRequest(result.Error);
@@ -28,7 +28,7 @@ public class TicketController(ITicketService ticketService): Controller
     }
     
     [HttpPost("unassign")]
-    public async Task<IActionResult> Unassign(UnassignEmployeeRequest request)
+    public async Task<IActionResult> Unassign([FromBody] UnassignEmployeeRequest request)
     {
         var result = await ticketService.UnassignEmployee(request);
         if(!result.Success) return BadRequest(result.Error);
@@ -36,7 +36,7 @@ public class TicketController(ITicketService ticketService): Controller
     }
     
     [HttpPost("add-head")]
-    public async Task<IActionResult> AddHead(AddHeadRequest request)
+    public async Task<IActionResult> AddHead([FromBody] AddHeadRequest request)
     {
         var result = await ticketService.AddHead(request);
         if(!result.Success) return BadRequest(result.Error);
@@ -52,7 +52,7 @@ public class TicketController(ITicketService ticketService): Controller
     }
 
     [HttpPost("reject")]
-    public async Task<IActionResult> Reject(RejectTicketDto dto)
+    public async Task<IActionResult> Reject([FromBody] RejectTicketDto dto)
     {
         var result = await ticketService.RejectTicket(dto);
         if(!result.Success) return BadRequest(result.Error);
@@ -60,15 +60,23 @@ public class TicketController(ITicketService ticketService): Controller
     }
     
     [HttpPost("complete")]
-    public async Task<IActionResult> Complete(CompleteTicketDto dto)
+    public async Task<IActionResult> Complete([FromBody] CompleteTicketDto dto)
     {
         var result = await ticketService.CompleteTicket(dto);
         if(!result.Success) return BadRequest(result.Error);
         return Ok(result);
     }
     
+    [HttpPut("update")]
+    public async Task<IActionResult> UpdateTicket([FromBody] UpdateTicketRequest request)
+    {
+        var result = await ticketService.Update(request);
+        if(!result.Success) return BadRequest(result.Error);
+        return Ok(result);
+    }
+    
     [HttpPost("get_list")]
-    public async Task<IActionResult> GetList(GetListTicketRequest request)
+    public async Task<IActionResult> GetList([FromBody] GetListTicketRequest request)
     {
         var result = await ticketService.GetListTicket(request);
         if(!result.Success) return BadRequest(result.Error);

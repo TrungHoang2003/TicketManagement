@@ -12,7 +12,8 @@ namespace Application.Services;
 
 public interface ITicketService
 {
-    Task<Result> Create(CreateTicketRequest createTicketRequest);
+    Task<Result> Create(CreateTicketRequest createTicketRequest); 
+    Task<Result> Update(UpdateTicketRequest updateTicketRequest);
     Task<Result> Assign(AssignTicketRequest assignTicketRequest );
     Task<Result> UnassignEmployee(UnassignEmployeeRequest request);
     Task<Result> RejectTicket(RejectTicketDto rejectTicketDto);
@@ -113,6 +114,25 @@ public class TicketService(ICloudinaryService cloudinary, IUnitOfWork unitOfWork
 
         return Result.IsSuccess();
     }
+
+    public async Task<Result> Update(UpdateTicketRequest updateTicketRequest)
+    {
+        var ticket = await unitOfWork.Ticket.GetByIdAsync(updateTicketRequest.TicketId);
+
+        var causeType = await unitOfWork.CauseType.GetByIdAsync(updateTicketRequest.CauseTypeId);
+        
+        ticket.CauseType = causeType;
+        ticket.CauseTypeId = updateTicketRequest.CauseTypeId;
+        ticket.ImplementationPlan = updateTicketRequest.ImplementationPlan;
+        ticket.Cause = updateTicketRequest.Cause;
+        ticket.ExpectedStartDate = updateTicketRequest.ExpectedStartDate;
+        ticket.ExpectedCompleteDate = updateTicketRequest.ExpectedCompleteDate;
+        
+        await unitOfWork.SaveChangesAsync();
+        
+        return Result.IsSuccess();
+    }
+
     public async Task<Result> Assign(AssignTicketRequest assignTicketRequest)
     {
         var currentLoginUserId = userService.GetLoginUserId();
