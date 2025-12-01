@@ -3,6 +3,8 @@ using Application.Services;
 using BuildingBlocks.Settings;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using OllamaSharp;
 
 namespace Application;
 
@@ -36,6 +38,15 @@ public static class ApplicationDi
         services.AddHostedService<EmailBackgroundService>(provider => 
             (EmailBackgroundService)provider.GetRequiredService<IEmailBackgroundService>());
         
+        // Đăng ký OllamaApiClient
+        services.AddScoped<IOllamaApiClient>(sp =>
+        {
+            var settings = sp.GetRequiredService<IOptions<OllamaSettings>>().Value;
+            var client = new OllamaApiClient(new Uri(settings.BaseUrl));
+            // Set model mặc định nếu muốn
+            client.SelectedModel = settings.GenerationModel; 
+            return client;
+        });
         
         //Add Automapper
         services.AddAutoMapper(cfg =>

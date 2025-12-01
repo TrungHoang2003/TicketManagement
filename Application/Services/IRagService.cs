@@ -6,5 +6,5 @@ public interface IRagService
     Task<List<string>> RetrieveContextAsync(string query, int k = 3);
     
     // Bước 2: Tạo Phản hồi (Generation) - Tổng hợp câu trả lời
-    Task<string> GenerateAnswerAsync(string userQuery, List<string> context);
+    IAsyncEnumerable<string> GenerateAnswerStreamAsync(string userQuery, List<string> context);
 }
