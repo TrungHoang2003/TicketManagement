@@ -16,7 +16,9 @@
       <PackageReference Include="CloudinaryDotNet" Version="1.27.7" />
       <PackageReference Include="Google.Apis.Auth" Version="1.70.0" />
       <PackageReference Include="Google.Apis.Gmail.v1" Version="1.70.0.3833" />
+      <PackageReference Include="Microsoft.Extensions.AI.Abstractions" Version="10.0.1" />
       <PackageReference Include="MimeKit" Version="4.13.0" />
+      <PackageReference Include="OllamaSharp" Version="5.4.11" />
       <PackageReference Include="StackExchange.Redis" Version="2.8.58" />
       <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.13.1" />
     </ItemGroup>

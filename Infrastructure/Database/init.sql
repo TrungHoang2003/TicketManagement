@@ -1191,5 +1191,21 @@ ALTER TABLE ONLY public."Users"
 -- PostgreSQL database dump complete
 --
 
+-- Re-index embedding table from 4096 dimensions to 1024 dimensions
+-- Delete old embeddings data
+DELETE FROM langchain_pg_embedding;
+
+-- Drop existing HNSW index before altering column
+DROP INDEX IF EXISTS idx_langchain_embedding_hnsw;
+
+-- Alter embedding column from vector(4096) to vector(1024)
+ALTER TABLE langchain_pg_embedding ALTER COLUMN embedding TYPE vector(1024);
+
+-- Recreate HNSW index for 1024 dimensions
+CREATE INDEX IF NOT EXISTS idx_langchain_embedding_hnsw 
+ON langchain_pg_embedding 
+USING hnsw (embedding vector_cosine_ops) 
+WITH (m = 16, ef_construction = 64);
+
 \unrestrict z5bj39EEVPhhG1ZhXcifimxK06KNpP2dnZ9qhSsc8soHuI4X9cUVhcwfMTIXPw8
 

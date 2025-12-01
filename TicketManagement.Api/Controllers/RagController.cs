@@ -36,8 +36,14 @@ public class RagController : ControllerBase
             // Bước 1: Retrieve - Tìm context liên quan
             var contextDocuments = await _ragService.RetrieveContextAsync(request.Query, k: 5);
 
-            // Bước 2: Generate - Sinh câu trả lời
-            var answer = await _ragService.GenerateAnswerAsync(request.Query, contextDocuments);
+            // Bước 2: Generate - Sinh câu trả lời (collect stream thành string)
+            var answerStream = _ragService.GenerateAnswerStreamAsync(request.Query, contextDocuments);
+            var answerTokens = new List<string>();
+            await foreach (var token in answerStream)
+            {
+                answerTokens.Add(token);
+            }
+            var answer = string.Concat(answerTokens);
 
             var response = new RagResponseDto(
                 Answer: answer,
