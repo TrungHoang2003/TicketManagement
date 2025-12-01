@@ -27,6 +27,14 @@ public class TicketController(ITicketService ticketService): Controller
         return Ok(result);
     }
     
+    [HttpPost("unassign")]
+    public async Task<IActionResult> Unassign(UnassignEmployeeRequest request)
+    {
+        var result = await ticketService.UnassignEmployee(request);
+        if(!result.Success) return BadRequest(result.Error);
+        return Ok(result);
+    }
+    
     [HttpPost("add-head")]
     public async Task<IActionResult> AddHead(AddHeadRequest request)
     {
@@ -47,6 +55,14 @@ public class TicketController(ITicketService ticketService): Controller
     public async Task<IActionResult> Reject(RejectTicketDto dto)
     {
         var result = await ticketService.RejectTicket(dto);
+        if(!result.Success) return BadRequest(result.Error);
+        return Ok(result);
+    }
+    
+    [HttpPost("complete")]
+    public async Task<IActionResult> Complete(CompleteTicketDto dto)
+    {
+        var result = await ticketService.CompleteTicket(dto);
         if(!result.Success) return BadRequest(result.Error);
         return Ok(result);
     }

@@ -5,8 +5,8 @@ namespace Application.Services;
 
 public interface ICloudinaryService
 {
-    Task<string> UploadFile(string base64Image);
-    Task<List<string>> UploadFiles(IEnumerable<string> base64Images);
+    Task<string> UploadFile(string base64Image, string fileName = "file");
+    Task<List<string>> UploadFiles(IEnumerable<string> base64Images, IEnumerable<string>? fileNames = null);
 }
 
 public class CloudinaryService: ICloudinaryService
@@ -25,7 +25,7 @@ public class CloudinaryService: ICloudinaryService
         _cloudinary = new Cloudinary(acc);
     }
 
-    public async Task<string> UploadFile(string base64File)
+    public async Task<string> UploadFile(string base64File, string fileName = "file")
     {
         // Nếu base64 có dạng: "data:image/png;base64,iVBORw0KGgoAAAANS..." thì tách phần dữ liệu ra
         var base64Data = base64File.Contains(',') ? base64File.Split(',')[1] : base64File;
@@ -37,7 +37,7 @@ public class CloudinaryService: ICloudinaryService
 
         var uploadParams = new RawUploadParams 
         {
-            File = new FileDescription("Base64File.png", stream),
+            File = new FileDescription(fileName, stream),
             Folder = "TicketManagement-files"
         };
 
@@ -49,9 +49,13 @@ public class CloudinaryService: ICloudinaryService
         return uploadResult.SecureUrl.ToString();
     }
     
-    public async Task<List<string>> UploadFiles(IEnumerable<string> base64Files)
+    public async Task<List<string>> UploadFiles(IEnumerable<string> base64Files, IEnumerable<string>? fileNames = null)
     {
-        var uploadTasks = base64Files.Select(UploadFile);
+        var base64List = base64Files.ToList();
+        var namesList = fileNames?.ToList() ?? Enumerable.Range(0, base64List.Count).Select(i => $"file_{i}").ToList();
+        
+        var uploadTasks = base64List.Select((file, index) => 
+            UploadFile(file, index < namesList.Count ? namesList[index] : $"file_{index}"));
         var results = await Task.WhenAll(uploadTasks);
         return results.ToList();
     }

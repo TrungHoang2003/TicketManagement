@@ -33,7 +33,8 @@ CREATE TABLE public."Attachments" (
     "EntityType" text NOT NULL,
     "Url" text NOT NULL,
     "ContentType" text NOT NULL,
-    "CommentId" integer
+    "CommentId" integer,
+    "FileName" text
 );
 
 
@@ -294,7 +295,8 @@ ALTER TABLE public."TicketAssignees" OWNER TO root;
 
 CREATE TABLE public."TicketHeads" (
     "TicketId" integer NOT NULL,
-    "HeadId" integer NOT NULL
+    "HeadId" integer NOT NULL,
+    "IsMainHead" boolean NOT NULL DEFAULT false
 );
 
 
@@ -572,7 +574,7 @@ INSERT INTO public."TicketAssignees" VALUES (10, 9);
 -- Data for Name: TicketHeads; Type: TABLE DATA; Schema: public; Owner: root
 --
 
-INSERT INTO public."TicketHeads" VALUES (10, 3);
+INSERT INTO public."TicketHeads" VALUES (10, 3, true);
 
 
 --
@@ -636,7 +638,6 @@ INSERT INTO public."UserRoles" VALUES (21, 1);
 INSERT INTO public."UserRoles" VALUES (22, 1);
 INSERT INTO public."UserRoles" VALUES (23, 1);
 INSERT INTO public."UserRoles" VALUES (7, 2);
-INSERT INTO public."UserRoles" VALUES (24, 1);
 
 
 --
@@ -1177,12 +1178,13 @@ ALTER TABLE ONLY public."Users"
 --
 -- Name: idx_langchain_embedding_hnsw; Type: INDEX; Schema: public; Owner: root
 -- Tạo HNSW index cho cosine similarity search trên pgvector
+-- Commented out - langchain_pg_embedding table doesn't exist yet
 --
 
-CREATE INDEX IF NOT EXISTS idx_langchain_embedding_hnsw 
-ON langchain_pg_embedding 
-USING hnsw (embedding vector_cosine_ops) 
-WITH (m = 16, ef_construction = 64);
+-- CREATE INDEX IF NOT EXISTS idx_langchain_embedding_hnsw 
+-- ON langchain_pg_embedding 
+-- USING hnsw (embedding vector_cosine_ops) 
+-- WITH (m = 16, ef_construction = 64);
 
 
 --

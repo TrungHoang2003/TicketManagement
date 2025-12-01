@@ -41,4 +41,11 @@ public class UserController(IUserService userService): Controller
         var result = await userService.GetAll();
         return Ok(result);
     }
+
+    [HttpGet("get_by_department")]
+    public async Task<IActionResult> GetByDepartment([FromQuery] int departmentId)
+    {
+        var result = await userService.GetByDepartment(departmentId);
+        return Ok(result);
+    }
 }
