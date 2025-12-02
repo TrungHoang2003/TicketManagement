@@ -35,6 +35,10 @@ public class CommentService(AppDbContext dbContext, IUnitOfWork unitOfWork, IClo
                 AttachmentUrls = unitOfWork.Attachment.GetAll()
                     .Where(a => a.EntityType == EntityType.Comment && a.EntityId == c.Id)
                     .Select(a => a.Url)
+                    .ToList(),
+                FileNames = unitOfWork.Attachment.GetAll()
+                    .Where(a => a.EntityType == EntityType.Comment && a.EntityId == c.Id)
+                    .Select(a => a.FileName ?? "")
                     .ToList()
             })
             .OrderByDescending(c => c.CreatedDate)
@@ -67,14 +71,15 @@ public class CommentService(AppDbContext dbContext, IUnitOfWork unitOfWork, IClo
             var result = await cloudinaryService.UploadFiles(request.Base64Files);
             var attachments = new List<Attachment>();
 
-            foreach (var url in result)
+            for (int i = 0; i < result.Count; i++)
             { 
                 var attachment = new Attachment
                 {
                     EntityId = comment.Id,
                     EntityType = EntityType.Comment,
                     ContentType = "image/png",
-                    Url = url
+                    Url = result[i],
+                    FileName = request.FileNames != null && i < request.FileNames.Count ? request.FileNames[i] : null
                 };
                 attachments.Add(attachment);
             }
