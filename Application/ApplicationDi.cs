@@ -23,7 +23,6 @@ public static class ApplicationDi
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<ITicketService, TicketService>();
         services.AddScoped<IEmailService, EmailService>();
-        services.AddScoped<IProgressService, ProgressService>();
         services.AddScoped<IGoogleAuthService, GoogleAuthService>();
         services.AddScoped<ICategoryService, CategoryService>();
         services.AddScoped<IDepartmentService, DepartmentService>();
