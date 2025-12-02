@@ -30,6 +30,7 @@ public static class ApplicationDi
         services.AddScoped<ICauseTypeService, CauseTypeService>();
         services.AddScoped<ICommentService, CommentService>();
         services.AddScoped<IRagService, RagService>();
+        services.AddScoped<IRoleService, RoleService>();
         services.AddHttpClient<IGoogleAuthService, GoogleAuthService>();
         services.AddSingleton<ICloudinaryService,CloudinaryService>();
         
