@@ -294,7 +294,8 @@ ALTER TABLE public."TicketAssignees" OWNER TO root;
 
 CREATE TABLE public."TicketHeads" (
     "TicketId" integer NOT NULL,
-    "HeadId" integer NOT NULL
+    "HeadId" integer NOT NULL,
+    "IsMainHead" boolean NOT NULL DEFAULT false
 );
 
 
@@ -572,7 +573,7 @@ INSERT INTO public."TicketAssignees" VALUES (10, 9);
 -- Data for Name: TicketHeads; Type: TABLE DATA; Schema: public; Owner: root
 --
 
-INSERT INTO public."TicketHeads" VALUES (10, 3);
+INSERT INTO public."TicketHeads" VALUES (10, 3, true);
 
 
 --
