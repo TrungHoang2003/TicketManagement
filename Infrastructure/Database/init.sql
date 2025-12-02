@@ -660,7 +660,7 @@ INSERT INTO public."TicketHeads" VALUES (2, 3, true);
 INSERT INTO public."TicketHeads" VALUES (3, 4, true);
 INSERT INTO public."TicketHeads" VALUES (4, 4, true);
 INSERT INTO public."TicketHeads" VALUES (5, 5, true);
-zINSERT INTO public."TicketHeads" VALUES (6, 5, true);
+INSERT INTO public."TicketHeads" VALUES (6, 5, true);
 INSERT INTO public."TicketHeads" VALUES (7, 6, true);
 INSERT INTO public."TicketHeads" VALUES (8, 6, true);
 INSERT INTO public."TicketHeads" VALUES (9, 1, true);
@@ -674,11 +674,14 @@ INSERT INTO public."TicketHeads" VALUES (14, 6, true);
 INSERT INTO public."TicketHeads" VALUES (15, 1, true);
 
 
+
+
+
 --
 -- Data for Name: Tickets; Type: TABLE DATA; Schema: public; Owner: root
 --
 
-INSERT INTO public."Tickets" VALUES (1, 'Máy in tầng 3 không hoạt động', 1, 24, 1, 'Máy in bị kẹt giấy và không phản hồi lệnh in từ máy tính', '2025-11-28 10:00:00+00', '2025-11-27 09:00:00+00', '2025-11-27 17:00:00+00', 'Máy in HP LaserJet tầng 3 phòng kế toán không hoạt động từ sáng nay. Đã thử khởi động lại nhưng vẫn báo lỗi Paper Jam. Cần xử lý gấp vì nhiều hóa đơn cần in.', 'High', 'Completed', '2025-11-26 08:30:00+00', 'Kiểm tra và làm sạch con lăn máy in, thay thế bộ phận bị hỏng nếu cần');
+INSERT INTO public."Tickets" VALUES (1, 'Máy in tầng 3 không hoạt động', 1, 24, 1, 'Máy in bị kẹt giấy và không phản hồi lệnh in từ máy tính', '2025-11-28 10:00:00+00', '2025-11-27 09:00:00+00', '2025-11-27 17:00:00+00', 'Máy in HP LaserJet tầng 3 phòng kế toán không hoạt động từ sáng nay. Đã thử khởi động lại nhưng vẫn báo lỗi Paper Jam. Cần xử lý gấp vì nhiều hóa đơn cần in.', 'High', 'Closed', '2025-11-26 08:30:00+00', 'Kiểm tra và làm sạch con lăn máy in, thay thế bộ phận bị hỏng nếu cần');
 INSERT INTO public."Tickets" VALUES (2, 'Yêu cầu cấp quyền truy cập hệ thống ERP', 2, 10, NULL, NULL, '2025-11-30 10:00:00+00', NULL, NULL, 'Nhân viên mới cần được cấp quyền truy cập module kế toán và quản lý kho trong hệ thống ERP. Bao gồm quyền xem, thêm và sửa đơn hàng.', 'Medium', 'InProgress', '2025-11-26 09:15:00+00', 'Tạo tài khoản và phân quyền theo vai trò Accountant Junior');
 INSERT INTO public."Tickets" VALUES (3, 'Cập nhật thông tin hợp đồng lao động', 3, 11, 2, 'Thiếu giấy tờ xác nhận từ phòng nhân sự cũ', '2025-11-29 16:00:00+00', '2025-11-27 10:00:00+00', '2025-11-28 16:00:00+00', 'Cần cập nhật thông tin hợp đồng lao động mới sau khi tăng lương. Bao gồm mức lương mới, phụ cấp và các điều khoản phúc lợi đã thay đổi.', 'Medium', 'InProgress', '2025-11-26 10:20:00+00', 'Thu thập giấy tờ cần thiết, soạn phụ lục hợp đồng mới');
 INSERT INTO public."Tickets" VALUES (4, 'Đăng tin tuyển dụng vị trí Senior Developer', 4, 12, NULL, NULL, '2025-12-05 17:00:00+00', NULL, NULL, 'Phòng IT cần tuyển 2 Senior Developer với kinh nghiệm 5+ năm về .NET Core và React. Yêu cầu đăng tin trên các trang tuyển dụng và mạng xã hội công ty.', 'Low', 'Pending', '2025-11-26 11:00:00+00', NULL);
@@ -690,7 +693,7 @@ INSERT INTO public."Tickets" VALUES (9, 'Hỗ trợ demo sản phẩm cho khách
 INSERT INTO public."Tickets" VALUES (10, 'Soạn thảo hợp đồng cho khách hàng DEF Ltd', 9, 19, NULL, NULL, '2025-12-02 17:00:00+00', NULL, NULL, 'Khách hàng DEF Ltd đã đồng ý mua gói phần mềm Enterprise. Cần soạn hợp đồng bao gồm: phạm vi dự án, thời gian triển khai, chi phí (500 triệu), điều khoản bảo hành và bảo mật.', 'High', 'InProgress', '2025-11-26 10:30:00+00', 'Sử dụng mẫu hợp đồng Enterprise, tùy chỉnh theo yêu cầu khách hàng');
 INSERT INTO public."Tickets" VALUES (11, 'Kiểm tra và bổ sung thiết bị PCCC tầng 2', 11, 22, NULL, NULL, '2025-12-08 17:00:00+00', NULL, NULL, 'Sau đợt kiểm tra định kỳ phát hiện 3 bình chữa cháy tầng 2 đã hết hạn sử dụng. Cần thay mới và bổ sung thêm 2 bình cho khu vực mới mở rộng. Đồng thời tổ chức tập huấn PCCC cho nhân viên mới.', 'High', 'Pending', '2025-11-26 14:30:00+00', NULL);
 INSERT INTO public."Tickets" VALUES (12, 'Mua sắm laptop cho nhân viên mới', 12, 23, NULL, NULL, '2025-12-04 17:00:00+00', NULL, NULL, 'Phòng IT có 3 nhân viên mới cần trang bị laptop. Yêu cầu cấu hình: Core i7 gen 12, RAM 16GB, SSD 512GB, card đồ họa rời. Ngân sách dự kiến 25 triệu/máy.', 'Medium', 'Received', '2025-11-26 13:00:00+00', NULL);
-INSERT INTO public."Tickets" VALUES (13, 'Sự cố mất kết nối VPN', 1, 8, 4, 'Cấu hình firewall chặn port VPN', '2025-11-27 12:00:00+00', '2025-11-26 15:00:00+00', '2025-11-26 18:00:00+00', 'Nhiều nhân viên làm việc từ xa báo không thể kết nối VPN vào hệ thống công ty từ chiều nay. Lỗi xuất hiện: "Connection timeout". Ảnh hưởng đến khoảng 15 nhân viên.', 'Critical', 'Completed', '2025-11-26 14:00:00+00', 'Kiểm tra và cấu hình lại VPN server, mở port cần thiết trên firewall');
+INSERT INTO public."Tickets" VALUES (13, 'Sự cố mất kết nối VPN', 1, 8, 4, 'Cấu hình firewall chặn port VPN', '2025-11-27 12:00:00+00', '2025-11-26 15:00:00+00', '2025-11-26 18:00:00+00', 'Nhiều nhân viên làm việc từ xa báo không thể kết nối VPN vào hệ thống công ty từ chiều nay. Lỗi xuất hiện: "Connection timeout". Ảnh hưởng đến khoảng 15 nhân viên.', 'Critical', 'Closed', '2025-11-26 14:00:00+00', 'Kiểm tra và cấu hình lại VPN server, mở port cần thiết trên firewall');
 INSERT INTO public."Tickets" VALUES (14, 'Cải thiện giao diện người dùng màn hình quản lý đơn hàng', 7, 17, NULL, NULL, '2025-12-12 17:00:00+00', NULL, NULL, 'User feedback cho thấy màn hình quản lý đơn hàng khó sử dụng, quá nhiều bước thao tác. Cần redesign UI/UX để đơn giản hóa quy trình, thêm quick actions và improve responsive design cho mobile.', 'Medium', 'Pending', '2025-11-26 15:30:00+00', NULL);
 INSERT INTO public."Tickets" VALUES (15, 'Xử lý yêu cầu hoàn tiền khách hàng XYZ', 9, 20, 2, 'Khách hàng cung cấp thông tin chưa đầy đủ', '2025-12-01 17:00:00+00', '2025-11-28 10:00:00+00', '2025-11-30 17:00:00+00', 'Khách hàng XYZ yêu cầu hoàn tiền cho đơn hàng #12345 do sản phẩm không đáp ứng yêu cầu. Giá trị đơn hàng: 80 triệu đồng. Cần xác minh điều khoản hợp đồng và xử lý theo quy trình.', 'High', 'InProgress', '2025-11-26 11:30:00+00', 'Xác minh hợp đồng, làm việc với phòng tài chính và pháp lý');
 
