@@ -53,7 +53,12 @@ public class GoogleAuthService(IOptions<GoogleOAuthSettings> googleOAuthOptions,
         
         if (user == null) throw new UnauthorizedAccessException("Tài khoản chưa được cấp, vui lòng liên hệ admin");
         
-        user.AvatarUrl = payload.Picture;
+        // Only set Google avatar if user doesn't have a custom avatar yet
+        // This prevents overwriting uploaded avatars on subsequent logins
+        if (string.IsNullOrEmpty(user.AvatarUrl) || user.AvatarUrl.Contains("lh3.googleusercontent.com"))
+        {
+            user.AvatarUrl = payload.Picture;
+        }
         user.EmailConfirmed = true;
 
         var result = await userRepository.UpdateAsync(user); // No password
