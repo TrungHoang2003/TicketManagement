@@ -9,7 +9,7 @@ public interface IGenericRepository<T> where T:class, IEntity
     Task AddAsync(T entity);
     Task Update(T entity);
     Task Delete(T entity);
-    Task<T> GetByIdAsync(int id);
+    Task<T> GetByIdAsync(int? id);
     Task AddRangeAsync(List<T> entities);
     IQueryable<T> GetAll();
     Task<bool> ExistsAsync(int id);
@@ -37,7 +37,7 @@ public class GenericRepository<T>(AppDbContext dbContext): IGenericRepository<T>
         await dbContext.Set<T>().AddAsync(entity);
     }
 
-    public async Task<T> GetByIdAsync(int id)
+    public async Task<T> GetByIdAsync(int? id)
     {
         return await dbContext.Set<T>().FirstOrDefaultAsync(e => e.Id == id)
                ?? throw new Exception($"{typeof(T).Name} with Id = {id} not found");

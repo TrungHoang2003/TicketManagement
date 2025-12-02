@@ -38,6 +38,7 @@ public class TicketDetailDto : IMapFrom<Ticket>
     public int Id { get; set; }
     public string Title { get; set; }
     public string CauseType { get; set; }
+    public string? Cause { get; set; }
     public string ImplementationPlan { get; set; }
     public string? AssigneeNames { get; set; }
     public string Category { get; set; }
@@ -87,6 +88,17 @@ public class CreateTicketRequest
     public DateTime DesiredCompleteDate{ get; set; }
     public List<string>? Base64Files { get; set; }
     public List<string>? FileNames { get; set; }
+}
+
+public class UpdateTicketRequest
+{
+    public int TicketId { get; set; }
+    public List<string>? FileNames { get; set; }
+    public int? CauseTypeId { get; set; } 
+    public string? ImplementationPlan { get; set; }
+    public string? Cause { get; set; }
+    public DateTime? ExpectedStartDate { get; set; }
+    public DateTime? ExpectedCompleteDate{ get; set; }
 }
 
 public class ForwardTicketRequest
@@ -162,4 +174,56 @@ public class UnassignEmployeeRequest
 {
     public int TicketId { get; set; }
     public int EmployeeId { get; set; }
+}
+
+public class DashboardTicketDto
+{
+    public int TotalTicket { get; set; } 
+    public int TotalCreatedTicket { get; set; }
+    public int TotalAssignedTicket { get; set; }
+    public int TotalFollowingTicket { get; set; }
+    public int TotalUnReceivedTicket { get; set; }
+    public int TotalInProgressTicket { get; set; }
+    public int TotalCompletedTicket { get; set; }
+    public int TotalRejectedTicket { get; set; }
+    public int TotalClosedTicket { get; set; }
+    public List<CauseTypeStatDto>? TicketsByCauseType { get; set; }
+    public List<CategoryStatDto>? TicketsByCategory { get; set; }
+    public List<PriorityStatDto>? TicketsByPriority { get; set; }
+    public List<StatusTimelineDto>? TicketsByMonth { get; set; }
+    public PerformanceStatDto? Performance { get; set; }
+}
+
+public class CauseTypeStatDto
+{
+    public string CauseTypeName { get; set; }
+    public int Count { get; set; }
+}
+
+public class CategoryStatDto
+{
+    public string CategoryName { get; set; }
+    public int Count { get; set; }
+}
+
+public class PriorityStatDto
+{
+    public string Priority { get; set; }
+    public int Count { get; set; }
+}
+
+public class StatusTimelineDto
+{
+    public string Month { get; set; }
+    public int Created { get; set; }
+    public int Completed { get; set; }
+    public int InProgress { get; set; }
+}
+
+public class PerformanceStatDto
+{
+    public double AverageCompletionDays { get; set; }
+    public int OnTimeTickets { get; set; }
+    public int OverdueTickets { get; set; }
+    public double CompletionRate { get; set; }
 }

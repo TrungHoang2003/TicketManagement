@@ -1,22 +1,15 @@
 using Application.DTOs;
 using Application.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace TicketManagement.Api.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
-public class RagController : ControllerBase
+[Route("[controller]")]
+[Authorize]
+public class RagController(IRagService ragService, ILogger<RagController> logger) : ControllerBase
 {
-    private readonly IRagService _ragService;
-    private readonly ILogger<RagController> _logger;
-
-    public RagController(IRagService ragService, ILogger<RagController> logger)
-    {
-        _ragService = ragService;
-        _logger = logger;
-    }
-
     /// <summary>
     /// Endpoint chính để hỏi đáp RAG
     /// Nhận câu hỏi từ người dùng, tìm context liên quan và sinh câu trả lời
@@ -31,13 +24,13 @@ public class RagController : ControllerBase
 
         try
         {
-            _logger.LogInformation("Received RAG query: {Query}", request.Query);
+            logger.LogInformation("Received RAG query: {Query}", request.Query);
 
             // Bước 1: Retrieve - Tìm context liên quan
-            var contextDocuments = await _ragService.RetrieveContextAsync(request.Query, k: 5);
+            var contextDocuments = await ragService.RetrieveContextAsync(request.Query, k: 3);
 
             // Bước 2: Generate - Sinh câu trả lời (collect stream thành string)
-            var answerStream = _ragService.GenerateAnswerStreamAsync(request.Query, contextDocuments);
+            var answerStream = ragService.GenerateAnswerStreamAsync(request.Query, contextDocuments);
             var answerTokens = new List<string>();
             await foreach (var token in answerStream)
             {
@@ -47,7 +40,6 @@ public class RagController : ControllerBase
 
             var response = new RagResponseDto(
                 Answer: answer,
-                SourceDocuments: contextDocuments,
                 Timestamp: DateTime.UtcNow
             );
 
@@ -55,8 +47,54 @@ public class RagController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error processing RAG query: {Query}", request.Query);
+            logger.LogError(ex, "Error processing RAG query: {Query}", request.Query);
             return StatusCode(500, new { error = "An error occurred while processing your request" });
+        }
+    }
+
+    /// <summary>
+    /// Endpoint stream để nhận câu trả lời theo thời gian thực (SSE)
+    /// </summary>
+    [HttpPost("ask-stream")]
+    public async Task AskStream([FromBody] RagQueryDto request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Query))
+        {
+            Response.StatusCode = 400;
+            return;
+        }
+
+        Response.ContentType = "text/event-stream";
+        Response.Headers.Append("Cache-Control", "no-cache");
+        Response.Headers.Append("Connection", "keep-alive");
+
+        try
+        {
+            logger.LogInformation("Received RAG stream query: {Query}", request.Query);
+
+            // Retrieve context
+            var contextDocuments = await ragService.RetrieveContextAsync(request.Query, k: 5);
+
+            // Stream answer
+            var answerStream = ragService.GenerateAnswerStreamAsync(request.Query, contextDocuments);
+            
+            await foreach (var token in answerStream)
+            {
+                var data = System.Text.Json.JsonSerializer.Serialize(new { token });
+                await Response.WriteAsync($"data: {data}\n\n");
+                await Response.Body.FlushAsync();
+            }
+
+            // Send completion signal
+            await Response.WriteAsync("data: [DONE]\n\n");
+            await Response.Body.FlushAsync();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error processing RAG stream query: {Query}", request.Query);
+            var errorData = System.Text.Json.JsonSerializer.Serialize(new { error = ex.Message });
+            await Response.WriteAsync($"data: {errorData}\n\n");
+            await Response.Body.FlushAsync();
         }
     }
 
@@ -74,7 +112,7 @@ public class RagController : ControllerBase
 
         try
         {
-            var contextDocuments = await _ragService.RetrieveContextAsync(request.Query, k);
+            var contextDocuments = await ragService.RetrieveContextAsync(request.Query, k);
             
             return Ok(new
             {
@@ -86,7 +124,7 @@ public class RagController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error retrieving context for query: {Query}", request.Query);
+            logger.LogError(ex, "Error retrieving context for query: {Query}", request.Query);
             return StatusCode(500, new { error = "An error occurred while retrieving context" });
         }
     }
@@ -100,3 +138,4 @@ public class RagController : ControllerBase
         return Ok(new { status = "healthy", service = "RAG", timestamp = DateTime.UtcNow });
     }
 }
+

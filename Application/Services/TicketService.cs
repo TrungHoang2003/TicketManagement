@@ -12,7 +12,9 @@ namespace Application.Services;
 
 public interface ITicketService
 {
-    Task<Result> Create(CreateTicketRequest createTicketRequest);
+    Task<Result<DashboardTicketDto>> GetDashBoard();
+    Task<Result> Create(CreateTicketRequest createTicketRequest); 
+    Task<Result> Update(UpdateTicketRequest updateTicketRequest);
     Task<Result> Assign(AssignTicketRequest assignTicketRequest );
     Task<Result> UnassignEmployee(UnassignEmployeeRequest request);
     Task<Result> RejectTicket(RejectTicketDto rejectTicketDto);
@@ -26,6 +28,177 @@ public interface ITicketService
 public class TicketService(ICloudinaryService cloudinary, IUnitOfWork unitOfWork,
     IEmailBackgroundService emailBackgroundService, IUserService userService, IMapper mapper, AppDbContext dbContext) : ITicketService
 {
+    public async Task<Result<DashboardTicketDto>> GetDashBoard()
+    {
+        var currentLoginUserId = userService.GetLoginUserId();
+
+        var totalCreatedTickets = await unitOfWork.Ticket
+            .GetAll().Where(t => t.CreatorId == currentLoginUserId).CountAsync();
+
+        var totalFollowingTickets = await unitOfWork.Ticket
+            .GetAll()
+            .Include(t => t.Heads)
+            .Where(t => t.Heads.Any(h => h.HeadId == currentLoginUserId))
+            .CountAsync();
+
+        var totalAssignedTickets = await unitOfWork.Ticket
+            .GetAll()
+            .Include(t => t.Assignees)
+            .Where(t => t.Assignees.Any(a => a.AssigneeId == currentLoginUserId))
+            .CountAsync();
+
+        var query = unitOfWork.Ticket
+            .GetAll()
+            .Include(t => t.Assignees)
+            .Include(t => t.Heads)
+            .Where(t => t.Assignees.Any(ta => ta.AssigneeId == currentLoginUserId)
+                        || t.Heads.Any(th => th.HeadId == currentLoginUserId)
+                        || t.CreatorId == currentLoginUserId);
+        
+        var totalUnreceivedTickets = await query.Where(t=>t.Status == Status.Pending).CountAsync();
+        var totalRejectedTickets = await query.Where(t => t.Status == Status.Rejected).CountAsync();
+        var totalCompletedTickets = await query.Where(t => t.Status == Status.Completed).CountAsync();
+        var totalClosedTickets = await query.Where(t => t.Status == Status.Closed).CountAsync();
+        var totalInprogressTickets = await query.Where(t => t.Status == Status.InProgress).CountAsync();
+            
+        var totalTickets = totalAssignedTickets + totalFollowingTickets + totalCreatedTickets;
+
+        // Lấy thống kê theo CauseType
+        var ticketsByCauseType = await query
+            .Include(t => t.CauseType)
+            .Where(t => t.CauseTypeId != null)
+            .GroupBy(t => new { t.CauseTypeId, t.CauseType!.Name })
+            .Select(g => new CauseTypeStatDto
+            {
+                CauseTypeName = g.Key.Name,
+                Count = g.Count()
+            })
+            .OrderByDescending(x => x.Count)
+            .ToListAsync();
+
+        // Lấy thống kê theo Category
+        var ticketsByCategory = await query
+            .Include(t => t.Category)
+            .GroupBy(t => new { t.CategoryId, t.Category.Name })
+            .Select(g => new CategoryStatDto
+            {
+                CategoryName = g.Key.Name,
+                Count = g.Count()
+            })
+            .OrderByDescending(x => x.Count)
+            .ToListAsync();
+
+        // Lấy thống kê theo Priority
+        var ticketsByPriority = await query
+            .GroupBy(t => t.Priority)
+            .Select(g => new PriorityStatDto
+            {
+                Priority = g.Key.ToString(),
+                Count = g.Count()
+            })
+            .ToListAsync();
+
+        // Lấy thống kê theo tháng (6 tháng gần nhất)
+        var sixMonthsAgo = DateTime.UtcNow.AddMonths(-6);
+        var ticketsByMonth = await unitOfWork.Ticket
+            .GetAll()
+            .Where(t => t.CreatedAt >= sixMonthsAgo)
+            .GroupBy(t => new { t.CreatedAt.Year, t.CreatedAt.Month })
+            .Select(g => new
+            {
+                Year = g.Key.Year,
+                Month = g.Key.Month,
+                Created = g.Count(),
+                Completed = g.Count(t => t.Status == Status.Completed || t.Status == Status.Closed),
+                InProgress = g.Count(t => t.Status == Status.InProgress)
+            })
+            .ToListAsync();
+
+        var ticketsByMonthDto = ticketsByMonth
+            .Select(x => new StatusTimelineDto
+            {
+                Month = $"{x.Year}-{x.Month:D2}",
+                Created = x.Created,
+                Completed = x.Completed,
+                InProgress = x.InProgress
+            })
+            .OrderBy(x => x.Month)
+            .ToList();
+
+        // Tính toán hiệu suất
+        var completedTickets = await query
+            .Where(t => t.Status == Status.Completed || t.Status == Status.Closed)
+            .Include(t => t.Progresses)
+            .ToListAsync();
+
+        var performance = new PerformanceStatDto();
+        
+        if (completedTickets.Any())
+        {
+            // Tính số ngày hoàn thành trung bình
+            var completionDays = completedTickets
+                .Where(t => t.ExpectedCompleteDate.HasValue)
+                .Select(t => 
+                {
+                    var completedDate = t.Progresses
+                        .Where(p => p.Note.Contains("hoàn thành", StringComparison.OrdinalIgnoreCase) || 
+                                   p.Note.Contains("đóng", StringComparison.OrdinalIgnoreCase))
+                        .OrderByDescending(p => p.Date)
+                        .FirstOrDefault()?.Date ?? DateTime.UtcNow;
+                    return (completedDate - t.CreatedAt).TotalDays;
+                })
+                .ToList();
+
+            performance.AverageCompletionDays = completionDays.Any() 
+                ? Math.Round(completionDays.Average(), 2) 
+                : 0;
+
+            // Đếm số ticket hoàn thành đúng hạn và trễ hạn
+            performance.OnTimeTickets = completedTickets.Count(t => 
+            {
+                if (!t.ExpectedCompleteDate.HasValue) 
+                    return true;
+                
+                var deadline = t.ExpectedCompleteDate ?? t.DesiredCompleteDate;
+                var completedDate = t.Progresses
+                    .Where(p => p.Note.Contains("hoàn thành", StringComparison.OrdinalIgnoreCase) || 
+                               p.Note.Contains("đóng", StringComparison.OrdinalIgnoreCase))
+                    .OrderByDescending(p => p.Date)
+                    .FirstOrDefault()?.Date ?? DateTime.UtcNow;
+                
+                return completedDate <= deadline;
+            });
+
+            performance.OverdueTickets = completedTickets.Count - performance.OnTimeTickets;
+
+            // Tính tỷ lệ hoàn thành
+            var allTicketsCount = await query.CountAsync();
+            performance.CompletionRate = allTicketsCount > 0 
+                ? Math.Round((double)completedTickets.Count / allTicketsCount * 100, 2) 
+                : 0;
+        }
+
+        var dashboardTicketDto = new DashboardTicketDto
+        {
+            TotalTicket = totalTickets,
+            TotalCreatedTicket = totalCreatedTickets,
+            TotalFollowingTicket = totalFollowingTickets,
+            TotalAssignedTicket = totalAssignedTickets,
+            TotalUnReceivedTicket = totalUnreceivedTickets,
+            TotalRejectedTicket = totalRejectedTickets,
+            TotalCompletedTicket =  totalCompletedTickets,
+            TotalInProgressTicket = totalInprogressTickets,
+            TotalClosedTicket = totalClosedTickets,
+            TicketsByCauseType = ticketsByCauseType,
+            TicketsByCategory = ticketsByCategory,
+            TicketsByPriority = ticketsByPriority,
+            TicketsByMonth = ticketsByMonthDto,
+            Performance = performance
+        };
+        return dashboardTicketDto;
+
+    }
+
     public async Task<Result> Create(CreateTicketRequest createTicketRequest)
     {
         var creator = await unitOfWork.User.FindByIdAsync(userService.GetLoginUserId());
@@ -113,6 +286,25 @@ public class TicketService(ICloudinaryService cloudinary, IUnitOfWork unitOfWork
 
         return Result.IsSuccess();
     }
+
+    public async Task<Result> Update(UpdateTicketRequest updateTicketRequest)
+    {
+        var ticket = await unitOfWork.Ticket.GetByIdAsync(updateTicketRequest.TicketId);
+
+        var causeType = await unitOfWork.CauseType.GetByIdAsync(updateTicketRequest.CauseTypeId);
+        
+        ticket.CauseType = causeType;
+        ticket.CauseTypeId = updateTicketRequest.CauseTypeId;
+        ticket.ImplementationPlan = updateTicketRequest.ImplementationPlan;
+        ticket.Cause = updateTicketRequest.Cause;
+        ticket.ExpectedStartDate = updateTicketRequest.ExpectedStartDate;
+        ticket.ExpectedCompleteDate = updateTicketRequest.ExpectedCompleteDate;
+        
+        await unitOfWork.SaveChangesAsync();
+        
+        return Result.IsSuccess();
+    }
+
     public async Task<Result> Assign(AssignTicketRequest assignTicketRequest)
     {
         var currentLoginUserId = userService.GetLoginUserId();

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace TicketManagement.Api.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("cause_type")]
 
@@ -37,7 +38,6 @@ public class CauseTypeController(ICauseTypeService causeTypeService) : Controlle
         return Ok(result);
     }
 
-    [Authorize(Policy = "AdminOnly")]
     [HttpGet("get_all")]
     public async Task<IActionResult> GetAll()
     {
