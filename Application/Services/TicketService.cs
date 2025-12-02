@@ -300,6 +300,44 @@ public class TicketService(ICloudinaryService cloudinary, IUnitOfWork unitOfWork
         ticket.ExpectedStartDate = updateTicketRequest.ExpectedStartDate;
         ticket.ExpectedCompleteDate = updateTicketRequest.ExpectedCompleteDate;
         
+        // Handle file deletions
+        if (updateTicketRequest.FilesToDelete != null && updateTicketRequest.FilesToDelete.Count > 0)
+        {
+            // Get existing ticket attachments
+            var existingAttachments = unitOfWork.Attachment.GetAll()
+                .Where(a => a.EntityId == ticket.Id && a.EntityType == EntityType.Ticket)
+                .ToList();
+            
+            // Delete attachments by index
+            foreach (var index in updateTicketRequest.FilesToDelete.OrderByDescending(i => i))
+            {
+                if (index >= 0 && index < existingAttachments.Count)
+                {
+                    await unitOfWork.Attachment.Delete(existingAttachments[index]);
+                }
+            }
+        }
+        
+        // Handle new file uploads
+        if (updateTicketRequest.Base64Files != null && updateTicketRequest.Base64Files.Count > 0)
+        {
+            var uploadedUrls = await cloudinary.UploadFiles(updateTicketRequest.Base64Files, updateTicketRequest.FileNames);
+            
+            // Create new attachments
+            for (int i = 0; i < uploadedUrls.Count; i++)
+            {
+                var attachment = new Attachment
+                {
+                    EntityId = ticket.Id,
+                    EntityType = EntityType.Ticket,
+                    Url = uploadedUrls[i],
+                    FileName = updateTicketRequest.FileNames?[i] ?? $"file_{i}",
+                    ContentType = "application/octet-stream" // Default content type
+                };
+                await unitOfWork.Attachment.AddAsync(attachment);
+            }
+        }
+        
         await unitOfWork.SaveChangesAsync();
         
         return Result.IsSuccess();
