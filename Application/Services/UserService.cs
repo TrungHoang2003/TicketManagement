@@ -18,6 +18,7 @@ public interface IUserService
    Task<Result<UserLoginResponse>> Login(UserLoginRequest userLoginDto);
    Task<Result> Create(CreateUserRequest createUserDto);
    Task<Result> Update(UpdateUserRequest updateUserRequest);
+   Task<Result<string>> UpdateAvatar(UpdateAvatarRequest request);
    Task<Result<List<UsersByDepartmentDto>>> GetByDepartment(int departmentId);
    Task<Result<UserDto>> GetById(int id);
    Task<Result<List<UserDto>>> GetAll();
@@ -25,8 +26,33 @@ public interface IUserService
 }
 
 public class UserService(IHttpContextAccessor httpContextAccessor, IUserRepository userRepo, IJwtService jwtService,
-   IRedisService redisService, IDepartmentRepository departmentRepo, AppDbContext dbContext, UserManager<User> userManager, IMapper mapper) : IUserService
+   IRedisService redisService, IDepartmentRepository departmentRepo, AppDbContext dbContext, UserManager<User> userManager, IMapper mapper, ICloudinaryService cloudinaryService) : IUserService
 {
+   public async Task<Result<string>> UpdateAvatar(UpdateAvatarRequest request)
+   {
+      var user = await userRepo.FindByIdAsync(request.UserId);
+      if (user == null) return Result<string>.Failure(UserErrors.UserNotFound);
+
+      try
+      {
+         var avatarUrl = await cloudinaryService.UploadFile(request.Base64Image, $"avatar_{user.Id}");
+         user.AvatarUrl = avatarUrl;
+         
+         var result = await userRepo.UpdateAsync(user);
+         if (!result.Succeeded)
+         {
+            var errors = result.Errors.Select(e => e.Description).ToList();
+            return Result<string>.Failure(new Error("UpdateAvatar.Failed", string.Join(",", errors)));
+         }
+
+         return Result<string>.IsSuccess(avatarUrl);
+      }
+      catch (Exception ex)
+      {
+         return Result<string>.Failure(new Error("UpdateAvatar.UploadFailed", ex.Message));
+      }
+   }
+
    public async Task<Result> Update(UpdateUserRequest updateUserRequest)
    {
       var existingUser = await userRepo.FindByIdAsync(updateUserRequest.Id);

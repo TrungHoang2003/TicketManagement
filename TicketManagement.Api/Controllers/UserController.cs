@@ -48,4 +48,12 @@ public class UserController(IUserService userService): Controller
         var result = await userService.GetByDepartment(departmentId);
         return Ok(result);
     }
+
+    [HttpPost("upload-avatar")]
+    public async Task<IActionResult> UpdateAvatar([FromBody] UpdateAvatarRequest request)
+    {
+        var result = await userService.UpdateAvatar(request);
+        if (!result.Success) return BadRequest(result.Error);
+        return Ok(result);
+    }
 }
