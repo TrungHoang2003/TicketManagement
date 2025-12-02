@@ -60,14 +60,45 @@ public class UserService(IHttpContextAccessor httpContextAccessor, IUserReposito
       if(updateUserRequest.DepartmentId.HasValue) existingUser.DepartmentId = updateUserRequest.DepartmentId.Value;
       if (updateUserRequest.FullName != null) existingUser.FullName = updateUserRequest.FullName;
       if (updateUserRequest.Username != null) existingUser.UserName = updateUserRequest.Username;
+      
+      // Handle roles update - replace all roles with new ones
       if (updateUserRequest.Roles != null)
-         await userRepo.AddToRolesAsync(existingUser, updateUserRequest.Roles);
+      {
+         // Get current roles
+         var currentRoles = await userManager.GetRolesAsync(existingUser);
+         
+         // Find roles to remove and roles to add
+         var rolesToRemove = currentRoles.Except(updateUserRequest.Roles).ToList();
+         var rolesToAdd = updateUserRequest.Roles.Except(currentRoles).ToList();
+         
+         // Remove roles that are no longer needed
+         if (rolesToRemove.Any())
+         {
+            var removeResult = await userManager.RemoveFromRolesAsync(existingUser, rolesToRemove);
+            if (!removeResult.Succeeded)
+            {
+               var removeErrors = removeResult.Errors.Select(e => e.Description).ToList();
+               return Result.Failure(new Error("Remove Roles Failed: ", string.Join(",", removeErrors)));
+            }
+         }
+         
+         // Add new roles
+         if (rolesToAdd.Any())
+         {
+            var addResult = await userManager.AddToRolesAsync(existingUser, rolesToAdd);
+            if (!addResult.Succeeded)
+            {
+               var addErrors = addResult.Errors.Select(e => e.Description).ToList();
+               return Result.Failure(new Error("Add Roles Failed: ", string.Join(",", addErrors)));
+            }
+         }
+      }
 
       var result = await userRepo.UpdateAsync(existingUser);
       if (result.Succeeded) return Result.IsSuccess();
       
-      var errors = result.Errors.Select(e => e.Description).ToList();
-      return Result.Failure(new Error("Update User Failed: ", string.Join(",", errors)));
+      var updateErrors = result.Errors.Select(e => e.Description).ToList();
+      return Result.Failure(new Error("Update User Failed: ", string.Join(",", updateErrors)));
    }
 
    public async Task<Result<List<UsersByDepartmentDto>>> GetByDepartment(int departmentId)
