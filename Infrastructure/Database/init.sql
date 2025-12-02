@@ -33,8 +33,7 @@ CREATE TABLE public."Attachments" (
     "EntityType" text NOT NULL,
     "Url" text NOT NULL,
     "ContentType" text NOT NULL,
-    "CommentId" integer,
-    "FileName" text
+    "CommentId" integer
 );
 
 
@@ -295,8 +294,7 @@ ALTER TABLE public."TicketAssignees" OWNER TO root;
 
 CREATE TABLE public."TicketHeads" (
     "TicketId" integer NOT NULL,
-    "HeadId" integer NOT NULL,
-    "IsMainHead" boolean NOT NULL DEFAULT false
+    "HeadId" integer NOT NULL
 );
 
 
@@ -574,7 +572,7 @@ INSERT INTO public."TicketAssignees" VALUES (10, 9);
 -- Data for Name: TicketHeads; Type: TABLE DATA; Schema: public; Owner: root
 --
 
-INSERT INTO public."TicketHeads" VALUES (10, 3, true);
+INSERT INTO public."TicketHeads" VALUES (10, 3);
 
 
 --
@@ -638,6 +636,7 @@ INSERT INTO public."UserRoles" VALUES (21, 1);
 INSERT INTO public."UserRoles" VALUES (22, 1);
 INSERT INTO public."UserRoles" VALUES (23, 1);
 INSERT INTO public."UserRoles" VALUES (7, 2);
+INSERT INTO public."UserRoles" VALUES (24, 1);
 
 
 --
@@ -1174,38 +1173,11 @@ ALTER TABLE ONLY public."UserTokens"
 ALTER TABLE ONLY public."Users"
     ADD CONSTRAINT "FK_Users_Departments_DepartmentId" FOREIGN KEY ("DepartmentId") REFERENCES public."Departments"("Id") ON DELETE CASCADE;
 
-
---
--- Name: idx_langchain_embedding_hnsw; Type: INDEX; Schema: public; Owner: root
--- Tạo HNSW index cho cosine similarity search trên pgvector
--- Commented out - langchain_pg_embedding table doesn't exist yet
---
-
--- CREATE INDEX IF NOT EXISTS idx_langchain_embedding_hnsw 
--- ON langchain_pg_embedding 
--- USING hnsw (embedding vector_cosine_ops) 
--- WITH (m = 16, ef_construction = 64);
-
-
 --
 -- PostgreSQL database dump complete
 --
 
--- Re-index embedding table from 4096 dimensions to 1024 dimensions
--- Delete old embeddings data
-DELETE FROM langchain_pg_embedding;
-
--- Drop existing HNSW index before altering column
-DROP INDEX IF EXISTS idx_langchain_embedding_hnsw;
-
--- Alter embedding column from vector(4096) to vector(1024)
-ALTER TABLE langchain_pg_embedding ALTER COLUMN embedding TYPE vector(1024);
-
--- Recreate HNSW index for 1024 dimensions
-CREATE INDEX IF NOT EXISTS idx_langchain_embedding_hnsw 
-ON langchain_pg_embedding 
-USING hnsw (embedding vector_cosine_ops) 
-WITH (m = 16, ef_construction = 64);
+SELECT * from langchain_pg_embedding
 
 \unrestrict z5bj39EEVPhhG1ZhXcifimxK06KNpP2dnZ9qhSsc8soHuI4X9cUVhcwfMTIXPw8
 

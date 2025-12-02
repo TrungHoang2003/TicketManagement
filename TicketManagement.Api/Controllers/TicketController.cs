@@ -10,6 +10,14 @@ namespace TicketManagement.Api.Controllers;
 [Authorize]
 public class TicketController(ITicketService ticketService): Controller
 {
+    [HttpGet("get_dashboard")]
+    public async Task<IActionResult> GetDashboard()
+    {
+        var result = await ticketService.GetDashBoard();
+        if(!result.Success) return BadRequest(result.Error);
+        return Ok(result);
+    }
+    
     [HttpPost("create")]
     public async Task<IActionResult> CreateTicket([FromBody] CreateTicketRequest request)
     {
