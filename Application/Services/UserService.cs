@@ -192,7 +192,12 @@ public class UserService(IHttpContextAccessor httpContextAccessor, IUserReposito
          return Result.Failure(new Error("Register.Failed", string.Join(",", errors)));
       }
 
-      await userRepo.AddToRolesAsync(user, dto.Roles);
+      var roleResult = await userRepo.AddToRolesAsync(user, dto.Roles);
+      if (!roleResult.Succeeded)
+      {
+         var roleErrors = roleResult.Errors.Select(e => e.Description).ToList();
+         return Result.Failure(new Error("Add Roles Failed", string.Join(",", roleErrors)));
+      }
          
       return Result.IsSuccess();
    }

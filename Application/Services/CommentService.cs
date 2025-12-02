@@ -31,6 +31,7 @@ public class CommentService(AppDbContext dbContext, IUnitOfWork unitOfWork, IClo
                 CreatedDate = c.CreatedDate,
                 CreatorName = c.Creator.FullName,
                 CreatorEmail = c.Creator.Email,
+                CreatorAvatarUrl = c.Creator.AvatarUrl,
                 AttachmentUrls = unitOfWork.Attachment.GetAll()
                     .Where(a => a.EntityType == EntityType.Comment && a.EntityId == c.Id)
                     .Select(a => a.Url)
