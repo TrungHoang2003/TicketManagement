@@ -1177,7 +1177,14 @@ ALTER TABLE ONLY public."Users"
 -- PostgreSQL database dump complete
 --
 
-SELECT * from langchain_pg_embedding
+-- Nếu là vector không có dimension, cần ALTER
+ALTER TABLE langchain_pg_embedding
+    ALTER COLUMN embedding TYPE vector(1024);
+
+-- Sau đó tạo index
+CREATE INDEX langchain_pg_embedding_hnsw_idx
+    ON langchain_pg_embedding
+        USING hnsw (embedding vector_cosine_ops);
 
 \unrestrict z5bj39EEVPhhG1ZhXcifimxK06KNpP2dnZ9qhSsc8soHuI4X9cUVhcwfMTIXPw8
 

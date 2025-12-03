@@ -16,7 +16,7 @@ public class RagService(
     private readonly OllamaSettings _ollamaSettings = ollamaSettings.Value;
     private readonly RagPromptSettings _ragPromptSettings = ragPromptSettings.Value;
 
-    public async Task<List<string>> RetrieveContextAsync(string query, int k = 3)
+    public async Task<List<string>> RetrieveContextAsync(string query, int k)
     {
         ollamaClient.SelectedModel = _ollamaSettings.EmbeddingModel;     
         var queryResponse = await ollamaClient.EmbedAsync(query); 

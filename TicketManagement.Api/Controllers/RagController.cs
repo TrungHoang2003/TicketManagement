@@ -73,7 +73,7 @@ public class RagController(IRagService ragService, ILogger<RagController> logger
             logger.LogInformation("Received RAG stream query: {Query}", request.Query);
 
             // Retrieve context
-            var contextDocuments = await ragService.RetrieveContextAsync(request.Query, k: 5);
+            var contextDocuments = await ragService.RetrieveContextAsync(request.Query, k: 2);
 
             // Stream answer
             var answerStream = ragService.GenerateAnswerStreamAsync(request.Query, contextDocuments);
