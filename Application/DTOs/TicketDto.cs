@@ -94,6 +94,8 @@ public class UpdateTicketRequest
 {
     public int TicketId { get; set; }
     public List<string>? FileNames { get; set; }
+    public List<string>? Base64Files { get; set; }
+    public List<int>? FilesToDelete { get; set; }
     public int? CauseTypeId { get; set; } 
     public string? ImplementationPlan { get; set; }
     public string? Cause { get; set; }

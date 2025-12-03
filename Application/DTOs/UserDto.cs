@@ -51,3 +51,9 @@ public class UserLoginRequest
     public string Email { get; set; }
     public string Password { get; set; }
 }
+
+public class UpdateAvatarRequest
+{
+    public int UserId { get; set; }
+    public string Base64Image { get; set; }
+}

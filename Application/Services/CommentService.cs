@@ -4,7 +4,9 @@ using BuildingBlocks.Commons;
 using Domain.Entities;
 using Infrastructure.Database;
 using Infrastructure.Repositories;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace Application.Services;
 
@@ -14,20 +16,29 @@ public interface ICommentService: IGenericRepository<Comment>
     Task<Result> CreateComment(CreateCommentRequest request);
 }
 
-public class CommentService(AppDbContext dbContext, IUnitOfWork unitOfWork, ICloudinaryService cloudinaryService) : GenericRepository<Comment>(dbContext), ICommentService
+public class CommentService(AppDbContext dbContext, IUnitOfWork unitOfWork, ICloudinaryService cloudinaryService, IHttpContextAccessor httpContextAccessor) : GenericRepository<Comment>(dbContext), ICommentService
 {
     public async Task<Result<List<CommentDto>>> GetTicketComments(int ticketId)
     {
         var comments = await unitOfWork.Comment.GetAll()
+            .Include(c => c.Creator)
             .Where(c => c.TicketId == ticketId)
             .Select(c => new CommentDto
             {
+                Id = c.Id,
                 TicketId = c.TicketId,
                 Content = c.Content,
                 CreatedDate = c.CreatedDate,
+                CreatorName = c.Creator.FullName,
+                CreatorEmail = c.Creator.Email,
+                CreatorAvatarUrl = c.Creator.AvatarUrl,
                 AttachmentUrls = unitOfWork.Attachment.GetAll()
                     .Where(a => a.EntityType == EntityType.Comment && a.EntityId == c.Id)
                     .Select(a => a.Url)
+                    .ToList(),
+                FileNames = unitOfWork.Attachment.GetAll()
+                    .Where(a => a.EntityType == EntityType.Comment && a.EntityId == c.Id)
+                    .Select(a => a.FileName ?? "")
                     .ToList()
             })
             .OrderByDescending(c => c.CreatedDate)
@@ -38,9 +49,16 @@ public class CommentService(AppDbContext dbContext, IUnitOfWork unitOfWork, IClo
 
     public async Task<Result> CreateComment(CreateCommentRequest request)
     {
+        var userIdClaim = httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+        {
+            return Result.Failure(new Error("Authentication.Failed", "User not authenticated"));
+        }
+
         var comment = new Comment
         {
             TicketId = request.TicketId,
+            CreatorId = userId,
             Content = request.Content,
             CreatedDate = DateTime.UtcNow
         };
@@ -53,14 +71,15 @@ public class CommentService(AppDbContext dbContext, IUnitOfWork unitOfWork, IClo
             var result = await cloudinaryService.UploadFiles(request.Base64Files);
             var attachments = new List<Attachment>();
 
-            foreach (var url in result)
+            for (int i = 0; i < result.Count; i++)
             { 
                 var attachment = new Attachment
                 {
                     EntityId = comment.Id,
                     EntityType = EntityType.Comment,
                     ContentType = "image/png",
-                    Url = url
+                    Url = result[i],
+                    FileName = request.FileNames != null && i < request.FileNames.Count ? request.FileNames[i] : null
                 };
                 attachments.Add(attachment);
             }

@@ -23,13 +23,13 @@ public static class ApplicationDi
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<ITicketService, TicketService>();
         services.AddScoped<IEmailService, EmailService>();
-        services.AddScoped<IProgressService, ProgressService>();
         services.AddScoped<IGoogleAuthService, GoogleAuthService>();
         services.AddScoped<ICategoryService, CategoryService>();
         services.AddScoped<IDepartmentService, DepartmentService>();
         services.AddScoped<ICauseTypeService, CauseTypeService>();
         services.AddScoped<ICommentService, CommentService>();
         services.AddScoped<IRagService, RagService>();
+        services.AddScoped<IRoleService, RoleService>();
         services.AddHttpClient<IGoogleAuthService, GoogleAuthService>();
         services.AddSingleton<ICloudinaryService,CloudinaryService>();
         

@@ -18,6 +18,7 @@ public interface IUserService
    Task<Result<UserLoginResponse>> Login(UserLoginRequest userLoginDto);
    Task<Result> Create(CreateUserRequest createUserDto);
    Task<Result> Update(UpdateUserRequest updateUserRequest);
+   Task<Result<string>> UpdateAvatar(UpdateAvatarRequest request);
    Task<Result<List<UsersByDepartmentDto>>> GetByDepartment(int departmentId);
    Task<Result<UserDto>> GetById(int id);
    Task<Result<List<UserDto>>> GetAll();
@@ -25,8 +26,33 @@ public interface IUserService
 }
 
 public class UserService(IHttpContextAccessor httpContextAccessor, IUserRepository userRepo, IJwtService jwtService,
-   IRedisService redisService, IDepartmentRepository departmentRepo, AppDbContext dbContext, UserManager<User> userManager, IMapper mapper) : IUserService
+   IRedisService redisService, IDepartmentRepository departmentRepo, AppDbContext dbContext, UserManager<User> userManager, IMapper mapper, ICloudinaryService cloudinaryService) : IUserService
 {
+   public async Task<Result<string>> UpdateAvatar(UpdateAvatarRequest request)
+   {
+      var user = await userRepo.FindByIdAsync(request.UserId);
+      if (user == null) return Result<string>.Failure(UserErrors.UserNotFound);
+
+      try
+      {
+         var avatarUrl = await cloudinaryService.UploadFile(request.Base64Image, $"avatar_{user.Id}");
+         user.AvatarUrl = avatarUrl;
+         
+         var result = await userRepo.UpdateAsync(user);
+         if (!result.Succeeded)
+         {
+            var errors = result.Errors.Select(e => e.Description).ToList();
+            return Result<string>.Failure(new Error("UpdateAvatar.Failed", string.Join(",", errors)));
+         }
+
+         return Result<string>.IsSuccess(avatarUrl);
+      }
+      catch (Exception ex)
+      {
+         return Result<string>.Failure(new Error("UpdateAvatar.UploadFailed", ex.Message));
+      }
+   }
+
    public async Task<Result> Update(UpdateUserRequest updateUserRequest)
    {
       var existingUser = await userRepo.FindByIdAsync(updateUserRequest.Id);
@@ -34,14 +60,45 @@ public class UserService(IHttpContextAccessor httpContextAccessor, IUserReposito
       if(updateUserRequest.DepartmentId.HasValue) existingUser.DepartmentId = updateUserRequest.DepartmentId.Value;
       if (updateUserRequest.FullName != null) existingUser.FullName = updateUserRequest.FullName;
       if (updateUserRequest.Username != null) existingUser.UserName = updateUserRequest.Username;
+      
+      // Handle roles update - replace all roles with new ones
       if (updateUserRequest.Roles != null)
-         await userRepo.AddToRolesAsync(existingUser, updateUserRequest.Roles);
+      {
+         // Get current roles
+         var currentRoles = await userManager.GetRolesAsync(existingUser);
+         
+         // Find roles to remove and roles to add
+         var rolesToRemove = currentRoles.Except(updateUserRequest.Roles).ToList();
+         var rolesToAdd = updateUserRequest.Roles.Except(currentRoles).ToList();
+         
+         // Remove roles that are no longer needed
+         if (rolesToRemove.Any())
+         {
+            var removeResult = await userManager.RemoveFromRolesAsync(existingUser, rolesToRemove);
+            if (!removeResult.Succeeded)
+            {
+               var removeErrors = removeResult.Errors.Select(e => e.Description).ToList();
+               return Result.Failure(new Error("Remove Roles Failed: ", string.Join(",", removeErrors)));
+            }
+         }
+         
+         // Add new roles
+         if (rolesToAdd.Any())
+         {
+            var addResult = await userManager.AddToRolesAsync(existingUser, rolesToAdd);
+            if (!addResult.Succeeded)
+            {
+               var addErrors = addResult.Errors.Select(e => e.Description).ToList();
+               return Result.Failure(new Error("Add Roles Failed: ", string.Join(",", addErrors)));
+            }
+         }
+      }
 
       var result = await userRepo.UpdateAsync(existingUser);
       if (result.Succeeded) return Result.IsSuccess();
       
-      var errors = result.Errors.Select(e => e.Description).ToList();
-      return Result.Failure(new Error("Update User Failed: ", string.Join(",", errors)));
+      var updateErrors = result.Errors.Select(e => e.Description).ToList();
+      return Result.Failure(new Error("Update User Failed: ", string.Join(",", updateErrors)));
    }
 
    public async Task<Result<List<UsersByDepartmentDto>>> GetByDepartment(int departmentId)
@@ -135,7 +192,12 @@ public class UserService(IHttpContextAccessor httpContextAccessor, IUserReposito
          return Result.Failure(new Error("Register.Failed", string.Join(",", errors)));
       }
 
-      await userRepo.AddToRolesAsync(user, dto.Roles);
+      var roleResult = await userRepo.AddToRolesAsync(user, dto.Roles);
+      if (!roleResult.Succeeded)
+      {
+         var roleErrors = roleResult.Errors.Select(e => e.Description).ToList();
+         return Result.Failure(new Error("Add Roles Failed", string.Join(",", roleErrors)));
+      }
          
       return Result.IsSuccess();
    }

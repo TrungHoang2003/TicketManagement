@@ -46,5 +46,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
         builder.ApplyConfiguration(new TicketConfiguration());
         builder.ApplyConfiguration(new TicketAssigneeConfiguration());
         builder.ApplyConfiguration(new TicketHeadConfiguration());
+        builder.ApplyConfiguration(new CommentConfiguration());
     }
 }
