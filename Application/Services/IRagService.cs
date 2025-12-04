@@ -6,7 +6,7 @@ public interface IRagService
     Task<List<string>> RetrieveContextAsync(string query, int k);
     
     // Bước 2: Tạo Phản hồi (Generation) - Tổng hợp câu trả lời
-    IAsyncEnumerable<string> GenerateAnswerStreamAsync(string userQuery, List<string> context);
+    Task<string> GenerateAnswerAsync(string userQuery, List<string> context);
     
     // Bước 3: Tính Embedding cho câu hỏi (để cache)
     Task<float[]> GetQuestionEmbeddingAsync(string question);

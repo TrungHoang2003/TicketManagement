@@ -25,28 +25,31 @@ public class RagService(
         return await embeddingRepository.SearchSimilarDocumentsAsync(embedResult, k);
     }
 
-    public async IAsyncEnumerable<string> GenerateAnswerStreamAsync(string userQuery, List<string> context)
+    public async Task<string> GenerateAnswerAsync(string userQuery, List<string> context)
     {
         var contextText = string.Join("\n\n", context);
         var prompt = $"{_ragPromptSettings.SystemInstruction}\n\nNgữ cảnh:\n{contextText}\n\nCâu hỏi: {userQuery}\n\nTrả lời ngắn gọn:";
 
         ollamaClient.SelectedModel = _ollamaSettings.GenerationModel;
 
-        // Stream dữ liệu trực tiếp về cho Controller/Client
         var request = new GenerateRequest
         {
             Prompt = prompt,
             Options = new RequestOptions
             {
                 Temperature = 0.3f,
-                NumPredict = 1024  // Giới hạn max tokens
+                NumPredict = 1024
             }
         };
         
+        // Collect all tokens from stream
+        var answerBuilder = new System.Text.StringBuilder();
         await foreach (var stream in ollamaClient.GenerateAsync(request))
         {
-            yield return stream.Response;
+            answerBuilder.Append(stream.Response);
         }
+        
+        return answerBuilder.ToString();
     }
 
     /// <summary>
@@ -61,7 +64,7 @@ public class RagService(
         // Gọi Ollama API để tính embedding
         var response = await ollamaClient.EmbedAsync(question);
         
-        // Lấy vector embedding (1024 chiều cho bge-m3)
+        // Lấy vector embedding
         var embedding = response.Embeddings.First().ToArray();
         
         return embedding;

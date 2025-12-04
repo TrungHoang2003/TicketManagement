@@ -108,7 +108,7 @@ public class QdrantCacheService : IQdrantCacheService
 
             await _qdrantClient.UpsertAsync(
                 collectionName: _qdrantSettings.CollectionName,
-                points: new[] { point }
+                points: [point]
             );
 
             _logger.LogDebug("Cached question: {Question}", question);
