@@ -16,6 +16,7 @@ public static class ApplicationDi
         services.Configure<JwtSettings>(configuration.GetSection("JWT"));
         services.Configure<OllamaSettings>(configuration.GetSection("Ollama"));
         services.Configure<RagPromptSettings>(configuration.GetSection("RagPrompt"));
+        services.Configure<QdrantSettings>(configuration.GetSection("Qdrant"));
         
         services.AddSingleton<IJwtService, JwtService>();
         services.AddSingleton<IGoogleTokenService, GoogleTokenService>();
@@ -30,6 +31,7 @@ public static class ApplicationDi
         services.AddScoped<ICommentService, CommentService>();
         services.AddScoped<IRagService, RagService>();
         services.AddScoped<IRoleService, RoleService>();
+        services.AddSingleton<IQdrantCacheService, QdrantCacheService>();
         services.AddHttpClient<IGoogleAuthService, GoogleAuthService>();
         services.AddSingleton<ICloudinaryService,CloudinaryService>();
         

@@ -13,12 +13,12 @@ public interface IEmbeddingRepository
     /// <param name="queryEmbedding">Vector embedding của câu query</param>
     /// <param name="k">Số lượng kết quả trả về</param>
     /// <returns>Danh sách các document content tương tự nhất</returns>
-    Task<List<string>> SearchSimilarDocumentsAsync(float[] queryEmbedding, int k = 3);
+    Task<List<string>> SearchSimilarDocumentsAsync(float[] queryEmbedding, int k);
 }
 
 public class EmbeddingRepository(AppDbContext dbContext) : IEmbeddingRepository
 {
-    public async Task<List<string>> SearchSimilarDocumentsAsync(float[] queryEmbedding, int k = 3)
+    public async Task<List<string>> SearchSimilarDocumentsAsync(float[] queryEmbedding, int k)
     {
         var vector = new Vector(queryEmbedding);
         

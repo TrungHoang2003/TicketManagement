@@ -8,11 +8,13 @@ namespace TicketManagement.Api.Controllers;
 [ApiController]
 [Route("[controller]")]
 [Authorize]
-public class RagController(IRagService ragService, ILogger<RagController> logger) : ControllerBase
+public class RagController(
+    IRagService ragService, 
+    IQdrantCacheService qdrantCache,
+    ILogger<RagController> logger) : ControllerBase
 {
     /// <summary>
-    /// Endpoint chính để hỏi đáp RAG
-    /// Nhận câu hỏi từ người dùng, tìm context liên quan và sinh câu trả lời
+    /// Endpoint chính để hỏi đáp RAG với semantic cache
     /// </summary>
     [HttpPost("ask")]
     public async Task<IActionResult> Ask([FromBody] RagQueryDto request)
@@ -26,10 +28,34 @@ public class RagController(IRagService ragService, ILogger<RagController> logger
         {
             logger.LogInformation("Received RAG query: {Query}", request.Query);
 
-            // Bước 1: Retrieve - Tìm context liên quan
+            // Tính embedding của câu hỏi
+            var questionEmbedding = await ragService.GetQuestionEmbeddingAsync(request.Query);
+
+            // Tìm trong cache
+            var cachedResponse = await qdrantCache.SearchSimilarQuestionAsync(
+                request.Query,
+                questionEmbedding,
+                similarityThreshold: 0.90
+            );
+
+            if (cachedResponse != null)
+            {
+                // Cache HIT
+                logger.LogInformation("Cache HIT (similarity: {Score:F3})", cachedResponse.SimilarityScore);
+
+                return Ok(new
+                {
+                    answer = cachedResponse.Answer,
+                    timestamp = DateTime.UtcNow,
+                    fromCache = true,
+                    cachedMatchQuestion = cachedResponse.OriginalQuestion,
+                    similarityScore = cachedResponse.SimilarityScore
+                });
+            }
+
+            // Cache MISS - chạy RAG đầy đủ
             var contextDocuments = await ragService.RetrieveContextAsync(request.Query, k: 3);
 
-            // Bước 2: Generate - Sinh câu trả lời (collect stream thành string)
             var answerStream = ragService.GenerateAnswerStreamAsync(request.Query, contextDocuments);
             var answerTokens = new List<string>();
             await foreach (var token in answerStream)
@@ -38,12 +64,25 @@ public class RagController(IRagService ragService, ILogger<RagController> logger
             }
             var answer = string.Concat(answerTokens);
 
-            var response = new RagResponseDto(
-                Answer: answer,
-                Timestamp: DateTime.UtcNow
-            );
+            // Cache kết quả
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await qdrantCache.CacheResponseAsync(request.Query, questionEmbedding, answer);
+                }
+                catch (Exception cacheEx)
+                {
+                    logger.LogWarning(cacheEx, "Failed to cache response");
+                }
+            });
 
-            return Ok(response);
+            return Ok(new
+            {
+                answer,
+                timestamp = DateTime.UtcNow,
+                fromCache = false
+            });
         }
         catch (Exception ex)
         {
@@ -130,7 +169,7 @@ public class RagController(IRagService ragService, ILogger<RagController> logger
     }
 
     /// <summary>
-    /// Health check endpoint để kiểm tra service có hoạt động không
+    /// Health check endpoint
     /// </summary>
     [HttpGet("health")]
     public IActionResult Health()

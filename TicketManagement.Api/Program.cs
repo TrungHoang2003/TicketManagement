@@ -115,6 +115,13 @@ app.UseMiddleware<ExceptionHandlerMiddleWare>();
 app.UseSerilogRequestLogging();
 app.MapControllers();
 
+// Khởi tạo Qdrant collection khi app start
+using (var scope = app.Services.CreateScope())
+{
+    var qdrantCache = scope.ServiceProvider.GetRequiredService<Application.Services.IQdrantCacheService>();
+    await qdrantCache.InitializeCollectionAsync();
+}
+
 try
 {
     Log.Information("Starting Application...");

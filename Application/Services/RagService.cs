@@ -39,7 +39,7 @@ public class RagService(
             Options = new RequestOptions
             {
                 Temperature = 0.3f,
-                NumPredict = 512  // Giới hạn max tokens
+                NumPredict = 1024  // Giới hạn max tokens
             }
         };
         
@@ -47,5 +47,23 @@ public class RagService(
         {
             yield return stream.Response;
         }
+    }
+
+    /// <summary>
+    /// Tính embedding (vector) của câu hỏi
+    /// Dùng để so sánh semantic similarity trong cache
+    /// </summary>
+    public async Task<float[]> GetQuestionEmbeddingAsync(string question)
+    {
+        // Chọn model embedding
+        ollamaClient.SelectedModel = _ollamaSettings.EmbeddingModel;
+        
+        // Gọi Ollama API để tính embedding
+        var response = await ollamaClient.EmbedAsync(question);
+        
+        // Lấy vector embedding (1024 chiều cho bge-m3)
+        var embedding = response.Embeddings.First().ToArray();
+        
+        return embedding;
     }
 }

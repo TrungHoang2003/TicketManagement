@@ -27,21 +27,34 @@
       - ./redis-data:/data
     command: redis-server --appendonly no --save ""
   
-  api:
-     ports:
-       - "5105:8080"
-     build:
-       context: . 
-       dockerfile: TicketManagement.Api/Dockerfile
-     container_name: ticket-api
-     depends_on:
-       - redis
-       - postgres
-     environment:
-       - ASPNETCORE_ENVIRONMENT=Development
-       - ASPNETCORE_URLS=http://+:8080
-     env_file:
-       - TicketManagement.Api/.env.docker
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: ticket-qdrant
+    ports:
+      - "6333:6333"  # REST API
+      - "6334:6334"  # gRPC (để C# client dùng)
+    volumes:
+      - qdrant_data:/qdrant/storage
+    environment:
+      - QDRANT__SERVICE__GRPC_PORT=6334
+    restart: unless-stopped
+  
+#  api:
+#     ports:
+#       - "5105:8080"
+#     build:
+#       context: . 
+#       dockerfile: TicketManagement.Api/Dockerfile
+#     container_name: ticket-api
+#     depends_on:
+#       - redis
+#       - postgres
+#     environment:
+#       - ASPNETCORE_ENVIRONMENT=Development
+#       - ASPNETCORE_URLS=http://+:8080
+#     env_file:
+#       - TicketManagement.Api/.env.docker
   
 volumes:
   postgres_data:
+  qdrant_data:
