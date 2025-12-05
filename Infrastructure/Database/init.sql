@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict agWSNgIZaSGTHiXpdkXAV6XhwHEmtDVk4fAjgMbEdKxaoVVIGQTPRzILgOdwVla
+\restrict ViCSNFdPVmVsAaRP4Gk0M7Knmr37bjYANLOEPQb9eyHA9qmaw0AABTbVtVCbvfI
 
 -- Dumped from database version 17.7 (Debian 17.7-3.pgdg12+1)
 -- Dumped by pg_dump version 17.7 (Debian 17.7-3.pgdg12+1)
@@ -57,15 +57,13 @@ SET default_table_access_method = heap;
 -- Name: Attachments; Type: TABLE; Schema: public; Owner: root
 --
 
-
 CREATE TABLE public."Attachments" (
     "Id" integer NOT NULL,
     "EntityId" integer NOT NULL,
     "EntityType" text NOT NULL,
     "Url" text NOT NULL,
     "ContentType" text NOT NULL,
-    "FileName" text,
-    "CommentId" integer
+    "FileName" text
 );
 
 
@@ -328,7 +326,7 @@ ALTER TABLE public."TicketAssignees" OWNER TO root;
 CREATE TABLE public."TicketHeads" (
     "TicketId" integer NOT NULL,
     "HeadId" integer NOT NULL,
-    "IsMainHead" boolean DEFAULT false NOT NULL
+    "IsMainHead" boolean NOT NULL
 );
 
 
@@ -344,6 +342,7 @@ CREATE TABLE public."Tickets" (
     "CategoryId" integer NOT NULL,
     "CreatorId" integer NOT NULL,
     "CauseTypeId" integer,
+    "ImplementationPlan" text,
     "Cause" text,
     "DesiredCompleteDate" timestamp with time zone NOT NULL,
     "ExpectedStartDate" timestamp with time zone,
@@ -352,7 +351,7 @@ CREATE TABLE public."Tickets" (
     "Priority" text NOT NULL,
     "Status" text NOT NULL,
     "CreatedAt" timestamp with time zone NOT NULL,
-    "ImplementationPlan" text
+    "CompletedAt" timestamp with time zone
 );
 
 
@@ -586,54 +585,6 @@ INSERT INTO public."Departments" VALUES (7, 'admin');
 -- Data for Name: Progress; Type: TABLE DATA; Schema: public; Owner: root
 --
 
-INSERT INTO public."Progress" VALUES (1, 1, 'Pending', 'Nguyễn Quang Hà đã tạo yêu cầu', 'Nguyễn Quang Hà', '2025-11-26 08:30:00+00');
-INSERT INTO public."Progress" VALUES (2, 1, 'Received', 'Trưởng phòng IT Hoàng Việt Trung đã tiếp nhận ticket', 'Hoàng Việt Trung', '2025-11-26 09:00:00+00');
-INSERT INTO public."Progress" VALUES (3, 1, 'InProgress', 'Head IT phân công thi123@gmail.com, tuan123@gmail.com xử lý ticket', 'Hoàng Việt Trung', '2025-11-26 09:15:00+00');
-INSERT INTO public."Progress" VALUES (4, 1, 'InProgress', 'Đã kiểm tra máy in, phát hiện kẹt giấy và con lăn bị mòn', 'Phạm Đình Thi', '2025-11-26 10:30:00+00');
-INSERT INTO public."Progress" VALUES (5, 1, 'InProgress', 'Đã làm sạch con lăn và thay thế bộ phận bị hỏng', 'Lê Anh Tuấn', '2025-11-26 15:00:00+00');
-INSERT INTO public."Progress" VALUES (6, 1, 'Completed', 'Máy in đã hoạt động bình thường, đã test in thành công', 'Phạm Đình Thi', '2025-11-26 16:30:00+00');
-INSERT INTO public."Progress" VALUES (7, 2, 'Pending', 'Hoàng Nhật Minh đã tạo yêu cầu', 'Hoàng Nhật Minh', '2025-11-26 09:15:00+00');
-INSERT INTO public."Progress" VALUES (8, 2, 'Received', 'Trưởng phòng IT Hoàng Việt Trung đã tiếp nhận ticket', 'Hoàng Việt Trung', '2025-11-26 10:00:00+00');
-INSERT INTO public."Progress" VALUES (9, 2, 'InProgress', 'Head IT phân công thi123@gmail.com xử lý ticket', 'Hoàng Việt Trung', '2025-11-26 10:30:00+00');
-INSERT INTO public."Progress" VALUES (10, 2, 'InProgress', 'Đang tạo tài khoản và cấu hình phân quyền cho user mới', 'Phạm Đình Thi', '2025-11-26 14:00:00+00');
-INSERT INTO public."Progress" VALUES (11, 3, 'Pending', 'Hoàng Hà Trang đã tạo yêu cầu', 'Hoàng Hà Trang', '2025-11-26 10:20:00+00');
-INSERT INTO public."Progress" VALUES (12, 3, 'Received', 'Trưởng phòng HR Nguyễn Minh Sơn đã tiếp nhận ticket', 'Nguyễn Minh Sơn', '2025-11-26 11:00:00+00');
-INSERT INTO public."Progress" VALUES (13, 3, 'InProgress', 'Head HR phân công minh123@gmail.com, trang123@gmail.com xử lý ticket', 'Nguyễn Minh Sơn', '2025-11-26 11:30:00+00');
-INSERT INTO public."Progress" VALUES (14, 3, 'InProgress', 'Đang thu thập giấy tờ và soạn thảo phụ lục hợp đồng', 'Hoàng Nhật Minh', '2025-11-26 15:00:00+00');
-INSERT INTO public."Progress" VALUES (15, 4, 'Pending', 'Hoàng Yến Chi đã tạo yêu cầu', 'Hoàng Yến Chi', '2025-11-26 11:00:00+00');
-INSERT INTO public."Progress" VALUES (16, 5, 'Pending', 'Nguyễn Quang Anh đã tạo yêu cầu', 'Nguyễn Quang Anh', '2025-11-26 13:30:00+00');
-INSERT INTO public."Progress" VALUES (17, 5, 'Received', 'Trưởng phòng Tài Chính Nguyễn Quang Hà đã tiếp nhận ticket', 'Nguyễn Quang Hà', '2025-11-26 14:00:00+00');
-INSERT INTO public."Progress" VALUES (18, 5, 'InProgress', 'Head Finance phân công quanganh123@gmail.com, uyen222@gmail.com xử lý ticket', 'Nguyễn Quang Hà', '2025-11-26 14:30:00+00');
-INSERT INTO public."Progress" VALUES (48, 5, 'InProgress', 'Đang kiểm tra và xác minh các chứng từ chi phí', 'Nguyễn Quang Anh', '2025-11-27 10:00:00+00');
-INSERT INTO public."Progress" VALUES (19, 6, 'Pending', 'Nguyễn Phương Uyên đã tạo yêu cầu', 'Nguyễn Phương Uyên', '2025-11-26 14:00:00+00');
-INSERT INTO public."Progress" VALUES (20, 7, 'Pending', 'Lê Anh Quân đã tạo yêu cầu', 'Lê Anh Quân', '2025-11-26 15:00:00+00');
-INSERT INTO public."Progress" VALUES (21, 8, 'Pending', 'Đỗ Thùy Dương đã tạo yêu cầu', 'Đỗ Thùy Dương', '2025-11-26 08:00:00+00');
-INSERT INTO public."Progress" VALUES (22, 8, 'Received', 'Trưởng phòng Sản Phẩm Lê Văn Thiện đã tiếp nhận ticket', 'Lê Văn Thiện', '2025-11-26 09:00:00+00');
-INSERT INTO public."Progress" VALUES (23, 8, 'InProgress', 'Head Product phân công quan123@gmail.com, duong123@gmail.com xử lý ticket', 'Lê Văn Thiện', '2025-11-26 09:30:00+00');
-INSERT INTO public."Progress" VALUES (24, 8, 'InProgress', 'Đã phân tích performance, xác định bottleneck ở query database', 'Lê Anh Quân', '2025-11-26 11:00:00+00');
-INSERT INTO public."Progress" VALUES (25, 8, 'InProgress', 'Đang implement caching và thêm index cho bảng Reports', 'Đỗ Thùy Dương', '2025-11-26 15:00:00+00');
-INSERT INTO public."Progress" VALUES (26, 9, 'Pending', 'Lê Anh Duy đã tạo yêu cầu', 'Lê Anh Duy', '2025-11-26 16:00:00+00');
-INSERT INTO public."Progress" VALUES (27, 9, 'Received', 'Trưởng phòng Kinh Doanh Bùi Anh Tuấn đã tiếp nhận ticket', 'Bùi Anh Tuấn', '2025-11-26 16:30:00+00');
-INSERT INTO public."Progress" VALUES (28, 9, 'InProgress', 'Head Sales phân công duy123@gmail.com xử lý ticket', 'Bùi Anh Tuấn', '2025-11-26 17:00:00+00');
-INSERT INTO public."Progress" VALUES (29, 10, 'Pending', 'Lê Minh Hiếu đã tạo yêu cầu', 'Lê Minh Hiếu', '2025-11-26 10:30:00+00');
-INSERT INTO public."Progress" VALUES (30, 10, 'Received', 'Trưởng phòng Kinh Doanh Bùi Anh Tuấn đã tiếp nhận ticket', 'Bùi Anh Tuấn', '2025-11-26 11:00:00+00');
-INSERT INTO public."Progress" VALUES (31, 10, 'InProgress', 'Head Sales phân công duy123@gmail.com, hieu123@gmail.com xử lý ticket', 'Bùi Anh Tuấn', '2025-11-26 11:30:00+00');
-INSERT INTO public."Progress" VALUES (32, 10, 'InProgress', 'Đã soạn bản thảo hợp đồng dựa trên template Enterprise', 'Lê Anh Duy', '2025-11-26 14:00:00+00');
-INSERT INTO public."Progress" VALUES (33, 11, 'Pending', 'Tạ Nhật Ánh đã tạo yêu cầu', 'Tạ Nhật Ánh', '2025-11-26 14:30:00+00');
-INSERT INTO public."Progress" VALUES (34, 12, 'Pending', 'Nguyễn Quang Vũ đã tạo yêu cầu', 'Nguyễn Quang Vũ', '2025-11-26 13:00:00+00');
-INSERT INTO public."Progress" VALUES (35, 12, 'Received', 'Trưởng phòng AD Phạm Quang Hưng đã tiếp nhận ticket', 'Phạm Quang Hưng', '2025-11-26 13:30:00+00');
-INSERT INTO public."Progress" VALUES (36, 12, 'InProgress', 'Head AD phân công anh123@gmail.com, vu123@gmail.com xử lý ticket', 'Phạm Quang Hưng', '2025-11-26 14:00:00+00');
-INSERT INTO public."Progress" VALUES (37, 13, 'Pending', 'Phạm Đình Thi đã tạo yêu cầu', 'Phạm Đình Thi', '2025-11-26 14:00:00+00');
-INSERT INTO public."Progress" VALUES (38, 13, 'Received', 'Trưởng phòng IT Hoàng Việt Trung đã tiếp nhận ticket - Ưu tiên cao', 'Hoàng Việt Trung', '2025-11-26 14:15:00+00');
-INSERT INTO public."Progress" VALUES (39, 13, 'InProgress', 'Head IT phân công thi123@gmail.com, tuan123@gmail.com xử lý khẩn cấp', 'Hoàng Việt Trung', '2025-11-26 14:20:00+00');
-INSERT INTO public."Progress" VALUES (40, 13, 'InProgress', 'Đã xác định nguyên nhân: Firewall đã block port 1194 của VPN', 'Phạm Đình Thi', '2025-11-26 15:00:00+00');
-INSERT INTO public."Progress" VALUES (41, 13, 'InProgress', 'Đang cấu hình lại firewall và restart VPN server', 'Lê Anh Tuấn', '2025-11-26 16:00:00+00');
-INSERT INTO public."Progress" VALUES (42, 13, 'Completed', 'VPN đã hoạt động trở lại, tất cả user đã kết nối thành công', 'Phạm Đình Thi', '2025-11-26 17:30:00+00');
-INSERT INTO public."Progress" VALUES (43, 14, 'Pending', 'Nguyễn Hoàng Mai đã tạo yêu cầu', 'Nguyễn Hoàng Mai', '2025-11-26 15:30:00+00');
-INSERT INTO public."Progress" VALUES (44, 15, 'Pending', 'Lê Nguyễn Thái Hà đã tạo yêu cầu', 'Lê Nguyễn Thái Hà', '2025-11-26 11:30:00+00');
-INSERT INTO public."Progress" VALUES (45, 15, 'Received', 'Trưởng phòng Kinh Doanh Bùi Anh Tuấn đã tiếp nhận ticket', 'Bùi Anh Tuấn', '2025-11-26 12:00:00+00');
-INSERT INTO public."Progress" VALUES (46, 15, 'InProgress', 'Head Sales phân công duy123@gmail.com, ha123@gmail.com xử lý ticket', 'Bùi Anh Tuấn', '2025-11-26 12:30:00+00');
-INSERT INTO public."Progress" VALUES (47, 15, 'InProgress', 'Đã xác minh hợp đồng, đang làm việc với phòng tài chính', 'Lê Anh Duy', '2025-11-26 15:00:00+00');
 
 
 --
@@ -661,68 +612,118 @@ INSERT INTO public."Roles" VALUES (9, 'Head Of Product', 'HEAD OF PRODUCT', NULL
 -- Data for Name: TicketAssignees; Type: TABLE DATA; Schema: public; Owner: root
 --
 
-INSERT INTO public."TicketAssignees" VALUES (1, 8);
-INSERT INTO public."TicketAssignees" VALUES (1, 9);
-INSERT INTO public."TicketAssignees" VALUES (2, 8);
-INSERT INTO public."TicketAssignees" VALUES (3, 10);
-INSERT INTO public."TicketAssignees" VALUES (3, 11);
-INSERT INTO public."TicketAssignees" VALUES (5, 13);
-INSERT INTO public."TicketAssignees" VALUES (5, 14);
-INSERT INTO public."TicketAssignees" VALUES (8, 15);
-INSERT INTO public."TicketAssignees" VALUES (8, 16);
-INSERT INTO public."TicketAssignees" VALUES (9, 18);
-INSERT INTO public."TicketAssignees" VALUES (10, 18);
-INSERT INTO public."TicketAssignees" VALUES (10, 19);
-INSERT INTO public."TicketAssignees" VALUES (12, 22);
-INSERT INTO public."TicketAssignees" VALUES (12, 23);
-INSERT INTO public."TicketAssignees" VALUES (13, 8);
-INSERT INTO public."TicketAssignees" VALUES (13, 9);
-INSERT INTO public."TicketAssignees" VALUES (15, 18);
-INSERT INTO public."TicketAssignees" VALUES (15, 20);
+INSERT INTO public."TicketAssignees" VALUES (16, 8);
+INSERT INTO public."TicketAssignees" VALUES (17, 9);
+INSERT INTO public."TicketAssignees" VALUES (18, 10);
+INSERT INTO public."TicketAssignees" VALUES (19, 2);
+INSERT INTO public."TicketAssignees" VALUES (20, 2);
+INSERT INTO public."TicketAssignees" VALUES (21, 3);
+INSERT INTO public."TicketAssignees" VALUES (22, 4);
+INSERT INTO public."TicketAssignees" VALUES (23, 5);
+INSERT INTO public."TicketAssignees" VALUES (24, 6);
+INSERT INTO public."TicketAssignees" VALUES (25, 7);
+INSERT INTO public."TicketAssignees" VALUES (26, 8);
+INSERT INTO public."TicketAssignees" VALUES (27, 9);
+INSERT INTO public."TicketAssignees" VALUES (28, 10);
+INSERT INTO public."TicketAssignees" VALUES (29, 2);
+INSERT INTO public."TicketAssignees" VALUES (30, 2);
+INSERT INTO public."TicketAssignees" VALUES (31, 3);
+INSERT INTO public."TicketAssignees" VALUES (32, 4);
+INSERT INTO public."TicketAssignees" VALUES (33, 5);
+INSERT INTO public."TicketAssignees" VALUES (34, 6);
+INSERT INTO public."TicketAssignees" VALUES (35, 7);
+INSERT INTO public."TicketAssignees" VALUES (36, 8);
+INSERT INTO public."TicketAssignees" VALUES (37, 9);
+INSERT INTO public."TicketAssignees" VALUES (38, 10);
+INSERT INTO public."TicketAssignees" VALUES (39, 2);
+INSERT INTO public."TicketAssignees" VALUES (40, 2);
+INSERT INTO public."TicketAssignees" VALUES (41, 3);
+INSERT INTO public."TicketAssignees" VALUES (42, 4);
+INSERT INTO public."TicketAssignees" VALUES (43, 5);
+INSERT INTO public."TicketAssignees" VALUES (44, 6);
+INSERT INTO public."TicketAssignees" VALUES (45, 7);
+INSERT INTO public."TicketAssignees" VALUES (46, 8);
+INSERT INTO public."TicketAssignees" VALUES (47, 9);
+INSERT INTO public."TicketAssignees" VALUES (48, 10);
+INSERT INTO public."TicketAssignees" VALUES (49, 2);
+INSERT INTO public."TicketAssignees" VALUES (50, 2);
+INSERT INTO public."TicketAssignees" VALUES (51, 3);
+INSERT INTO public."TicketAssignees" VALUES (52, 4);
+INSERT INTO public."TicketAssignees" VALUES (53, 5);
+INSERT INTO public."TicketAssignees" VALUES (54, 6);
+INSERT INTO public."TicketAssignees" VALUES (55, 7);
+INSERT INTO public."TicketAssignees" VALUES (56, 8);
+INSERT INTO public."TicketAssignees" VALUES (57, 9);
+INSERT INTO public."TicketAssignees" VALUES (58, 10);
+INSERT INTO public."TicketAssignees" VALUES (59, 2);
+INSERT INTO public."TicketAssignees" VALUES (60, 2);
+INSERT INTO public."TicketAssignees" VALUES (61, 3);
+INSERT INTO public."TicketAssignees" VALUES (62, 4);
+INSERT INTO public."TicketAssignees" VALUES (63, 5);
+INSERT INTO public."TicketAssignees" VALUES (64, 6);
+INSERT INTO public."TicketAssignees" VALUES (65, 7);
 
 
 --
 -- Data for Name: TicketHeads; Type: TABLE DATA; Schema: public; Owner: root
 --
 
-INSERT INTO public."TicketHeads" VALUES (1, 3, true);
-INSERT INTO public."TicketHeads" VALUES (2, 3, true);
-INSERT INTO public."TicketHeads" VALUES (3, 4, true);
-INSERT INTO public."TicketHeads" VALUES (4, 4, true);
-INSERT INTO public."TicketHeads" VALUES (5, 5, true);
-INSERT INTO public."TicketHeads" VALUES (6, 5, true);
-INSERT INTO public."TicketHeads" VALUES (7, 6, true);
-INSERT INTO public."TicketHeads" VALUES (8, 6, true);
-INSERT INTO public."TicketHeads" VALUES (9, 1, true);
-INSERT INTO public."TicketHeads" VALUES (10, 1, true);
-INSERT INTO public."TicketHeads" VALUES (11, 2, true);
-INSERT INTO public."TicketHeads" VALUES (11, 24, false);
-INSERT INTO public."TicketHeads" VALUES (12, 2, true);
-INSERT INTO public."TicketHeads" VALUES (12, 24, false);
-INSERT INTO public."TicketHeads" VALUES (13, 3, true);
-INSERT INTO public."TicketHeads" VALUES (14, 6, true);
-INSERT INTO public."TicketHeads" VALUES (15, 1, true);
 
 
 --
 -- Data for Name: Tickets; Type: TABLE DATA; Schema: public; Owner: root
 --
 
-INSERT INTO public."Tickets" VALUES (1, 'Máy in tầng 3 không hoạt động', 1, 24, 1, 'Máy in bị kẹt giấy và không phản hồi lệnh in từ máy tính', '2025-11-28 10:00:00+00', '2025-11-27 09:00:00+00', '2025-11-27 17:00:00+00', 'Máy in HP LaserJet tầng 3 phòng kế toán không hoạt động từ sáng nay. Đã thử khởi động lại nhưng vẫn báo lỗi Paper Jam. Cần xử lý gấp vì nhiều hóa đơn cần in.', 'High', 'Closed', '2025-11-26 08:30:00+00', 'Kiểm tra và làm sạch con lăn máy in, thay thế bộ phận bị hỏng nếu cần');
-INSERT INTO public."Tickets" VALUES (2, 'Yêu cầu cấp quyền truy cập hệ thống ERP', 2, 10, NULL, NULL, '2025-11-30 10:00:00+00', NULL, NULL, 'Nhân viên mới cần được cấp quyền truy cập module kế toán và quản lý kho trong hệ thống ERP. Bao gồm quyền xem, thêm và sửa đơn hàng.', 'Medium', 'InProgress', '2025-11-26 09:15:00+00', 'Tạo tài khoản và phân quyền theo vai trò Accountant Junior');
-INSERT INTO public."Tickets" VALUES (3, 'Cập nhật thông tin hợp đồng lao động', 3, 11, 2, 'Thiếu giấy tờ xác nhận từ phòng nhân sự cũ', '2025-11-29 16:00:00+00', '2025-11-27 10:00:00+00', '2025-11-28 16:00:00+00', 'Cần cập nhật thông tin hợp đồng lao động mới sau khi tăng lương. Bao gồm mức lương mới, phụ cấp và các điều khoản phúc lợi đã thay đổi.', 'Medium', 'InProgress', '2025-11-26 10:20:00+00', 'Thu thập giấy tờ cần thiết, soạn phụ lục hợp đồng mới');
-INSERT INTO public."Tickets" VALUES (4, 'Đăng tin tuyển dụng vị trí Senior Developer', 4, 12, NULL, NULL, '2025-12-05 17:00:00+00', NULL, NULL, 'Phòng IT cần tuyển 2 Senior Developer với kinh nghiệm 5+ năm về .NET Core và React. Yêu cầu đăng tin trên các trang tuyển dụng và mạng xã hội công ty.', 'Low', 'Pending', '2025-11-26 11:00:00+00', NULL);
-INSERT INTO public."Tickets" VALUES (5, 'Quyết toán chi phí công tác tháng 11', 5, 13, NULL, NULL, '2025-12-03 17:00:00+00', '2025-11-27 09:00:00+00', '2025-12-02 17:00:00+00', 'Quyết toán các khoản chi phí đi công tác Hà Nội từ ngày 15-20/11. Bao gồm vé máy bay, khách sạn, ăn uống và chi phí di chuyển. Tổng giá trị tạm tính 15 triệu đồng.', 'Medium', 'InProgress', '2025-11-26 13:30:00+00', 'Kiểm tra chứng từ và xử lý quyết toán theo quy trình tài chính');
-INSERT INTO public."Tickets" VALUES (6, 'Lập báo cáo tài chính quý 4/2025', 6, 14, NULL, NULL, '2025-12-10 17:00:00+00', NULL, NULL, 'Cần lập báo cáo tài chính tổng hợp quý 4 năm 2025 bao gồm báo cáo thu chi, bảng cân đối kế toán, và phân tích tình hình tài chính. Báo cáo phục vụ cho họp Ban Giám đốc.', 'High', 'Pending', '2025-11-26 14:00:00+00', NULL);
-INSERT INTO public."Tickets" VALUES (7, 'Nghiên cứu tính năng thanh toán online mới', 8, 15, NULL, NULL, '2025-12-15 17:00:00+00', NULL, NULL, 'Khách hàng yêu cầu tích hợp thêm cổng thanh toán VNPay và MoMo vào hệ thống. Cần nghiên cứu API, đánh giá tính khả thi và ước tính thời gian triển khai.', 'High', 'Pending', '2025-11-26 15:00:00+00', NULL);
-INSERT INTO public."Tickets" VALUES (8, 'Tối ưu hiệu năng module báo cáo', 7, 16, 1, 'Query database chưa được tối ưu, thiếu index', '2025-12-01 17:00:00+00', '2025-11-28 09:00:00+00', '2025-11-30 17:00:00+00', 'Module báo cáo đang chạy rất chậm khi xuất báo cáo lớn (>10000 records). Thời gian load lên đến 2-3 phút. Cần tối ưu để giảm thời gian xuất báo cáo xuống dưới 30 giây.', 'High', 'InProgress', '2025-11-26 08:00:00+00', 'Phân tích query, thêm index, implement caching và pagination');
-INSERT INTO public."Tickets" VALUES (9, 'Hỗ trợ demo sản phẩm cho khách hàng ABC Corp', 10, 18, NULL, NULL, '2025-11-29 14:00:00+00', NULL, NULL, 'Khách hàng ABC Corp yêu cầu demo đầy đủ tính năng hệ thống quản lý bán hàng. Cần chuẩn bị dữ liệu mẫu, kịch bản demo và tài liệu giới thiệu sản phẩm.', 'Medium', 'Received', '2025-11-26 16:00:00+00', NULL);
-INSERT INTO public."Tickets" VALUES (10, 'Soạn thảo hợp đồng cho khách hàng DEF Ltd', 9, 19, NULL, NULL, '2025-12-02 17:00:00+00', NULL, NULL, 'Khách hàng DEF Ltd đã đồng ý mua gói phần mềm Enterprise. Cần soạn hợp đồng bao gồm: phạm vi dự án, thời gian triển khai, chi phí (500 triệu), điều khoản bảo hành và bảo mật.', 'High', 'InProgress', '2025-11-26 10:30:00+00', 'Sử dụng mẫu hợp đồng Enterprise, tùy chỉnh theo yêu cầu khách hàng');
-INSERT INTO public."Tickets" VALUES (11, 'Kiểm tra và bổ sung thiết bị PCCC tầng 2', 11, 22, NULL, NULL, '2025-12-08 17:00:00+00', NULL, NULL, 'Sau đợt kiểm tra định kỳ phát hiện 3 bình chữa cháy tầng 2 đã hết hạn sử dụng. Cần thay mới và bổ sung thêm 2 bình cho khu vực mới mở rộng. Đồng thời tổ chức tập huấn PCCC cho nhân viên mới.', 'High', 'Pending', '2025-11-26 14:30:00+00', NULL);
-INSERT INTO public."Tickets" VALUES (12, 'Mua sắm laptop cho nhân viên mới', 12, 23, NULL, NULL, '2025-12-04 17:00:00+00', NULL, NULL, 'Phòng IT có 3 nhân viên mới cần trang bị laptop. Yêu cầu cấu hình: Core i7 gen 12, RAM 16GB, SSD 512GB, card đồ họa rời. Ngân sách dự kiến 25 triệu/máy.', 'Medium', 'Received', '2025-11-26 13:00:00+00', NULL);
-INSERT INTO public."Tickets" VALUES (13, 'Sự cố mất kết nối VPN', 1, 8, 4, 'Cấu hình firewall chặn port VPN', '2025-11-27 12:00:00+00', '2025-11-26 15:00:00+00', '2025-11-26 18:00:00+00', 'Nhiều nhân viên làm việc từ xa báo không thể kết nối VPN vào hệ thống công ty từ chiều nay. Lỗi xuất hiện: "Connection timeout". Ảnh hưởng đến khoảng 15 nhân viên.', 'Critical', 'Closed', '2025-11-26 14:00:00+00', 'Kiểm tra và cấu hình lại VPN server, mở port cần thiết trên firewall');
-INSERT INTO public."Tickets" VALUES (14, 'Cải thiện giao diện người dùng màn hình quản lý đơn hàng', 7, 17, NULL, NULL, '2025-12-12 17:00:00+00', NULL, NULL, 'User feedback cho thấy màn hình quản lý đơn hàng khó sử dụng, quá nhiều bước thao tác. Cần redesign UI/UX để đơn giản hóa quy trình, thêm quick actions và improve responsive design cho mobile.', 'Medium', 'Pending', '2025-11-26 15:30:00+00', NULL);
-INSERT INTO public."Tickets" VALUES (15, 'Xử lý yêu cầu hoàn tiền khách hàng XYZ', 9, 20, 2, 'Khách hàng cung cấp thông tin chưa đầy đủ', '2025-12-01 17:00:00+00', '2025-11-28 10:00:00+00', '2025-11-30 17:00:00+00', 'Khách hàng XYZ yêu cầu hoàn tiền cho đơn hàng #12345 do sản phẩm không đáp ứng yêu cầu. Giá trị đơn hàng: 80 triệu đồng. Cần xác minh điều khoản hợp đồng và xử lý theo quy trình.', 'High', 'InProgress', '2025-11-26 11:30:00+00', 'Xác minh hợp đồng, làm việc với phòng tài chính và pháp lý');
+INSERT INTO public."Tickets" VALUES (16, 'Lỗi không đăng nhập được hệ thống', 1, 2, 1, NULL, NULL, '2025-10-03 17:00:00+00', NULL, NULL, 'Nhân viên không thể đăng nhập vào hệ thống từ sáng nay', '0', '6', '2025-10-01 08:00:00+00', '2025-10-02 14:30:00+00');
+INSERT INTO public."Tickets" VALUES (17, 'Yêu cầu cấp máy tính mới', 2, 3, NULL, NULL, NULL, '2025-10-10 17:00:00+00', NULL, NULL, 'Máy tính hiện tại đã cũ, cần thay thế', '2', '6', '2025-10-02 09:00:00+00', '2025-10-08 16:00:00+00');
+INSERT INTO public."Tickets" VALUES (18, 'Lỗi phần mềm kế toán', 1, 4, 3, NULL, NULL, '2025-10-05 17:00:00+00', NULL, NULL, 'Phần mềm kế toán báo lỗi khi xuất báo cáo', '1', '6', '2025-10-03 10:00:00+00', '2025-10-04 11:00:00+00');
+INSERT INTO public."Tickets" VALUES (19, 'Xin nghỉ phép năm', 3, 5, NULL, NULL, NULL, '2025-10-06 17:00:00+00', NULL, NULL, 'Xin nghỉ phép 3 ngày', '3', '6', '2025-10-04 08:30:00+00', '2025-10-05 09:00:00+00');
+INSERT INTO public."Tickets" VALUES (20, 'Lỗi mạng văn phòng tầng 2', 1, 6, 4, NULL, NULL, '2025-10-06 17:00:00+00', NULL, NULL, 'Mạng bị chập chờn, không ổn định', '0', '6', '2025-10-05 14:00:00+00', '2025-10-05 18:00:00+00');
+INSERT INTO public."Tickets" VALUES (21, 'Yêu cầu đào tạo Excel nâng cao', 4, 7, NULL, NULL, NULL, '2025-10-20 17:00:00+00', NULL, NULL, 'Cần đào tạo Excel cho phòng kinh doanh', '2', '6', '2025-10-08 09:00:00+00', '2025-10-18 15:00:00+00');
+INSERT INTO public."Tickets" VALUES (22, 'Lỗi máy in phòng HR', 2, 8, 1, NULL, NULL, '2025-10-12 17:00:00+00', NULL, NULL, 'Máy in không hoạt động', '1', '6', '2025-10-10 10:30:00+00', '2025-10-11 14:00:00+00');
+INSERT INTO public."Tickets" VALUES (23, 'Cập nhật thông tin nhân sự', 3, 9, NULL, NULL, NULL, '2025-10-14 17:00:00+00', NULL, NULL, 'Cập nhật địa chỉ và số điện thoại', '3', '6', '2025-10-12 08:00:00+00', '2025-10-13 10:00:00+00');
+INSERT INTO public."Tickets" VALUES (24, 'Lỗi hệ thống CRM', 1, 10, 3, NULL, NULL, '2025-10-17 17:00:00+00', NULL, NULL, 'Không thể tạo khách hàng mới trên CRM', '0', '6', '2025-10-15 11:00:00+00', '2025-10-16 16:30:00+00');
+INSERT INTO public."Tickets" VALUES (25, 'Yêu cầu tăng dung lượng email', 2, 2, NULL, NULL, NULL, '2025-10-22 17:00:00+00', NULL, NULL, 'Hộp thư đã đầy, cần tăng dung lượng', '2', '6', '2025-10-18 09:30:00+00', '2025-10-20 11:00:00+00');
+INSERT INTO public."Tickets" VALUES (26, 'Lỗi VPN không kết nối được', 1, 3, 4, NULL, NULL, '2025-11-02 17:00:00+00', NULL, NULL, 'Không thể kết nối VPN khi làm việc từ xa', '0', '6', '2025-11-01 08:00:00+00', '2025-11-01 15:00:00+00');
+INSERT INTO public."Tickets" VALUES (27, 'Yêu cầu cấp phần mềm thiết kế', 2, 4, NULL, NULL, NULL, '2025-11-10 17:00:00+00', NULL, NULL, 'Cần Adobe Creative Suite cho phòng Marketing', '2', '6', '2025-11-02 10:00:00+00', '2025-11-08 14:00:00+00');
+INSERT INTO public."Tickets" VALUES (28, 'Báo cáo tài chính tháng 10', 5, 5, NULL, NULL, NULL, '2025-11-07 17:00:00+00', NULL, NULL, 'Cần xuất báo cáo tài chính tháng 10', '1', '6', '2025-11-03 09:00:00+00', '2025-11-06 16:00:00+00');
+INSERT INTO public."Tickets" VALUES (29, 'Lỗi database timeout', 1, 6, 1, NULL, NULL, '2025-11-06 17:00:00+00', NULL, NULL, 'Query chạy quá lâu gây timeout', '0', '6', '2025-11-04 14:30:00+00', '2025-11-05 10:00:00+00');
+INSERT INTO public."Tickets" VALUES (30, 'Yêu cầu thêm user vào hệ thống', 3, 7, NULL, NULL, NULL, '2025-11-08 17:00:00+00', NULL, NULL, 'Thêm 5 nhân viên mới vào hệ thống', '2', '6', '2025-11-05 08:00:00+00', '2025-11-07 09:30:00+00');
+INSERT INTO public."Tickets" VALUES (31, 'Lỗi ứng dụng mobile', 1, 8, 2, NULL, NULL, '2025-11-10 17:00:00+00', NULL, NULL, 'App mobile bị crash khi mở', '0', '6', '2025-11-08 11:00:00+00', '2025-11-09 14:00:00+00');
+INSERT INTO public."Tickets" VALUES (32, 'Setup máy tính cho nhân viên mới', 2, 9, NULL, NULL, NULL, '2025-11-15 17:00:00+00', NULL, NULL, 'Cài đặt máy tính cho 3 nhân viên mới', '2', '6', '2025-11-10 09:00:00+00', '2025-11-13 11:00:00+00');
+INSERT INTO public."Tickets" VALUES (33, 'Xin phê duyệt ngân sách Q4', 6, 10, NULL, NULL, NULL, '2025-11-18 17:00:00+00', NULL, NULL, 'Phê duyệt ngân sách quý 4 cho phòng IT', '1', '6', '2025-11-12 10:30:00+00', '2025-11-16 15:00:00+00');
+INSERT INTO public."Tickets" VALUES (34, 'Lỗi backup server', 1, 2, 1, NULL, NULL, '2025-11-15 17:00:00+00', NULL, NULL, 'Backup đêm qua bị lỗi', '0', '6', '2025-11-14 08:00:00+00', '2025-11-14 16:00:00+00');
+INSERT INTO public."Tickets" VALUES (35, 'Yêu cầu đổi password hàng loạt', 3, 3, 2, NULL, NULL, '2025-11-17 17:00:00+00', NULL, NULL, 'Reset password cho phòng ban sau sự cố bảo mật', '0', '6', '2025-11-15 14:00:00+00', '2025-11-16 10:00:00+00');
+INSERT INTO public."Tickets" VALUES (36, 'Lỗi API thanh toán', 1, 4, 3, NULL, NULL, '2025-11-20 17:00:00+00', NULL, NULL, 'API payment gateway trả về lỗi 500', '0', '6', '2025-11-18 09:30:00+00', '2025-11-19 11:00:00+00');
+INSERT INTO public."Tickets" VALUES (37, 'Cấp quyền truy cập folder', 2, 5, NULL, NULL, NULL, '2025-11-22 17:00:00+00', NULL, NULL, 'Cần quyền truy cập thư mục dự án mới', '3', '6', '2025-11-20 10:00:00+00', '2025-11-21 09:00:00+00');
+INSERT INTO public."Tickets" VALUES (38, 'Báo cáo hiệu suất nhân viên', 4, 6, NULL, NULL, NULL, '2025-11-28 17:00:00+00', NULL, NULL, 'Tổng hợp báo cáo hiệu suất tháng 11', '2', '6', '2025-11-22 08:30:00+00', '2025-11-26 14:00:00+00');
+INSERT INTO public."Tickets" VALUES (39, 'Lỗi SSL certificate hết hạn', 1, 7, 5, NULL, NULL, '2025-11-25 17:00:00+00', NULL, NULL, 'Website báo lỗi SSL', '0', '6', '2025-11-24 11:00:00+00', '2025-11-24 15:30:00+00');
+INSERT INTO public."Tickets" VALUES (40, 'Upgrade RAM cho server', 2, 8, NULL, NULL, NULL, '2025-11-30 17:00:00+00', NULL, NULL, 'Server chính cần thêm RAM', '1', '6', '2025-11-25 14:00:00+00', '2025-11-28 16:00:00+00');
+INSERT INTO public."Tickets" VALUES (41, 'Lỗi hệ thống báo cáo', 1, 9, 1, NULL, NULL, '2025-12-03 17:00:00+00', NULL, NULL, 'Không xuất được báo cáo doanh thu', '0', '3', '2025-12-01 08:00:00+00', NULL);
+INSERT INTO public."Tickets" VALUES (42, 'Yêu cầu mua license mới', 2, 10, NULL, NULL, NULL, '2025-12-10 17:00:00+00', NULL, NULL, 'Mua thêm 10 license Microsoft 365', '2', '3', '2025-12-01 09:30:00+00', NULL);
+INSERT INTO public."Tickets" VALUES (43, 'Lỗi sync dữ liệu', 1, 2, 3, NULL, NULL, '2025-12-04 17:00:00+00', NULL, NULL, 'Dữ liệu không đồng bộ giữa các hệ thống', '0', '3', '2025-12-02 10:00:00+00', NULL);
+INSERT INTO public."Tickets" VALUES (44, 'Đăng ký khóa học online', 4, 3, NULL, NULL, NULL, '2025-12-15 17:00:00+00', NULL, NULL, 'Đăng ký khóa học AWS cho team DevOps', '2', '3', '2025-12-02 11:00:00+00', NULL);
+INSERT INTO public."Tickets" VALUES (45, 'Lỗi firewall block traffic', 1, 4, 4, NULL, NULL, '2025-12-04 17:00:00+00', NULL, NULL, 'Firewall chặn traffic từ đối tác', '0', '3', '2025-12-03 08:30:00+00', NULL);
+INSERT INTO public."Tickets" VALUES (46, 'Yêu cầu cấp VPN account', 2, 5, NULL, NULL, NULL, '2025-12-06 17:00:00+00', NULL, NULL, 'Cấp VPN cho nhân viên làm việc remote', '2', '1', '2025-12-03 09:00:00+00', NULL);
+INSERT INTO public."Tickets" VALUES (47, 'Review code module mới', 7, 6, NULL, NULL, NULL, '2025-12-08 17:00:00+00', NULL, NULL, 'Review và merge code cho tính năng mới', '1', '1', '2025-12-03 10:30:00+00', NULL);
+INSERT INTO public."Tickets" VALUES (48, 'Báo cáo chi tiêu tháng 11', 5, 7, NULL, NULL, NULL, '2025-12-10 17:00:00+00', NULL, NULL, 'Tổng hợp báo cáo chi tiêu tháng 11', '2', '1', '2025-12-03 11:00:00+00', NULL);
+INSERT INTO public."Tickets" VALUES (49, 'Setup môi trường staging', 2, 8, NULL, NULL, NULL, '2025-12-12 17:00:00+00', NULL, NULL, 'Cài đặt môi trường staging cho dự án mới', '1', '1', '2025-12-04 08:00:00+00', NULL);
+INSERT INTO public."Tickets" VALUES (50, 'Yêu cầu thêm màn hình', 2, 9, NULL, NULL, NULL, '2025-12-15 17:00:00+00', NULL, NULL, 'Cấp thêm màn hình cho phòng thiết kế', '3', '1', '2025-12-04 09:00:00+00', NULL);
+INSERT INTO public."Tickets" VALUES (51, 'Yêu cầu cấp MacBook Pro', 2, 10, NULL, NULL, NULL, '2025-11-30 17:00:00+00', NULL, NULL, 'Yêu cầu đổi máy tính sang MacBook Pro', '2', '4', '2025-11-20 09:00:00+00', NULL);
+INSERT INTO public."Tickets" VALUES (52, 'Xin nghỉ không lương 1 tháng', 3, 2, NULL, NULL, NULL, '2025-11-25 17:00:00+00', NULL, NULL, 'Xin nghỉ không lương từ tháng 12', '3', '4', '2025-11-22 10:00:00+00', NULL);
+INSERT INTO public."Tickets" VALUES (53, 'Yêu cầu tăng lương đột xuất', 3, 3, NULL, NULL, NULL, '2025-11-30 17:00:00+00', NULL, NULL, 'Yêu cầu xem xét tăng lương', '2', '4', '2025-11-25 11:00:00+00', NULL);
+INSERT INTO public."Tickets" VALUES (54, 'Lỗi UI trang dashboard', 7, 4, 2, NULL, NULL, '2025-10-25 17:00:00+00', NULL, NULL, 'Giao diện dashboard bị vỡ trên mobile', '1', '6', '2025-10-20 09:00:00+00', '2025-10-23 15:00:00+00');
+INSERT INTO public."Tickets" VALUES (55, 'Thêm tính năng export PDF', 8, 5, NULL, NULL, NULL, '2025-11-05 17:00:00+00', NULL, NULL, 'Người dùng yêu cầu xuất báo cáo PDF', '2', '6', '2025-10-25 10:00:00+00', '2025-11-02 14:00:00+00');
+INSERT INTO public."Tickets" VALUES (56, 'Fix bug filter không hoạt động', 7, 6, 1, NULL, NULL, '2025-11-08 17:00:00+00', NULL, NULL, 'Bộ lọc không filter đúng dữ liệu', '0', '6', '2025-11-05 08:30:00+00', '2025-11-07 11:00:00+00');
+INSERT INTO public."Tickets" VALUES (57, 'Cập nhật catalog sản phẩm', 9, 7, NULL, NULL, NULL, '2025-10-22 17:00:00+00', NULL, NULL, 'Cập nhật catalog cho quý 4', '2', '6', '2025-10-15 09:00:00+00', '2025-10-20 16:00:00+00');
+INSERT INTO public."Tickets" VALUES (58, 'Báo cáo doanh số tháng 10', 10, 8, NULL, NULL, NULL, '2025-11-05 17:00:00+00', NULL, NULL, 'Tổng hợp doanh số tháng 10', '1', '6', '2025-11-01 08:00:00+00', '2025-11-04 14:30:00+00');
+INSERT INTO public."Tickets" VALUES (59, 'Lỗi tính commission sai', 9, 9, 3, NULL, NULL, '2025-11-13 17:00:00+00', NULL, NULL, 'Hệ thống tính hoa hồng không đúng', '0', '6', '2025-11-10 10:00:00+00', '2025-11-12 09:00:00+00');
+INSERT INTO public."Tickets" VALUES (60, 'Đặt phòng họp quý 4', 11, 10, NULL, NULL, NULL, '2025-10-12 17:00:00+00', NULL, NULL, 'Đặt lịch phòng họp cho các cuộc họp Q4', '3', '6', '2025-10-08 09:00:00+00', '2025-10-10 11:00:00+00');
+INSERT INTO public."Tickets" VALUES (61, 'Mua văn phòng phẩm', 12, 2, NULL, NULL, NULL, '2025-11-20 17:00:00+00', NULL, NULL, 'Mua văn phòng phẩm cho phòng ban', '3', '6', '2025-11-15 10:30:00+00', '2025-11-18 15:00:00+00');
+INSERT INTO public."Tickets" VALUES (62, 'Sửa chữa điều hòa phòng họp', 11, 3, NULL, NULL, NULL, '2025-11-25 17:00:00+00', NULL, NULL, 'Điều hòa phòng họp A không hoạt động', '2', '6', '2025-11-20 08:00:00+00', '2025-11-23 14:00:00+00');
+INSERT INTO public."Tickets" VALUES (63, 'Lỗi login timeout', 1, 4, 1, NULL, NULL, '2025-12-02 17:00:00+00', NULL, NULL, 'User bị timeout khi đăng nhập', '0', '6', '2025-12-01 07:30:00+00', '2025-12-01 14:00:00+00');
+INSERT INTO public."Tickets" VALUES (64, 'Cập nhật policy bảo mật', 3, 5, NULL, NULL, NULL, '2025-12-05 17:00:00+00', NULL, NULL, 'Cập nhật chính sách bảo mật mới', '1', '6', '2025-12-01 08:00:00+00', '2025-12-03 16:00:00+00');
+INSERT INTO public."Tickets" VALUES (65, 'Lỗi import data Excel', 1, 6, 3, NULL, NULL, '2025-12-04 17:00:00+00', NULL, NULL, 'Không import được file Excel lớn', '1', '6', '2025-12-02 09:00:00+00', '2025-12-03 10:30:00+00');
 
 
 --
@@ -741,40 +742,6 @@ INSERT INTO public."Tickets" VALUES (15, 'Xử lý yêu cầu hoàn tiền khác
 -- Data for Name: UserRoles; Type: TABLE DATA; Schema: public; Owner: root
 --
 
-INSERT INTO public."UserRoles" VALUES (3, 8);
-INSERT INTO public."UserRoles" VALUES (3, 3);
-INSERT INTO public."UserRoles" VALUES (4, 6);
-INSERT INTO public."UserRoles" VALUES (4, 8);
-INSERT INTO public."UserRoles" VALUES (5, 7);
-INSERT INTO public."UserRoles" VALUES (5, 8);
-INSERT INTO public."UserRoles" VALUES (6, 8);
-INSERT INTO public."UserRoles" VALUES (6, 9);
-INSERT INTO public."UserRoles" VALUES (1, 5);
-INSERT INTO public."UserRoles" VALUES (1, 8);
-INSERT INTO public."UserRoles" VALUES (2, 4);
-INSERT INTO public."UserRoles" VALUES (2, 8);
-INSERT INTO public."UserRoles" VALUES (8, 1);
-INSERT INTO public."UserRoles" VALUES (9, 1);
-INSERT INTO public."UserRoles" VALUES (10, 1);
-INSERT INTO public."UserRoles" VALUES (11, 1);
-INSERT INTO public."UserRoles" VALUES (12, 1);
-INSERT INTO public."UserRoles" VALUES (13, 1);
-INSERT INTO public."UserRoles" VALUES (14, 1);
-INSERT INTO public."UserRoles" VALUES (15, 1);
-INSERT INTO public."UserRoles" VALUES (16, 1);
-INSERT INTO public."UserRoles" VALUES (17, 1);
-INSERT INTO public."UserRoles" VALUES (18, 1);
-INSERT INTO public."UserRoles" VALUES (19, 1);
-INSERT INTO public."UserRoles" VALUES (20, 1);
-INSERT INTO public."UserRoles" VALUES (21, 1);
-INSERT INTO public."UserRoles" VALUES (22, 1);
-INSERT INTO public."UserRoles" VALUES (23, 1);
-INSERT INTO public."UserRoles" VALUES (7, 2);
-INSERT INTO public."UserRoles" VALUES (24, 1);
-INSERT INTO public."UserRoles" VALUES (24, 4);
-INSERT INTO public."UserRoles" VALUES (24, 8);
-INSERT INTO public."UserRoles" VALUES (24, 1);
-INSERT INTO public."UserRoles" VALUES (5, 2);
 
 
 --
@@ -817,6 +784,7 @@ INSERT INTO public."Users" VALUES (3, 'Hoàng Việt Trung', 1, 'https://lh3.goo
 -- Data for Name: __EFMigrationsHistory; Type: TABLE DATA; Schema: public; Owner: root
 --
 
+INSERT INTO public."__EFMigrationsHistory" VALUES ('20251205143618_Init', '9.0.8');
 INSERT INTO public."__EFMigrationsHistory" VALUES ('20251124025823_Init', '9.0.8');
 INSERT INTO public."__EFMigrationsHistory" VALUES ('20251124040127_RemoveProject', '9.0.8');
 INSERT INTO public."__EFMigrationsHistory" VALUES ('20251126020944_config', '9.0.8');
@@ -3641,7 +3609,7 @@ SELECT pg_catalog.setval('public."Roles_Id_seq"', 9, true);
 -- Name: Tickets_Id_seq; Type: SEQUENCE SET; Schema: public; Owner: root
 --
 
-SELECT pg_catalog.setval('public."Tickets_Id_seq"', 15, true);
+SELECT pg_catalog.setval('public."Tickets_Id_seq"', 65, true);
 
 
 --
@@ -3771,6 +3739,14 @@ ALTER TABLE ONLY public."UserLogins"
 
 
 --
+-- Name: UserRoles PK_UserRoles; Type: CONSTRAINT; Schema: public; Owner: root
+--
+
+ALTER TABLE ONLY public."UserRoles"
+    ADD CONSTRAINT "PK_UserRoles" PRIMARY KEY ("UserId", "RoleId");
+
+
+--
 -- Name: UserTokens PK_UserTokens; Type: CONSTRAINT; Schema: public; Owner: root
 --
 
@@ -3826,10 +3802,17 @@ CREATE INDEX "EmailIndex" ON public."Users" USING btree ("NormalizedEmail");
 
 
 --
--- Name: IX_Attachments_CommentId; Type: INDEX; Schema: public; Owner: root
+-- Name: IX_Attachments_EntityId; Type: INDEX; Schema: public; Owner: root
 --
 
-CREATE INDEX "IX_Attachments_CommentId" ON public."Attachments" USING btree ("CommentId");
+CREATE INDEX "IX_Attachments_EntityId" ON public."Attachments" USING btree ("EntityId");
+
+
+--
+-- Name: IX_Comments_CreatorId; Type: INDEX; Schema: public; Owner: root
+--
+
+CREATE INDEX "IX_Comments_CreatorId" ON public."Comments" USING btree ("CreatorId");
 
 
 --
@@ -3945,11 +3928,11 @@ CREATE INDEX ix_cmetadata_gin ON public.langchain_pg_embedding USING gin (cmetad
 
 
 --
--- Name: Attachments FK_Attachments_Comments_CommentId; Type: FK CONSTRAINT; Schema: public; Owner: root
+-- Name: Attachments FK_Attachments_Comments_EntityId; Type: FK CONSTRAINT; Schema: public; Owner: root
 --
 
 ALTER TABLE ONLY public."Attachments"
-    ADD CONSTRAINT "FK_Attachments_Comments_CommentId" FOREIGN KEY ("CommentId") REFERENCES public."Comments"("Id");
+    ADD CONSTRAINT "FK_Attachments_Comments_EntityId" FOREIGN KEY ("EntityId") REFERENCES public."Comments"("Id") ON DELETE CASCADE;
 
 
 --
@@ -4115,5 +4098,5 @@ REVOKE USAGE ON SCHEMA public FROM PUBLIC;
 -- PostgreSQL database dump complete
 --
 
-\unrestrict agWSNgIZaSGTHiXpdkXAV6XhwHEmtDVk4fAjgMbEdKxaoVVIGQTPRzILgOdwVla
+\unrestrict ViCSNFdPVmVsAaRP4Gk0M7Knmr37bjYANLOEPQb9eyHA9qmaw0AABTbVtVCbvfI
 

@@ -168,6 +168,7 @@ public class UserDetailStatisticsDto
     
     // Ticket Overview
     public int TotalAssignedTickets { get; set; }
+    public int TotalManagedTickets { get; set; } // Tickets đang quản lý (là Head)
     public int TotalCreatedTickets { get; set; }
     public int PendingTickets { get; set; }
     public int InProgressTickets { get; set; }

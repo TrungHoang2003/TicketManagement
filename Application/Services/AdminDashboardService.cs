@@ -648,6 +648,8 @@ public class AdminDashboardService(
                     .ThenInclude(ta => ta.Ticket)
                         .ThenInclude(t => t.CauseType)
                 .Include(u => u.CreatedTickets)
+                .Include(u => u.FollowingTicket)
+                    .ThenInclude(th => th.Ticket)
                 .FirstOrDefaultAsync(u => u.Id == userId);
 
             if (user == null)
@@ -658,6 +660,7 @@ public class AdminDashboardService(
             var roles = await userManager.GetRolesAsync(user);
             var assignedTickets = user.AssignedTickets.Select(ta => ta.Ticket).ToList();
             var createdTickets = user.CreatedTickets.ToList();
+            var managedTickets = user.FollowingTicket?.Select(th => th.Ticket).ToList() ?? new List<Ticket>();
 
             // Ticket counts by status
             var pending = assignedTickets.Count(t => t.Status == Status.Pending);
@@ -779,6 +782,7 @@ public class AdminDashboardService(
                 DepartmentName = user.Department?.Name ?? "N/A",
                 Roles = roles.ToList(),
                 TotalAssignedTickets = assignedTickets.Count,
+                TotalManagedTickets = managedTickets.Count,
                 TotalCreatedTickets = createdTickets.Count,
                 PendingTickets = pending,
                 InProgressTickets = inProgress,
