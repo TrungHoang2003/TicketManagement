@@ -25,3 +25,4 @@ logs
 
 # idea
 *.idea
+/Infrastructure/Database/seed_dashboard_data.sql

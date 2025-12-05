@@ -31,6 +31,7 @@ public static class ApplicationDi
         services.AddScoped<ICommentService, CommentService>();
         services.AddScoped<IRagService, RagService>();
         services.AddScoped<IRoleService, RoleService>();
+        services.AddScoped<IAdminDashboardService, AdminDashboardService>();
         services.AddSingleton<IQdrantCacheService, QdrantCacheService>();
         services.AddHttpClient<IGoogleAuthService, GoogleAuthService>();
         services.AddSingleton<ICloudinaryService,CloudinaryService>();
