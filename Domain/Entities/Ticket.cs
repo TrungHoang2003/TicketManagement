@@ -17,6 +17,7 @@ public class Ticket: Entity
     public Priority Priority { get; set; }
     public Status Status { get; set; } = Status.Pending;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime? CompletedAt { get; set; } // Ngày hoàn thành thực tế
     
     
     // Navigation properties
@@ -44,6 +45,6 @@ public enum Status
     Received = 2,
     InProgress = 3,
     Rejected = 4,
-    Completed = 5,
+    Overdue = 5,
     Closed = 6
 }

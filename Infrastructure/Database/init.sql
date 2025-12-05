@@ -57,6 +57,7 @@ SET default_table_access_method = heap;
 -- Name: Attachments; Type: TABLE; Schema: public; Owner: root
 --
 
+
 CREATE TABLE public."Attachments" (
     "Id" integer NOT NULL,
     "EntityId" integer NOT NULL,

@@ -57,7 +57,7 @@ public class TicketService(ICloudinaryService cloudinary, IUnitOfWork unitOfWork
         
         var totalUnreceivedTickets = await query.Where(t=>t.Status == Status.Pending).CountAsync();
         var totalRejectedTickets = await query.Where(t => t.Status == Status.Rejected).CountAsync();
-        var totalCompletedTickets = await query.Where(t => t.Status == Status.Completed).CountAsync();
+        var totalCompletedTickets = await query.Where(t => t.Status == Status.Closed).CountAsync();
         var totalClosedTickets = await query.Where(t => t.Status == Status.Closed).CountAsync();
         var totalInprogressTickets = await query.Where(t => t.Status == Status.InProgress).CountAsync();
             
@@ -109,7 +109,7 @@ public class TicketService(ICloudinaryService cloudinary, IUnitOfWork unitOfWork
                 Year = g.Key.Year,
                 Month = g.Key.Month,
                 Created = g.Count(),
-                Completed = g.Count(t => t.Status == Status.Completed || t.Status == Status.Closed),
+                Completed = g.Count(t => t.Status == Status.Closed),
                 InProgress = g.Count(t => t.Status == Status.InProgress)
             })
             .ToListAsync();
@@ -127,7 +127,7 @@ public class TicketService(ICloudinaryService cloudinary, IUnitOfWork unitOfWork
 
         // Tính toán hiệu suất
         var completedTickets = await query
-            .Where(t => t.Status == Status.Completed || t.Status == Status.Closed)
+            .Where(t => t.Status == Status.Closed)
             .Include(t => t.Progresses)
             .ToListAsync();
 
@@ -590,6 +590,7 @@ public class TicketService(ICloudinaryService cloudinary, IUnitOfWork unitOfWork
         };
         
         ticket.Status = Status.Closed;
+        ticket.CompletedAt = DateTime.UtcNow; // Cập nhật ngày hoàn thành
         ticket.Progresses.Add(progress);
         
         await unitOfWork.SaveChangesAsync();

@@ -22,7 +22,11 @@ public class SystemOverviewDto
     public int TotalInProgressTickets { get; set; }
     public int TotalCompletedTickets { get; set; }
     public int TotalRejectedTickets { get; set; }
+    public int TotalOverdueTickets { get; set; } // Số ticket quá hạn
+    public int CompletedOnTime { get; set; } // Hoàn thành đúng hạn
+    public int CompletedLate { get; set; } // Hoàn thành trễ hạn
     public double OverallCompletionRate { get; set; }
+    public double OnTimeRate { get; set; } // Tỉ lệ hoàn thành đúng hạn
     public double AverageResolutionDays { get; set; }
     public required List<CategoryStatisticDto> CategoryStatistics { get; set; }
     public required List<CauseTypeStatisticDto> CauseTypeStatistics { get; set; }
@@ -37,8 +41,13 @@ public class EmployeePerformanceDto
     public required string Email { get; set; }
     public required string DepartmentName { get; set; }
     public int AssignedTickets { get; set; }
+    public int ManagedTickets { get; set; } // Số ticket đang quản lý (là Head)
     public int CompletedTickets { get; set; }
+    public int OverdueTickets { get; set; } // Số ticket đang quá hạn
+    public int CompletedOnTime { get; set; } // Hoàn thành đúng hạn
+    public int CompletedLate { get; set; } // Hoàn thành trễ hạn
     public double CompletionRate { get; set; }
+    public double OnTimeRate { get; set; } // Tỉ lệ hoàn thành đúng hạn
     public double AverageResolutionDays { get; set; }
     public int CurrentWorkload { get; set; }
     public required string PerformanceRating { get; set; } // Excellent, Good, Average, Poor
@@ -56,7 +65,9 @@ public class DepartmentPerformanceDto
     public int PendingTickets { get; set; }
     public int InProgressTickets { get; set; }
     public int CompletedTickets { get; set; }
+    public int OverdueTickets { get; set; } // Số ticket đang quá hạn
     public double CompletionRate { get; set; }
+    public double OnTimeRate { get; set; } // Tỉ lệ hoàn thành đúng hạn
     public double AverageResolutionDays { get; set; }
     public double WorkloadDistribution { get; set; }
     public required string PerformanceRating { get; set; }
@@ -97,6 +108,7 @@ public class WorkloadAnalysisDto
     public required string DepartmentName { get; set; }
     public int CurrentTickets { get; set; }
     public int HighPriorityTickets { get; set; }
+    public int OverdueTickets { get; set; } // Số ticket đang quá hạn
     public double WorkloadScore { get; set; } // Calculated based on various factors
     public required string WorkloadLevel { get; set; } // Light, Normal, Heavy, Overloaded
 }
@@ -163,6 +175,10 @@ public class UserDetailStatisticsDto
     public int RejectedTickets { get; set; }
     public double CompletionRate { get; set; }
     public double AverageResolutionDays { get; set; }
+    
+    // Overdue statistics
+    public int OverdueTickets { get; set; }
+    public double OnTimeRate { get; set; }
     
     // Performance metrics
     public required string PerformanceRating { get; set; }

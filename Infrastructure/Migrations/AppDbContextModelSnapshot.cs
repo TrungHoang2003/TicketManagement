@@ -222,6 +222,9 @@ namespace Infrastructure.Migrations
                     b.Property<int?>("CauseTypeId")
                         .HasColumnType("integer");
 
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Content")
                         .IsRequired()
                         .HasColumnType("text");

@@ -76,29 +76,21 @@ public class AdminDashboardService(
 
             var totalPending = ticketStats.FirstOrDefault(t => t.Status == Status.Pending)?.Count ?? 0;
             var totalInProgress = ticketStats.FirstOrDefault(t => t.Status == Status.InProgress)?.Count ?? 0;
-            var totalCompleted = ticketStats.FirstOrDefault(t => t.Status == Status.Completed)?.Count ?? 0;
+            var totalCompleted = ticketStats.FirstOrDefault(t => t.Status == Status.Closed)?.Count ?? 0;
             var totalRejected = ticketStats.FirstOrDefault(t => t.Status == Status.Rejected)?.Count ?? 0;
 
             var completionRate = totalTickets > 0 ? (double)totalCompleted / totalTickets * 100 : 0;
 
-            // Calculate average resolution days
+            // Calculate average resolution days using CompletedAt
             var completedTickets = await unitOfWork.Ticket.GetAll()
-                .Where(t => t.Status == Status.Completed || t.Status == Status.Closed)
-                .Include(t => t.Progresses)
+                .Where(t => (t.Status == Status.Closed) && t.CompletedAt.HasValue)
                 .ToListAsync();
 
             var avgResolutionDays = 0.0;
             if (completedTickets.Any())
             {
                 var resolutionTimes = completedTickets
-                    .Select(t =>
-                    {
-                        var completedDate = t.Progresses
-                            .Where(p => p.Note.Contains("hoàn thành", StringComparison.OrdinalIgnoreCase))
-                            .OrderByDescending(p => p.Date)
-                            .FirstOrDefault()?.Date ?? DateTime.UtcNow;
-                        return (completedDate - t.CreatedAt).TotalDays;
-                    })
+                    .Select(t => (t.CompletedAt!.Value - t.CreatedAt).TotalDays)
                     .Where(days => days > 0)
                     .ToList();
 
@@ -118,13 +110,35 @@ public class AdminDashboardService(
                     CategoryId = g.Key.CategoryId,
                     CategoryName = g.Key.Name,
                     TotalTickets = g.Count(),
-                    CompletedTickets = g.Count(t => t.Status == Status.Completed || t.Status == Status.Closed),
+                    CompletedTickets = g.Count(t => t.Status == Status.Closed),
                     InProgressTickets = g.Count(t => t.Status == Status.InProgress),
                     PendingTickets = g.Count(t => t.Status == Status.Pending),
-                    CompletionRate = g.Count() > 0 ? Math.Round((double)g.Count(t => t.Status == Status.Completed || t.Status == Status.Closed) / g.Count() * 100, 2) : 0
+                    CompletionRate = g.Count() > 0 ? Math.Round((double)g.Count(t => t.Status == Status.Closed) / g.Count() * 100, 2) : 0
                 })
                 .OrderByDescending(c => c.TotalTickets)
                 .ToList();
+
+            // Calculate overdue tickets (using Status.Overdue directly)
+            var overdueTickets = allTicketsForStats.Count(t => t.Status == Status.Overdue);
+            
+            var completedOnTime = allTicketsForStats.Count(t => 
+                (t.Status == Status.Closed) &&
+                t.ExpectedCompleteDate.HasValue && 
+                t.CompletedAt.HasValue && 
+                t.CompletedAt <= t.ExpectedCompleteDate);
+            
+            var completedLate = allTicketsForStats.Count(t => 
+                (t.Status == Status.Closed) &&
+                t.ExpectedCompleteDate.HasValue && 
+                t.CompletedAt.HasValue && 
+                t.CompletedAt > t.ExpectedCompleteDate);
+            
+            var totalCompletedWithExpected = allTicketsForStats.Count(t => 
+                (t.Status == Status.Closed) && 
+                t.ExpectedCompleteDate.HasValue && 
+                t.CompletedAt.HasValue);
+            
+            var onTimeRate = totalCompletedWithExpected > 0 ? (double)completedOnTime / totalCompletedWithExpected * 100 : 100;
 
             // Get CauseType Statistics - load data first, then group in memory
             var ticketsWithCause = await unitOfWork.Ticket.GetAll()
@@ -161,7 +175,11 @@ public class AdminDashboardService(
                 TotalInProgressTickets = totalInProgress,
                 TotalCompletedTickets = totalCompleted,
                 TotalRejectedTickets = totalRejected,
+                TotalOverdueTickets = overdueTickets,
+                CompletedOnTime = completedOnTime,
+                CompletedLate = completedLate,
                 OverallCompletionRate = Math.Round(completionRate, 2),
+                OnTimeRate = Math.Round(onTimeRate, 2),
                 AverageResolutionDays = Math.Round(avgResolutionDays, 2),
                 CategoryStatistics = categoryStats,
                 CauseTypeStatistics = causeTypeStats,
@@ -185,6 +203,8 @@ public class AdminDashboardService(
                 .Include(u => u.AssignedTickets)
                     .ThenInclude(ta => ta.Ticket)
                         .ThenInclude(t => t.Progresses)
+                .Include(u => u.FollowingTicket)
+                    .ThenInclude(th => th.Ticket)
                 .Where(u => !departmentId.HasValue || u.DepartmentId == departmentId.Value);
 
             var users = await query.ToListAsync();
@@ -194,14 +214,16 @@ public class AdminDashboardService(
             {
                 var roles = await userManager.GetRolesAsync(user);
                 var assignedTickets = user.AssignedTickets.Select(ta => ta.Ticket).ToList();
+                var managedTickets = user.FollowingTicket?.Select(th => th.Ticket).ToList() ?? new List<Ticket>();
 
                 var totalAssigned = assignedTickets.Count;
-                var completed = assignedTickets.Count(t => t.Status == Status.Completed || t.Status == Status.Closed);
+                var totalManaged = managedTickets.Count;
+                var completed = assignedTickets.Count(t => t.Status == Status.Closed);
 
                 var completionRate = totalAssigned > 0 ? (double)completed / totalAssigned * 100 : 0;
 
                 // Calculate average resolution days
-                var completedTickets = assignedTickets.Where(t => t.Status == Status.Completed || t.Status == Status.Closed).ToList();
+                var completedTickets = assignedTickets.Where(t => t.Status == Status.Closed).ToList();
                 var avgResolutionDays = 0.0;
                 if (completedTickets.Any())
                 {
@@ -222,6 +244,28 @@ public class AdminDashboardService(
 
                 var currentWorkload = assignedTickets.Count(t => t.Status == Status.InProgress || t.Status == Status.Pending);
 
+                // Calculate overdue tickets for this user (using Status.Overdue directly)
+                var overdueTickets = assignedTickets.Count(t => t.Status == Status.Overdue);
+                
+                var completedOnTime = assignedTickets.Count(t => 
+                    (t.Status == Status.Closed) &&
+                    t.ExpectedCompleteDate.HasValue && 
+                    t.CompletedAt.HasValue && 
+                    t.CompletedAt <= t.ExpectedCompleteDate);
+                
+                var completedLate = assignedTickets.Count(t => 
+                    (t.Status == Status.Closed) &&
+                    t.ExpectedCompleteDate.HasValue && 
+                    t.CompletedAt.HasValue && 
+                    t.CompletedAt > t.ExpectedCompleteDate);
+                
+                var totalCompletedWithExpected = assignedTickets.Count(t => 
+                    (t.Status == Status.Closed) && 
+                    t.ExpectedCompleteDate.HasValue && 
+                    t.CompletedAt.HasValue);
+                
+                var onTimeRate = totalCompletedWithExpected > 0 ? (double)completedOnTime / totalCompletedWithExpected * 100 : 100;
+
                 // Calculate performance rating
                 var performanceRating = CalculatePerformanceRating(completionRate, currentWorkload);
 
@@ -232,8 +276,13 @@ public class AdminDashboardService(
                     Email = user.Email!,
                     DepartmentName = user.Department?.Name ?? "N/A",
                     AssignedTickets = totalAssigned,
+                    ManagedTickets = totalManaged,
                     CompletedTickets = completed,
+                    OverdueTickets = overdueTickets,
+                    CompletedOnTime = completedOnTime,
+                    CompletedLate = completedLate,
                     CompletionRate = Math.Round(completionRate, 2),
+                    OnTimeRate = Math.Round(onTimeRate, 2),
                     AverageResolutionDays = Math.Round(avgResolutionDays, 2),
                     CurrentWorkload = currentWorkload,
                     PerformanceRating = performanceRating,
@@ -280,23 +329,39 @@ public class AdminDashboardService(
                 var totalTickets = allTickets.Count;
                 var pending = allTickets.Count(t => t.Status == Status.Pending);
                 var inProgress = allTickets.Count(t => t.Status == Status.InProgress);
-                var completed = allTickets.Count(t => t.Status == Status.Completed || t.Status == Status.Closed);
+                var completed = allTickets.Count(t => t.Status == Status.Closed);
 
                 var completionRate = totalTickets > 0 ? (double)completed / totalTickets * 100 : 0;
 
-                // Calculate department average resolution time
-                var completedTickets = allTickets.Where(t => t.Status == Status.Completed || t.Status == Status.Closed).ToList();
+                // Calculate department average resolution time using CompletedAt
+                var completedTickets = allTickets.Where(t => (t.Status == Status.Closed) && t.CompletedAt.HasValue).ToList();
                 var avgResolutionDays = 0.0;
                 
                 if (completedTickets.Any())
                 {
                     var resolutionTimes = completedTickets
-                        .Where(t => t.Progresses != null && t.Progresses.Any())
-                        .Select(t => (DateTime.UtcNow - t.CreatedAt).TotalDays)
+                        .Select(t => (t.CompletedAt!.Value - t.CreatedAt).TotalDays)
+                        .Where(days => days > 0)
                         .ToList();
                     
                     avgResolutionDays = resolutionTimes.Any() ? resolutionTimes.Average() : 0;
                 }
+
+                // Calculate overdue tickets for this department (using Status.Overdue directly)
+                var overdueTickets = allTickets.Count(t => t.Status == Status.Overdue);
+                
+                var completedOnTime = allTickets.Count(t => 
+                    (t.Status == Status.Closed) &&
+                    t.ExpectedCompleteDate.HasValue && 
+                    t.CompletedAt.HasValue && 
+                    t.CompletedAt <= t.ExpectedCompleteDate);
+                
+                var totalCompletedWithExpected = allTickets.Count(t => 
+                    (t.Status == Status.Closed) && 
+                    t.ExpectedCompleteDate.HasValue && 
+                    t.CompletedAt.HasValue);
+                
+                var onTimeRate = totalCompletedWithExpected > 0 ? (double)completedOnTime / totalCompletedWithExpected * 100 : 100;
 
                 // Workload distribution (average tickets per employee)
                 var workloadDistribution = totalEmployees > 0 ? (double)totalTickets / totalEmployees : 0;
@@ -326,7 +391,9 @@ public class AdminDashboardService(
                     PendingTickets = pending,
                     InProgressTickets = inProgress,
                     CompletedTickets = completed,
+                    OverdueTickets = overdueTickets,
                     CompletionRate = Math.Round(completionRate, 2),
+                    OnTimeRate = Math.Round(onTimeRate, 2),
                     AverageResolutionDays = Math.Round(avgResolutionDays, 2),
                     WorkloadDistribution = Math.Round(workloadDistribution, 2),
                     PerformanceRating = performanceRating,
@@ -359,7 +426,7 @@ public class AdminDashboardService(
                     .ToListAsync();
 
                 var created = monthTickets.Count;
-                var completed = monthTickets.Count(t => t.Status == Status.Completed || t.Status == Status.Closed);
+                var completed = monthTickets.Count(t => t.Status == Status.Closed);
                 var inProgress = monthTickets.Count(t => t.Status == Status.InProgress);
 
                 var completionRate = created > 0 ? (double)completed / created * 100 : 0;
@@ -370,7 +437,7 @@ public class AdminDashboardService(
                     .CountAsync();
 
                 // Calculate average resolution time for completed tickets in this month
-                var completedTicketsInMonth = monthTickets.Where(t => t.Status == Status.Completed || t.Status == Status.Closed).ToList();
+                var completedTicketsInMonth = monthTickets.Where(t => t.Status == Status.Closed).ToList();
                 var avgResolutionTime = 0.0;
 
                 if (completedTicketsInMonth.Any())
@@ -407,12 +474,9 @@ public class AdminDashboardService(
         {
             var alerts = new List<RealtimeAlertDto>();
 
-            // SLA Violations - tickets overdue
+            // SLA Violations - tickets overdue (using Status.Overdue directly)
             var overdueTickets = await unitOfWork.Ticket.GetAll()
-                .Where(t => t.ExpectedCompleteDate.HasValue && 
-                           t.ExpectedCompleteDate.Value < DateTime.UtcNow &&
-                           t.Status != Status.Completed && 
-                           t.Status != Status.Closed)
+                .Where(t => t.Status == Status.Overdue)
                 .Include(t => t.Creator)
                 .Take(10)
                 .ToListAsync();
@@ -508,6 +572,9 @@ public class AdminDashboardService(
                     (ta.Ticket.Priority == Priority.High || ta.Ticket.Priority == Priority.Critical) && 
                     (ta.Ticket.Status == Status.InProgress || ta.Ticket.Status == Status.Pending));
 
+                // Calculate overdue tickets (using Status.Overdue directly)
+                var overdueTickets = user.AssignedTickets.Count(ta => ta.Ticket.Status == Status.Overdue);
+
                 // Calculate workload score (weighted)
                 var workloadScore = (currentTickets * 1.0) + (highPriorityTickets * 2.0);
 
@@ -526,6 +593,7 @@ public class AdminDashboardService(
                     DepartmentName = user.Department?.Name ?? "N/A",
                     CurrentTickets = currentTickets,
                     HighPriorityTickets = highPriorityTickets,
+                    OverdueTickets = overdueTickets,
                     WorkloadScore = Math.Round(workloadScore, 2),
                     WorkloadLevel = workloadLevel
                 };
@@ -579,9 +647,6 @@ public class AdminDashboardService(
                 .Include(u => u.AssignedTickets)
                     .ThenInclude(ta => ta.Ticket)
                         .ThenInclude(t => t.CauseType)
-                .Include(u => u.AssignedTickets)
-                    .ThenInclude(ta => ta.Ticket)
-                        .ThenInclude(t => t.Progresses)
                 .Include(u => u.CreatedTickets)
                 .FirstOrDefaultAsync(u => u.Id == userId);
 
@@ -597,25 +662,18 @@ public class AdminDashboardService(
             // Ticket counts by status
             var pending = assignedTickets.Count(t => t.Status == Status.Pending);
             var inProgress = assignedTickets.Count(t => t.Status == Status.InProgress);
-            var completed = assignedTickets.Count(t => t.Status == Status.Completed || t.Status == Status.Closed);
+            var completed = assignedTickets.Count(t => t.Status == Status.Closed);
             var rejected = assignedTickets.Count(t => t.Status == Status.Rejected);
 
             var completionRate = assignedTickets.Count > 0 ? (double)completed / assignedTickets.Count * 100 : 0;
 
-            // Calculate average resolution days
-            var completedTicketsList = assignedTickets.Where(t => t.Status == Status.Completed || t.Status == Status.Closed).ToList();
+            // Calculate average resolution days using CompletedAt
+            var completedTicketsList = assignedTickets.Where(t => (t.Status == Status.Closed) && t.CompletedAt.HasValue).ToList();
             var avgResolutionDays = 0.0;
             if (completedTicketsList.Any())
             {
                 var resolutionTimes = completedTicketsList
-                    .Select(t =>
-                    {
-                        var completedDate = t.Progresses
-                            .Where(p => p.Note.Contains("hoàn thành", StringComparison.OrdinalIgnoreCase))
-                            .OrderByDescending(p => p.Date)
-                            .FirstOrDefault()?.Date ?? DateTime.UtcNow;
-                        return (completedDate - t.CreatedAt).TotalDays;
-                    })
+                    .Select(t => (t.CompletedAt!.Value - t.CreatedAt).TotalDays)
                     .Where(days => days > 0)
                     .ToList();
 
@@ -623,6 +681,23 @@ public class AdminDashboardService(
             }
 
             var currentWorkload = assignedTickets.Count(t => t.Status == Status.InProgress || t.Status == Status.Pending);
+            
+            // Calculate overdue tickets for this user (using Status.Overdue directly)
+            var overdueTickets = assignedTickets.Count(t => t.Status == Status.Overdue);
+            
+            var completedOnTimeUser = assignedTickets.Count(t => 
+                (t.Status == Status.Closed) &&
+                t.ExpectedCompleteDate.HasValue && 
+                t.CompletedAt.HasValue && 
+                t.CompletedAt <= t.ExpectedCompleteDate);
+            
+            var totalCompletedWithExpectedUser = assignedTickets.Count(t => 
+                (t.Status == Status.Closed) && 
+                t.ExpectedCompleteDate.HasValue && 
+                t.CompletedAt.HasValue);
+            
+            var onTimeRate = totalCompletedWithExpectedUser > 0 ? (double)completedOnTimeUser / totalCompletedWithExpectedUser * 100 : 100;
+            
             var performanceRating = CalculatePerformanceRating(completionRate, currentWorkload);
 
             // Category Statistics
@@ -634,8 +709,8 @@ public class AdminDashboardService(
                     CategoryId = g.Key.CategoryId,
                     CategoryName = g.Key.Name,
                     TotalTickets = g.Count(),
-                    CompletedTickets = g.Count(t => t.Status == Status.Completed || t.Status == Status.Closed),
-                    CompletionRate = g.Count() > 0 ? Math.Round((double)g.Count(t => t.Status == Status.Completed || t.Status == Status.Closed) / g.Count() * 100, 2) : 0
+                    CompletedTickets = g.Count(t => t.Status == Status.Closed),
+                    CompletionRate = g.Count() > 0 ? Math.Round((double)g.Count(t => t.Status == Status.Closed) / g.Count() * 100, 2) : 0
                 })
                 .OrderByDescending(c => c.TotalTickets)
                 .ToList();
@@ -667,9 +742,8 @@ public class AdminDashboardService(
 
                 var assignedInMonth = assignedTickets.Count(t => t.CreatedAt >= monthStart && t.CreatedAt < monthEnd);
                 var completedInMonth = assignedTickets.Count(t => 
-                    (t.Status == Status.Completed || t.Status == Status.Closed) &&
-                    t.Progresses.Any(p => p.Date >= monthStart && p.Date < monthEnd && 
-                                         p.Note.Contains("hoàn thành", StringComparison.OrdinalIgnoreCase)));
+                    (t.Status == Status.Closed) &&
+                    t.CompletedAt.HasValue && t.CompletedAt.Value >= monthStart && t.CompletedAt.Value < monthEnd);
                 var createdInMonth = createdTickets.Count(t => t.CreatedAt >= monthStart && t.CreatedAt < monthEnd);
 
                 monthlyTrend.Add(new UserMonthlyTrendDto
@@ -693,10 +767,7 @@ public class AdminDashboardService(
                     Priority = t.Priority.ToString(),
                     CategoryName = t.Category?.Name ?? "N/A",
                     CreatedAt = t.CreatedAt,
-                    CompletedAt = t.Progresses
-                        .Where(p => p.Note.Contains("hoàn thành", StringComparison.OrdinalIgnoreCase))
-                        .OrderByDescending(p => p.Date)
-                        .FirstOrDefault()?.Date
+                    CompletedAt = t.CompletedAt
                 })
                 .ToList();
 
@@ -715,6 +786,8 @@ public class AdminDashboardService(
                 RejectedTickets = rejected,
                 CompletionRate = Math.Round(completionRate, 2),
                 AverageResolutionDays = Math.Round(avgResolutionDays, 2),
+                OverdueTickets = overdueTickets,
+                OnTimeRate = Math.Round(onTimeRate, 2),
                 PerformanceRating = performanceRating,
                 CurrentWorkload = currentWorkload,
                 CategoryStatistics = categoryStats,
@@ -739,7 +812,8 @@ public class AdminDashboardService(
                 .Include(u => u.Department)
                 .Include(u => u.AssignedTickets)
                     .ThenInclude(ta => ta.Ticket)
-                        .ThenInclude(t => t.Progresses)
+                .Include(u => u.FollowingTicket)
+                    .ThenInclude(th => th.Ticket)
                 .Where(u => !departmentId.HasValue || u.DepartmentId == departmentId.Value);
 
             var users = await query.ToListAsync();
@@ -749,26 +823,21 @@ public class AdminDashboardService(
             {
                 var roles = await userManager.GetRolesAsync(user);
                 var assignedTickets = user.AssignedTickets.Select(ta => ta.Ticket).ToList();
+                var managedTickets = user.FollowingTicket?.Select(th => th.Ticket).ToList() ?? new List<Ticket>();
 
                 var totalAssigned = assignedTickets.Count;
-                var completed = assignedTickets.Count(t => t.Status == Status.Completed || t.Status == Status.Closed);
+                var totalManaged = managedTickets.Count;
+                var completed = assignedTickets.Count(t => t.Status == Status.Closed);
 
                 var completionRate = totalAssigned > 0 ? (double)completed / totalAssigned * 100 : 0;
 
-                // Calculate average resolution days
-                var completedTickets = assignedTickets.Where(t => t.Status == Status.Completed || t.Status == Status.Closed).ToList();
+                // Calculate average resolution days using CompletedAt
+                var completedTickets = assignedTickets.Where(t => (t.Status == Status.Closed) && t.CompletedAt.HasValue).ToList();
                 var avgResolutionDays = 0.0;
                 if (completedTickets.Any())
                 {
                     var resolutionTimes = completedTickets
-                        .Select(t =>
-                        {
-                            var completedDate = t.Progresses
-                                .Where(p => p.Note.Contains("hoàn thành", StringComparison.OrdinalIgnoreCase))
-                                .OrderByDescending(p => p.Date)
-                                .FirstOrDefault()?.Date ?? DateTime.UtcNow;
-                            return (completedDate - t.CreatedAt).TotalDays;
-                        })
+                        .Select(t => (t.CompletedAt!.Value - t.CreatedAt).TotalDays)
                         .Where(days => days > 0)
                         .ToList();
 
@@ -776,6 +845,29 @@ public class AdminDashboardService(
                 }
 
                 var currentWorkload = assignedTickets.Count(t => t.Status == Status.InProgress || t.Status == Status.Pending);
+                
+                // Calculate overdue tickets for this user (using Status.Overdue directly)
+                var overdueTickets = assignedTickets.Count(t => t.Status == Status.Overdue);
+                
+                var completedOnTime = assignedTickets.Count(t => 
+                    (t.Status == Status.Closed) &&
+                    t.ExpectedCompleteDate.HasValue && 
+                    t.CompletedAt.HasValue && 
+                    t.CompletedAt <= t.ExpectedCompleteDate);
+                
+                var completedLate = assignedTickets.Count(t => 
+                    (t.Status == Status.Closed) &&
+                    t.ExpectedCompleteDate.HasValue && 
+                    t.CompletedAt.HasValue && 
+                    t.CompletedAt > t.ExpectedCompleteDate);
+                
+                var totalCompletedWithExpected = assignedTickets.Count(t => 
+                    (t.Status == Status.Closed) && 
+                    t.ExpectedCompleteDate.HasValue && 
+                    t.CompletedAt.HasValue);
+                
+                var onTimeRate = totalCompletedWithExpected > 0 ? (double)completedOnTime / totalCompletedWithExpected * 100 : 100;
+                
                 var performanceRating = CalculatePerformanceRating(completionRate, currentWorkload);
 
                 performances.Add(new EmployeePerformanceDto
@@ -785,8 +877,13 @@ public class AdminDashboardService(
                     Email = user.Email!,
                     DepartmentName = user.Department?.Name ?? "N/A",
                     AssignedTickets = totalAssigned,
+                    ManagedTickets = totalManaged,
                     CompletedTickets = completed,
+                    OverdueTickets = overdueTickets,
+                    CompletedOnTime = completedOnTime,
+                    CompletedLate = completedLate,
                     CompletionRate = Math.Round(completionRate, 2),
+                    OnTimeRate = Math.Round(onTimeRate, 2),
                     AverageResolutionDays = Math.Round(avgResolutionDays, 2),
                     CurrentWorkload = currentWorkload,
                     PerformanceRating = performanceRating,

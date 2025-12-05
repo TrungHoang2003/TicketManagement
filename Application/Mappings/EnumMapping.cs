@@ -15,6 +15,7 @@ public static class EnumMapping
             "received" => Status.Received,
             "inprogress" => Status.InProgress,
             "rejected" => Status.Rejected,
+            "overdue" => Status.Overdue,
             "closed" => Status.Closed,
             _ => throw new BusinessException("This status is a not valid status")
         };

@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251205021341_Init")]
+    [Migration("20251205143618_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -224,6 +224,9 @@ namespace Infrastructure.Migrations
 
                     b.Property<int?>("CauseTypeId")
                         .HasColumnType("integer");
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Content")
                         .IsRequired()

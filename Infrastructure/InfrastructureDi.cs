@@ -67,6 +67,7 @@ public static class IdentityInfrastructureDi
 
         services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
         services.AddHostedService<QueuedHostService>();
+        services.AddHostedService<OverdueTicketService>();
         
     }
 }
