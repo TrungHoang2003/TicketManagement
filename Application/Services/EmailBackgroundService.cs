@@ -36,10 +36,11 @@ public class EmailBackgroundService(IServiceProvider serviceProvider, ILogger<Em
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex, "Failed to send email for ticket {TicketId}", emailDto.TicketId);
+                Logger.LogError(ex, "Failed to send email for ticket {TicketId}. Email notification skipped but ticket was created successfully.", emailDto.TicketId);
                 
-                // Có thể implement retry logic ở đây
-                await Task.Delay(5000, stoppingToken);
+                // Don't retry immediately - just log and continue
+                // This prevents the system from blocking if email service is unavailable
+                // In production, you might want to implement a retry queue with exponential backoff
             }
         }
     }

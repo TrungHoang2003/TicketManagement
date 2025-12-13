@@ -40,7 +40,7 @@ public static class EmailTemplates
                     </div>
                     
                     <p style='text-align: center; margin: 30px 0;'>
-                        <a href='http://localhost:5105/ticket/{ticketId}' class='btn'>
+                        <a href='http://localhost:5173/user/tickets/{ticketId}' class='btn'>
                             👀 Xem chi tiết Ticket
                         </a>
                     </p>
@@ -95,7 +95,7 @@ public static class EmailTemplates
                     </div>
                     
                     <p style='text-align: center; margin: 30px 0;'>
-                        <a href='http://localhost:5105/ticket/{ticketId}' class='btn'>
+                        <a href='http://localhost:5173/user/tickets/{ticketId}' class='btn'>
                             👀 Xem chi tiết Ticket
                         </a>
                     </p>

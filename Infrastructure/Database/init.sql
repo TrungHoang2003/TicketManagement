@@ -668,6 +668,23 @@ INSERT INTO public."TicketAssignees" VALUES (65, 7);
 -- Data for Name: TicketHeads; Type: TABLE DATA; Schema: public; Owner: root
 --
 
+INSERT INTO public."TicketHeads" VALUES (1, 3, true);
+INSERT INTO public."TicketHeads" VALUES (2, 3, true);
+INSERT INTO public."TicketHeads" VALUES (3, 4, true);
+INSERT INTO public."TicketHeads" VALUES (4, 4, true);
+INSERT INTO public."TicketHeads" VALUES (5, 5, true);
+INSERT INTO public."TicketHeads" VALUES (6, 5, true);
+INSERT INTO public."TicketHeads" VALUES (7, 6, true);
+INSERT INTO public."TicketHeads" VALUES (8, 6, true);
+INSERT INTO public."TicketHeads" VALUES (9, 1, true);
+INSERT INTO public."TicketHeads" VALUES (10, 1, true);
+INSERT INTO public."TicketHeads" VALUES (11, 2, true);
+INSERT INTO public."TicketHeads" VALUES (11, 24, false);
+INSERT INTO public."TicketHeads" VALUES (12, 2, true);
+INSERT INTO public."TicketHeads" VALUES (12, 24, false);
+INSERT INTO public."TicketHeads" VALUES (13, 3, true);
+INSERT INTO public."TicketHeads" VALUES (14, 6, true);
+INSERT INTO public."TicketHeads" VALUES (15, 1, true);
 
 
 --
@@ -742,6 +759,40 @@ INSERT INTO public."Tickets" VALUES (65, 'Lỗi import data Excel', 1, 6, 3, NUL
 -- Data for Name: UserRoles; Type: TABLE DATA; Schema: public; Owner: root
 --
 
+INSERT INTO public."UserRoles" VALUES (3, 8);
+INSERT INTO public."UserRoles" VALUES (3, 3);
+INSERT INTO public."UserRoles" VALUES (4, 6);
+INSERT INTO public."UserRoles" VALUES (4, 8);
+INSERT INTO public."UserRoles" VALUES (5, 7);
+INSERT INTO public."UserRoles" VALUES (5, 8);
+INSERT INTO public."UserRoles" VALUES (6, 8);
+INSERT INTO public."UserRoles" VALUES (6, 9);
+INSERT INTO public."UserRoles" VALUES (1, 5);
+INSERT INTO public."UserRoles" VALUES (1, 8);
+INSERT INTO public."UserRoles" VALUES (2, 4);
+INSERT INTO public."UserRoles" VALUES (2, 8);
+INSERT INTO public."UserRoles" VALUES (8, 1);
+INSERT INTO public."UserRoles" VALUES (9, 1);
+INSERT INTO public."UserRoles" VALUES (10, 1);
+INSERT INTO public."UserRoles" VALUES (11, 1);
+INSERT INTO public."UserRoles" VALUES (12, 1);
+INSERT INTO public."UserRoles" VALUES (13, 1);
+INSERT INTO public."UserRoles" VALUES (14, 1);
+INSERT INTO public."UserRoles" VALUES (15, 1);
+INSERT INTO public."UserRoles" VALUES (16, 1);
+INSERT INTO public."UserRoles" VALUES (17, 1);
+INSERT INTO public."UserRoles" VALUES (18, 1);
+INSERT INTO public."UserRoles" VALUES (19, 1);
+INSERT INTO public."UserRoles" VALUES (20, 1);
+INSERT INTO public."UserRoles" VALUES (21, 1);
+INSERT INTO public."UserRoles" VALUES (22, 1);
+INSERT INTO public."UserRoles" VALUES (23, 1);
+INSERT INTO public."UserRoles" VALUES (7, 2);
+INSERT INTO public."UserRoles" VALUES (24, 1);
+INSERT INTO public."UserRoles" VALUES (24, 4);
+INSERT INTO public."UserRoles" VALUES (24, 8);
+INSERT INTO public."UserRoles" VALUES (24, 1);
+INSERT INTO public."UserRoles" VALUES (5, 2);
 
 
 --
